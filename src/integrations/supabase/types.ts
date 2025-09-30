@@ -830,6 +830,17 @@ export type Database = {
           total_time_ms: number
         }[]
       }
+      backfill_all_cur_material: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          device_code: string
+          updated_count: number
+        }[]
+      }
+      backfill_cur_material_for_device: {
+        Args: { device_code_param: string }
+        Returns: number
+      }
       check_database_health: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -918,6 +929,10 @@ export type Database = {
           device_code: string
           enabled: boolean
         }[]
+      }
+      get_latest_cur_material: {
+        Args: { device_code_param: string }
+        Returns: string
       }
       get_performance_metrics: {
         Args: Record<PropertyKey, never>

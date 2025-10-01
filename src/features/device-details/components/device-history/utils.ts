@@ -39,7 +39,7 @@ export const formatValue = (value: any): string => {
 // ลำดับคอลัมน์ที่ต้องการแสดง
 export const COLUMN_ORDER = [
   'created_at',
-  'device_code',
+  'surveyor',
   'class1',
   'class2',
   'class3',
@@ -78,7 +78,7 @@ export const COLUMN_ORDER = [
   'sample_index',
   'machine_unix_time',
   // Move to end
-  'surveyor',
+  'device_code',
   'sample_source'
 ];
 

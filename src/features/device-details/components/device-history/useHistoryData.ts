@@ -74,6 +74,8 @@ export const useHistoryData = (deviceIds?: string[]) => {
         cur_variety: (item as any)['cur_variety'] ?? null,
         simple_index: (item as any)['simple_index'] ?? null,
         msg_id: (item as any)['msg_id'] ?? null,
+        surveyor: (item as any)['surveyor'] ?? null,
+        sample_source: (item as any)['sample_source'] ?? null,
       }));
       
       return { data: enhancedData as RiceQualityData[], count: count || 0 };

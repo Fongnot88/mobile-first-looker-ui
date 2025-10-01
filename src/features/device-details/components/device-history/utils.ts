@@ -40,6 +40,8 @@ export const formatValue = (value: any): string => {
 export const COLUMN_ORDER = [
   'created_at',
   'device_code',
+  'surveyor',
+  'sample_source',
   'class1',
   'class2',
   'class3',
@@ -128,6 +130,10 @@ export const formatCellValue = (key: string, value: any): string => {
   }
 
   if (key === 'sample_index') {
+    return value?.toString() || '-';
+  }
+
+  if (key === 'surveyor' || key === 'sample_source') {
     return value?.toString() || '-';
   }
   

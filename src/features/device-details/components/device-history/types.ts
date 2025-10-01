@@ -42,6 +42,8 @@ export interface RiceQualityData {
   cur_variety: number | null; // Updated to match database schema
   sample_index: number | null;
   msg_id: string | null;
+  surveyor: string | null;
+  sample_source: string | null;
   [key: string]: any;
 }
 

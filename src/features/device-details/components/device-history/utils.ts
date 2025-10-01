@@ -40,8 +40,6 @@ export const formatValue = (value: any): string => {
 export const COLUMN_ORDER = [
   'created_at',
   'device_code',
-  'surveyor',
-  'sample_source',
   'class1',
   'class2',
   'class3',
@@ -78,7 +76,10 @@ export const COLUMN_ORDER = [
   // New columns
   'cur_material',
   'sample_index',
-  'machine_unix_time'
+  'machine_unix_time',
+  // Move to end
+  'surveyor',
+  'sample_source'
 ];
 
 export const getColumnKeys = (data: RiceQualityData[]): string[] => {

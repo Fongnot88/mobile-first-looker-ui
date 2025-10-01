@@ -469,12 +469,14 @@ export type Database = {
           process_precision: number | null
           red_line_rate: number | null
           sample_index: number | null
+          sample_source: string | null
           short_grain: number | null
           slender_kernel: number | null
           small_brokens: number | null
           small_brokens_c1: number | null
           sprout_rate: number | null
           sticky_rice_rate: number | null
+          surveyor: string | null
           thai_datetime: string | null
           topline_rate: number
           total_brokens: number | null
@@ -518,12 +520,14 @@ export type Database = {
           process_precision?: number | null
           red_line_rate?: number | null
           sample_index?: number | null
+          sample_source?: string | null
           short_grain?: number | null
           slender_kernel?: number | null
           small_brokens?: number | null
           small_brokens_c1?: number | null
           sprout_rate?: number | null
           sticky_rice_rate?: number | null
+          surveyor?: string | null
           thai_datetime?: string | null
           topline_rate?: number
           total_brokens?: number | null
@@ -567,12 +571,14 @@ export type Database = {
           process_precision?: number | null
           red_line_rate?: number | null
           sample_index?: number | null
+          sample_source?: string | null
           short_grain?: number | null
           slender_kernel?: number | null
           small_brokens?: number | null
           small_brokens_c1?: number | null
           sprout_rate?: number | null
           sticky_rice_rate?: number | null
+          surveyor?: string | null
           thai_datetime?: string | null
           topline_rate?: number
           total_brokens?: number | null
@@ -830,17 +836,6 @@ export type Database = {
           total_time_ms: number
         }[]
       }
-      backfill_all_cur_material: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          device_code: string
-          updated_count: number
-        }[]
-      }
-      backfill_cur_material_for_device: {
-        Args: { device_code_param: string }
-        Returns: number
-      }
       check_database_health: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -929,10 +924,6 @@ export type Database = {
           device_code: string
           enabled: boolean
         }[]
-      }
-      get_latest_cur_material: {
-        Args: { device_code_param: string }
-        Returns: string
       }
       get_performance_metrics: {
         Args: Record<PropertyKey, never>

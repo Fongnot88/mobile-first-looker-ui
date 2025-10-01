@@ -111,6 +111,8 @@ export const columnTranslations: Record<string, string> = {
   cur_variety: 'มาตรฐาน',
   simple_index: 'พอร์ตอุปกรณ์',
   msg_id: 'เวลา_msg',
+  surveyor: 'ผู้ตรวจ',
+  sample_source: 'จาก',
 };
 
 export const columnTranslationsEn: Record<string, string> = {
@@ -157,6 +159,8 @@ export const columnTranslationsEn: Record<string, string> = {
   cur_variety: 'Standard',
   simple_index: 'Device Port',
   msg_id: 'Message Time',
+  surveyor: 'Surveyor',
+  sample_source: 'From',
 };
 
 export const columnTranslationsZh: Record<string, string> = {
@@ -203,4 +207,6 @@ export const columnTranslationsZh: Record<string, string> = {
   cur_variety: '标准',
   simple_index: '设备端口',
   msg_id: '消息时间',
+  surveyor: '检查员',
+  sample_source: '来自',
 };

@@ -37,14 +37,14 @@ export const HistoryTable: React.FC<HistoryTableProps> = ({
   const { getColumnTranslation } = useMeasurementTranslations();
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragState, dragHandlers] = useDragScroll(containerRef);
-  // Get all column keys and create custom order: วันที่บันทึก, ชื่ออุปกรณ์, ผู้ตรวจ, then rest (device_code at end)
+  // Get all column keys and create custom order: ชื่ออุปกรณ์, ผู้ตรวจ, then rest, วันที่บันทึก at end
   const allKeys = getColumnKeys(historyData);
-  const priorityColumns = ['created_at', 'machine_unix_time', 'device_display_name', 'surveyor', 'cur_material', 'output', 'heavy_chalkiness_rate'];
+  const priorityColumns = ['machine_unix_time', 'device_display_name', 'surveyor', 'cur_material', 'output', 'heavy_chalkiness_rate'];
   const remainingKeys = allKeys.filter(
-    (k) => !priorityColumns.includes(k) && k !== 'device_display_name' && k !== 'output'
+    (k) => !priorityColumns.includes(k) && k !== 'device_display_name' && k !== 'output' && k !== 'created_at'
   );
   
-  const columnKeys = [...priorityColumns, ...remainingKeys];
+  const columnKeys = [...priorityColumns, ...remainingKeys, 'created_at'];
 
   // Helper: translate material/variety code based on current language and JSON mapping
   const translateByCode = (category: 'material' | 'variety_detect', code: string | number) => {

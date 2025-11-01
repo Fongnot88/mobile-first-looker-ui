@@ -26,6 +26,7 @@ import MeasurementHistory from "./components/measurement-history/MeasurementHist
 import NotificationHistory from "./pages/NotificationHistory";
 import Equipment from "./pages/Equipment";
 import MoistureMeterEquipment from "./pages/MoistureMeterEquipment";
+import MoistureMeterDetails from "./pages/MoistureMeterDetails";
 import GraphMonitor from "./pages/GraphMonitor";
 import GraphSummary from "./pages/GraphSummary";
 import GraphSummaryDetail from "./pages/GraphSummaryDetail";
@@ -215,6 +216,22 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowGuest={true}>
             <MoistureMeterEquipment />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "moisture-meter",
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <MoistureMeterDetails />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "moisture-meter/:deviceCode",
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <MoistureMeterDetails />
           </ProtectedRoute>
         ),
       },

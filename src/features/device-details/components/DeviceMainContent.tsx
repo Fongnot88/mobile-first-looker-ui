@@ -1,5 +1,5 @@
 
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useMemo } from "react";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Wheat, ArrowLeft } from "lucide-react";
@@ -9,6 +9,9 @@ import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
 import { NotificationSetting } from "../types";
 import { lazy } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
+import { MoistureMeterDashboard } from "@/features/moisture-meter/components";
+import { generateMockMoistureDevices } from "@/features/moisture-meter/utils/moistureCalculations";
+import { useNavigate } from "react-router-dom";
 
 // Lazy load the DeviceHistoryTable component
 const DeviceHistoryTable = lazy(() => import("./DeviceHistoryTable").then(module => ({
@@ -50,6 +53,22 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  // Check if this is a moisture meter device
+  const isMoistureMeter = deviceCode?.startsWith('MM');
+  
+  // Generate mock moisture devices for demo
+  const [mockDevices] = useState(() => 
+    isMoistureMeter ? generateMockMoistureDevices(5) : []
+  );
+
+  const handleViewHistory = (deviceId: string) => {
+    const device = mockDevices.find(d => d.id === deviceId);
+    if (device) {
+      navigate(`/device/${device.deviceCode}/moisture`);
+    }
+  };
 
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
@@ -81,31 +100,43 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
           </div>
         </div>
         
-        <div className="mb-4">
-          <MeasurementTabs 
-            deviceCode={deviceCode} 
-            searchTerm={searchTerm} 
-            wholeGrainData={wholeGrainData} 
-            ingredientsData={ingredientsData} 
-            impuritiesData={impuritiesData} 
-            allData={allData} 
-            notificationSettings={notificationSettings || []} 
-            isLoadingWholeGrain={isLoadingWholeGrain} 
-            isLoadingIngredients={isLoadingIngredients} 
-            isLoadingImpurities={isLoadingImpurities} 
-            isLoadingAllData={isLoadingAllData} 
-            onMeasurementClick={onMeasurementClick} 
-          />
-        </div>
-
-        {/* Add Calculation Summary Box */}
-        {deviceCode && deviceCode !== 'default' && (
-          <div className="px-0">
-            <DeviceCalculationSummary 
-              allData={allData}
-              isLoading={isLoadingAllData}
+        {/* Show Moisture Meter Dashboard for MM devices */}
+        {isMoistureMeter ? (
+          <div className="px-[5%] md:px-0 mb-6">
+            <MoistureMeterDashboard
+              devices={mockDevices}
+              onViewHistory={handleViewHistory}
             />
           </div>
+        ) : (
+          <>
+            <div className="mb-4">
+              <MeasurementTabs 
+                deviceCode={deviceCode} 
+                searchTerm={searchTerm} 
+                wholeGrainData={wholeGrainData} 
+                ingredientsData={ingredientsData} 
+                impuritiesData={impuritiesData} 
+                allData={allData} 
+                notificationSettings={notificationSettings || []} 
+                isLoadingWholeGrain={isLoadingWholeGrain} 
+                isLoadingIngredients={isLoadingIngredients} 
+                isLoadingImpurities={isLoadingImpurities} 
+                isLoadingAllData={isLoadingAllData} 
+                onMeasurementClick={onMeasurementClick} 
+              />
+            </div>
+
+            {/* Add Calculation Summary Box */}
+            {deviceCode && deviceCode !== 'default' && (
+              <div className="px-0">
+                <DeviceCalculationSummary 
+                  allData={allData}
+                  isLoading={isLoadingAllData}
+                />
+              </div>
+            )}
+          </>
         )}
 
         {/* Add Device History Table at the bottom - Show to all users including guests with proper container styling */}

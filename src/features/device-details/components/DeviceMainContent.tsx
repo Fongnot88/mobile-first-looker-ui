@@ -2,7 +2,7 @@
 import React, { Suspense } from "react";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Wheat } from "lucide-react";
+import { Wheat, ArrowLeft } from "lucide-react";
 import { DeviceHeader } from "./DeviceHeader";
 import { MeasurementTabs } from "./MeasurementTabs";
 import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
@@ -29,6 +29,7 @@ interface DeviceMainContentProps {
   isLoadingAllData: boolean;
   isGuest: boolean;
   onMeasurementClick: (symbol: string, name: string) => void;
+  onBack?: () => void;
 }
 
 export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
@@ -44,7 +45,8 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   isLoadingImpurities,
   isLoadingAllData,
   isGuest,
-  onMeasurementClick
+  onMeasurementClick,
+  onBack
 }) => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
@@ -53,7 +55,22 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
       <div className="flex-1">
         <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
-          <DeviceHeader deviceCode={deviceCode} />
+          <div className="flex flex-col">
+            {/* Back Button - Above Device Header */}
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30 transition-colors duration-150 mb-2"
+              >
+                <ArrowLeft size={16} />
+                ย้อนกลับ
+              </button>
+            )}
+            
+            {/* Device Header - Left aligned */}
+            <DeviceHeader deviceCode={deviceCode} />
+          </div>
+          
           <div className="flex items-center relative">
             {/* Wheat icon group with varied sizes and positions */}
             <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />

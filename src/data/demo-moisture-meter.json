@@ -1,0 +1,35 @@
+{
+  "device_code": "MM001",
+  "display_name": "เครื่องวัดความชื้นข้าวรุ่น MM-001",
+  "device_type": "moisture_meter",
+  "status": "online",
+  "location": "โกดัง A",
+  "last_updated": "2025-01-01T10:30:00Z",
+  "image_url": "/images/moisture-meter-demo.jpg",
+  "deviceData": {
+    "device_name": "เครื่องวัดความชื้นข้าวรุ่น MM-001",
+    "device_type": "moisture_meter",
+    "location": "โกดัง A",
+    "status": "online",
+    "last_maintenance": "2024-12-15T00:00:00Z",
+    "next_maintenance": "2025-03-15T00:00:00Z"
+  },
+  "measurements": {
+    "moisture": {
+      "value": 14.5,
+      "unit": "%",
+      "timestamp": "2025-01-01T10:30:00Z",
+      "status": "normal"
+    },
+    "temperature": {
+      "value": 25.2,
+      "unit": "°C",
+      "timestamp": "2025-01-01T10:30:00Z"
+    }
+  },
+  "is_demo": true,
+  "demo_info": {
+    "message": "ข้อมูลตัวอย่างสำหรับการทดสอบ",
+    "created_at": "2025-01-01T00:00:00Z"
+  }
+}

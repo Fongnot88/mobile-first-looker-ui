@@ -71,7 +71,7 @@ export default function Equipment() {
       />
 
       {/* Device History Table - Show to all users including guests */}
-      <div className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div id="device-history" className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
         <DeviceHistoryTable deviceIds={deviceIds} title={t('device', 'deviceHistory')} />
       </div>
     </AppLayout>

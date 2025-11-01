@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { DeviceHeader } from "@/features/device-details/components/DeviceHeader";
-import { Wheat } from "lucide-react";
+import { Wheat, ArrowLeft } from "lucide-react";
 import HistoryHeader from "../HistoryHeader";
 import HistoryChart from "../HistoryChart";
 import HistoryFooter from "../HistoryFooter";
@@ -9,6 +9,7 @@ import { NotificationSettingsDialog } from "../notification-settings";
 // FilteredDatabaseTable ถูกลบออกตามที่ต้องการ
 import { TimeFrame } from "../MeasurementHistory";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
+import { useNavigationHistory } from "@/hooks/useNavigationHistory";
 
 interface MeasurementHistoryContentProps {
   deviceCode: string;
@@ -47,10 +48,27 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
   handleOpenChange,
   notificationEnabled
 }) => {
+  const { handleBack } = useNavigationHistory();
+
   return (
     <>
       <div className="flex justify-between items-center">
-        <DeviceHeader deviceCode={deviceCode} />
+        <div className="flex flex-col">
+          {/* Back Button - Above Device Header */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:hover:bg-emerald-900/30 transition-colors duration-150 mb-2"
+            >
+              <ArrowLeft size={16} />
+              ย้อนกลับ
+            </button>
+          )}
+          
+          {/* Device Header - Left aligned */}
+          <DeviceHeader deviceCode={deviceCode} />
+        </div>
+        
         <div className="flex items-center relative">
           {/* Wheat icon group with varied sizes and positions */}
           <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
@@ -106,16 +124,6 @@ const MeasurementHistoryContent: React.FC<MeasurementHistoryContentProps> = ({
           name={name}
         />
       </div>
-      
-      {/* Back button */}
-      {onClose && (
-        <button 
-          onClick={onClose}
-          className="mt-4 px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 transition-colors"
-        >
-          ย้อนกลับ
-        </button>
-      )}
       
       {/* FilteredDatabaseTable ถูกลบออกตามที่ต้องการ */}
     </>

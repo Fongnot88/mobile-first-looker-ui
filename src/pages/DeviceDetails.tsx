@@ -1,15 +1,17 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MeasurementHistory from "@/components/measurement-history/MeasurementHistory";
 import "@/components/notification-item-animation.css";
 import { CountdownProvider } from "@/contexts/CountdownContext";
 import { getColumnThaiName } from "@/lib/columnTranslations";
+import { ArrowLeft } from "lucide-react";
 
 // Import custom hooks
 import { useDeviceData } from "@/features/device-details/hooks/useDeviceData";
 import { useDefaultDeviceRedirect } from "@/features/device-details/hooks/useDefaultDeviceRedirect";
 import { useDeviceAccess } from "@/features/device-details/hooks/useDeviceAccess";
+import { useNavigationHistory } from "@/hooks/useNavigationHistory";
 
 // Import components
 import { LoadingScreen } from "@/features/device-details/components/LoadingScreen";
@@ -34,6 +36,7 @@ export default function DeviceDetails() {
   // Use custom hooks
   const { isRedirecting } = useDefaultDeviceRedirect(deviceCode);
   const { hasDeviceAccess, isLoading: isCheckingAccess, isGuest } = useDeviceAccess(deviceCode);
+  const { handleBack, saveNavigationHistory } = useNavigationHistory();
   const {
     wholeGrainData,
     ingredientsData,
@@ -46,6 +49,20 @@ export default function DeviceDetails() {
     isLoadingAllData,
     refreshData
   } = useDeviceData(deviceCode);
+
+  // Save navigation history when component mounts
+  useEffect(() => {
+    if (deviceCode && deviceCode !== 'default') {
+      // Get the referring page or use default
+      const fromPage = document.referrer.includes('/equipment/moisture-meter') 
+        ? '/equipment/moisture-meter'
+        : document.referrer.includes('/equipment')
+        ? '/equipment'
+        : '/equipment';
+      
+      saveNavigationHistory(fromPage);
+    }
+  }, [deviceCode, saveNavigationHistory]);
 
   // Handle measurement item click - now navigates to device-specific URL
   const handleMeasurementClick = (symbol: string, name: string) => {
@@ -115,6 +132,7 @@ export default function DeviceDetails() {
         isLoadingAllData={isLoadingAllData}
         isGuest={isGuest}
         onMeasurementClick={handleMeasurementClick}
+        onBack={handleBack}
       />
     </CountdownProvider>
   );

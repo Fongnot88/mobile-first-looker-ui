@@ -607,6 +607,165 @@ export type Database = {
         }
         Relationships: []
       }
+      rice_quality_analysis_backup: {
+        Row: {
+          analyzed_at: string | null
+          analyzed_at_ms: number | null
+          backup_at: string | null
+          black_kernel: number | null
+          brown_rice_rate: number | null
+          class1: number | null
+          class2: number | null
+          class3: number | null
+          created_at: string | null
+          cur_material: string | null
+          cur_variety: number | null
+          device_code: string | null
+          head_rice: number | null
+          heavy_chalkiness_rate: number | null
+          honey_rice: number | null
+          id: number | null
+          imperfection_rate: number | null
+          impurity_num: number | null
+          light_honey_rice: number | null
+          machine_unix_time: string | null
+          main_index: number | null
+          main_rate: number | null
+          mix_index: number | null
+          mix_rate: number | null
+          msg_id: number | null
+          other_backline: number | null
+          output: number | null
+          paddy_rate: number | null
+          parboiled_red_line: number | null
+          parboiled_white_rice: number | null
+          partly_black: number | null
+          partly_black_peck: number | null
+          process_precision: number | null
+          red_line_rate: number | null
+          sample_index: number | null
+          sample_source: string | null
+          short_grain: number | null
+          slender_kernel: number | null
+          small_brokens: number | null
+          small_brokens_c1: number | null
+          sprout_rate: number | null
+          sticky_rice_rate: number | null
+          surveyor: string | null
+          thai_datetime: string | null
+          topline_rate: number | null
+          total_brokens: number | null
+          unripe_rate: number | null
+          whiteness: number | null
+          whole_kernels: number | null
+          yellow_rice_rate: number | null
+        }
+        Insert: {
+          analyzed_at?: string | null
+          analyzed_at_ms?: number | null
+          backup_at?: string | null
+          black_kernel?: number | null
+          brown_rice_rate?: number | null
+          class1?: number | null
+          class2?: number | null
+          class3?: number | null
+          created_at?: string | null
+          cur_material?: string | null
+          cur_variety?: number | null
+          device_code?: string | null
+          head_rice?: number | null
+          heavy_chalkiness_rate?: number | null
+          honey_rice?: number | null
+          id?: number | null
+          imperfection_rate?: number | null
+          impurity_num?: number | null
+          light_honey_rice?: number | null
+          machine_unix_time?: string | null
+          main_index?: number | null
+          main_rate?: number | null
+          mix_index?: number | null
+          mix_rate?: number | null
+          msg_id?: number | null
+          other_backline?: number | null
+          output?: number | null
+          paddy_rate?: number | null
+          parboiled_red_line?: number | null
+          parboiled_white_rice?: number | null
+          partly_black?: number | null
+          partly_black_peck?: number | null
+          process_precision?: number | null
+          red_line_rate?: number | null
+          sample_index?: number | null
+          sample_source?: string | null
+          short_grain?: number | null
+          slender_kernel?: number | null
+          small_brokens?: number | null
+          small_brokens_c1?: number | null
+          sprout_rate?: number | null
+          sticky_rice_rate?: number | null
+          surveyor?: string | null
+          thai_datetime?: string | null
+          topline_rate?: number | null
+          total_brokens?: number | null
+          unripe_rate?: number | null
+          whiteness?: number | null
+          whole_kernels?: number | null
+          yellow_rice_rate?: number | null
+        }
+        Update: {
+          analyzed_at?: string | null
+          analyzed_at_ms?: number | null
+          backup_at?: string | null
+          black_kernel?: number | null
+          brown_rice_rate?: number | null
+          class1?: number | null
+          class2?: number | null
+          class3?: number | null
+          created_at?: string | null
+          cur_material?: string | null
+          cur_variety?: number | null
+          device_code?: string | null
+          head_rice?: number | null
+          heavy_chalkiness_rate?: number | null
+          honey_rice?: number | null
+          id?: number | null
+          imperfection_rate?: number | null
+          impurity_num?: number | null
+          light_honey_rice?: number | null
+          machine_unix_time?: string | null
+          main_index?: number | null
+          main_rate?: number | null
+          mix_index?: number | null
+          mix_rate?: number | null
+          msg_id?: number | null
+          other_backline?: number | null
+          output?: number | null
+          paddy_rate?: number | null
+          parboiled_red_line?: number | null
+          parboiled_white_rice?: number | null
+          partly_black?: number | null
+          partly_black_peck?: number | null
+          process_precision?: number | null
+          red_line_rate?: number | null
+          sample_index?: number | null
+          sample_source?: string | null
+          short_grain?: number | null
+          slender_kernel?: number | null
+          small_brokens?: number | null
+          small_brokens_c1?: number | null
+          sprout_rate?: number | null
+          sticky_rice_rate?: number | null
+          surveyor?: string | null
+          thai_datetime?: string | null
+          topline_rate?: number | null
+          total_brokens?: number | null
+          unripe_rate?: number | null
+          whiteness?: number | null
+          whole_kernels?: number | null
+          yellow_rice_rate?: number | null
+        }
+        Relationships: []
+      }
       "Sending Push Notification": {
         Row: {
           created_at: string
@@ -837,7 +996,7 @@ export type Database = {
         }[]
       }
       check_database_health: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           check_name: string
           details: string
@@ -845,10 +1004,7 @@ export type Database = {
           status: string
         }[]
       }
-      check_notification_thresholds: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      check_notification_thresholds: { Args: never; Returns: undefined }
       check_user_role_for_data_access: {
         Args: { user_id_param: string }
         Returns: boolean
@@ -858,14 +1014,14 @@ export type Database = {
         Returns: number
       }
       get_device_data: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           device_code: string
           updated_at: string
         }[]
       }
       get_devices_emergency_fallback: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           device_code: string
           display_name: string
@@ -885,7 +1041,7 @@ export type Database = {
         }[]
       }
       get_guest_cache_status: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           expired_cached: number
           newest_cache: string
@@ -895,7 +1051,7 @@ export type Database = {
         }[]
       }
       get_guest_devices_fast: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           device_code: string
           display_name: string
@@ -903,7 +1059,7 @@ export type Database = {
         }[]
       }
       get_guest_devices_optimized: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           device_code: string
           display_name: string
@@ -911,7 +1067,7 @@ export type Database = {
         }[]
       }
       get_guest_devices_with_cache: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           device_code: string
           display_name: string
@@ -919,14 +1075,14 @@ export type Database = {
         }[]
       }
       get_guest_enabled_devices: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           device_code: string
           enabled: boolean
         }[]
       }
       get_performance_metrics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           last_updated: string
           metric_name: string
@@ -946,7 +1102,7 @@ export type Database = {
         }[]
       }
       get_super_fast_guest_devices: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           device_code: string
           display_name: string
@@ -969,14 +1125,8 @@ export type Database = {
         Args: { counter_name_param: string; increment_by?: number }
         Returns: undefined
       }
-      invalidate_guest_devices_cache: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      is_admin_or_superadmin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      invalidate_guest_devices_cache: { Args: never; Returns: boolean }
+      is_admin_or_superadmin: { Args: never; Returns: boolean }
       is_admin_or_superadmin_safe: {
         Args: { user_id_param: string }
         Returns: boolean
@@ -1007,7 +1157,7 @@ export type Database = {
         Returns: undefined
       }
       monitor_policy_performance: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           avg_check_time_ms: number
           policy_count: number
@@ -1022,25 +1172,16 @@ export type Database = {
         }[]
       }
       rate_limited_guest_devices: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           device_code: string
           display_name: string
           updated_at: string
         }[]
       }
-      refresh_device_summary: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      refresh_guest_enabled_devices: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      safe_check_notification_thresholds: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      refresh_device_summary: { Args: never; Returns: boolean }
+      refresh_guest_enabled_devices: { Args: never; Returns: boolean }
+      safe_check_notification_thresholds: { Args: never; Returns: undefined }
       validate_password_strength: {
         Args: { password: string }
         Returns: boolean

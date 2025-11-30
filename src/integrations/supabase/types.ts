@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      _migrations: {
+        Row: {
+          applied_at: string
+          filename: string
+          id: number
+        }
+        Insert: {
+          applied_at?: string
+          filename: string
+          id?: number
+        }
+        Update: {
+          applied_at?: string
+          filename?: string
+          id?: number
+        }
+        Relationships: []
+      }
       admin_device_visibility: {
         Row: {
           created_at: string
@@ -48,6 +66,7 @@ export type Database = {
           display_name: string | null
           graph_color: string
           id: string
+          is_active: boolean
           location: string | null
           report_enabled: boolean | null
           updated_at: string | null
@@ -58,6 +77,7 @@ export type Database = {
           display_name?: string | null
           graph_color?: string
           id?: string
+          is_active?: boolean
           location?: string | null
           report_enabled?: boolean | null
           updated_at?: string | null
@@ -68,6 +88,7 @@ export type Database = {
           display_name?: string | null
           graph_color?: string
           id?: string
+          is_active?: boolean
           location?: string | null
           report_enabled?: boolean | null
           updated_at?: string | null
@@ -960,6 +981,33 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          password_hash: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id: string
+          is_active?: boolean
+          password_hash: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          password_hash?: string
+          updated_at?: string
         }
         Relationships: []
       }

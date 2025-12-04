@@ -1,6 +1,6 @@
+import { Droplets, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { Droplets, Clock } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -25,10 +25,34 @@ export function MoistureReadingsTable({
   const automaticReadings = readings?.filter((reading) => reading.event === "automatic_read") ?? [];
 
   const formatDateTime = (dateString: string | null) => {
-    if (!dateString) return '-';
+    if (!dateString) return "-";
     try {
-      return format(new Date(dateString), 'dd MMM yyyy HH:mm:ss', { locale: th });
-    } catch {
+      // ตัวอย่างรูปแบบ: 2025-12-05 02:30:12.801891+00
+      const match = dateString.match(
+        /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/
+      );
+
+      let date: Date;
+
+      if (match) {
+        const [, year, month, day, hour, minute, second = "0"] = match;
+        // สร้าง Date โดยใช้เวลาเป็น local time ตรง ๆ (ไม่ใช้ timezone จากสตริง)
+        date = new Date(
+          Number(year),
+          Number(month) - 1,
+          Number(day),
+          Number(hour),
+          Number(minute),
+          Number(second)
+        );
+      } else {
+        // fallback เผื่อรูปแบบไม่ตรง ใช้ Date ปกติ
+        date = new Date(dateString);
+      }
+
+      return format(date, "dd MMM yy HH:mm น.", { locale: th });
+    } catch (e) {
+      console.error("Failed to format reading_time", dateString, e);
       return dateString;
     }
   };

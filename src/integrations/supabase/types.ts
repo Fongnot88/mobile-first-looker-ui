@@ -239,6 +239,36 @@ export type Database = {
         }
         Relationships: []
       }
+      moisture_meter_readings: {
+        Row: {
+          created_at: string
+          device_code: string
+          event: string | null
+          id: string
+          moisture_machine: number | null
+          moisture_model: number | null
+          reading_time: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_code: string
+          event?: string | null
+          id?: string
+          moisture_machine?: number | null
+          moisture_model?: number | null
+          reading_time?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_code?: string
+          event?: string | null
+          id?: string
+          moisture_machine?: number | null
+          moisture_model?: number | null
+          reading_time?: string | null
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           content: string

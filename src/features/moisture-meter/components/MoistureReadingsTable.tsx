@@ -22,6 +22,8 @@ export function MoistureReadingsTable({
     limit: 100
   });
 
+  const automaticReadings = readings?.filter((reading) => reading.event === "automatic_read") ?? [];
+
   const formatDateTime = (dateString: string | null) => {
     if (!dateString) return '-';
     try {
@@ -82,11 +84,11 @@ export function MoistureReadingsTable({
           {title}
         </h3>
         <span className="text-sm text-gray-500 dark:text-gray-300">
-          แสดง 4 คอลัมน์ | รวม {readings?.length ?? 0} รายการ
+          แสดง 4 คอลัมน์ | รวม {automaticReadings.length} รายการ
         </span>
       </div>
 
-      {(!readings || readings.length === 0) ? (
+      {automaticReadings.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <Droplets className="h-12 w-12 mx-auto mb-3 opacity-20 text-gray-400" />
           <p>ยังไม่มีข้อมูลจากเครื่องวัดความชื้น</p>
@@ -119,7 +121,7 @@ export function MoistureReadingsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {readings.map((reading) => (
+              {automaticReadings.map((reading) => (
                 <TableRow key={reading.id}>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
                     {reading.event || '-'}

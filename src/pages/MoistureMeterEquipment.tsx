@@ -135,7 +135,7 @@ export default function MoistureMeterEquipment() {
 
       {/* Moisture Readings Table - MQTT Data */}
       <div className="mt-8">
-        <MoistureReadingsTable deviceCodes={deviceIds} title="ประวัติเครื่องวัดความชื้นข้าว" />
+        <MoistureReadingsTable title="ประวัติเครื่องวัดความชื้นข้าว" />
       </div>
 
       {/* Device History Table - Show to all users including guests */}

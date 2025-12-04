@@ -133,15 +133,10 @@ export default function MoistureMeterEquipment() {
         </div>
       )}
 
-      {/* Moisture Readings Table - MQTT Data */}
-      <div className="mt-8">
-        <MoistureReadingsTable title="ประวัติเครื่องวัดความชื้นข้าว" />
-      </div>
-
-      {/* Device History Table - Show to all users including guests */}
+      {/* Device History Table - Moisture meter readings (MQTT data) */}
       {moistureMeterDevices.length > 0 && (
         <div id="device-history" className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-          <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติข้อมูลวิเคราะห์" />
+          <MoistureReadingsTable title="ประวัติเครื่องวัดความชื้นข้าว" />
         </div>
       )}
     </AppLayout>

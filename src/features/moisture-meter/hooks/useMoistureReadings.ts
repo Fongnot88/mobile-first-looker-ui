@@ -3,36 +3,27 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface MoistureReading {
   id: string;
-  device_code: string;
   event: string | null;
   moisture_machine: number | null;
   moisture_model: number | null;
   reading_time: string | null;
-  created_at: string;
 }
 
 interface UseMoistureReadingsOptions {
-  deviceCodes?: string[];
   limit?: number;
 }
 
 export function useMoistureReadings(options: UseMoistureReadingsOptions = {}) {
-  const { deviceCodes, limit = 100 } = options;
+  const { limit = 100 } = options;
 
   return useQuery({
-    queryKey: ['moisture-readings', deviceCodes, limit],
+    queryKey: ['moisture-readings', limit],
     queryFn: async () => {
-      let query = supabase
+      const { data, error } = await supabase
         .from('moisture_meter_readings')
         .select('*')
         .order('reading_time', { ascending: false })
         .limit(limit);
-
-      if (deviceCodes && deviceCodes.length > 0) {
-        query = query.in('device_code', deviceCodes);
-      }
-
-      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching moisture readings:', error);

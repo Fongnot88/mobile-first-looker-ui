@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
-import { Droplets, Clock, Cpu, RefreshCw } from "lucide-react";
+import { Droplets, Clock, RefreshCw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -15,16 +15,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useMoistureReadings, MoistureReading } from "../hooks/useMoistureReadings";
 
 interface MoistureReadingsTableProps {
-  deviceCodes?: string[];
   title?: string;
 }
 
 export function MoistureReadingsTable({ 
-  deviceCodes, 
   title = "ประวัติเครื่องวัดความชื้นข้าว" 
 }: MoistureReadingsTableProps) {
   const { data: readings, isLoading, isRefetching, refetch } = useMoistureReadings({
-    deviceCodes,
     limit: 100
   });
 
@@ -92,12 +89,6 @@ export function MoistureReadingsTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[140px]">
-                    <div className="flex items-center gap-1">
-                      <Cpu className="h-4 w-4" />
-                      รหัสอุปกรณ์
-                    </div>
-                  </TableHead>
                   <TableHead>Event</TableHead>
                   <TableHead className="text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -122,9 +113,6 @@ export function MoistureReadingsTable({
               <TableBody>
                 {readings.map((reading) => (
                   <TableRow key={reading.id}>
-                    <TableCell className="font-mono text-sm">
-                      {reading.device_code}
-                    </TableCell>
                     <TableCell>
                       <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                         {reading.event || '-'}

@@ -3,6 +3,7 @@ import { DatabaseTable } from "@/components/DatabaseTable";
 import { DevicesHeader, DevicesGrid } from "@/features/equipment";
 import { AppLayout } from "@/components/layouts";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
+import { MoistureReadingsTable } from "@/features/moisture-meter/components/MoistureReadingsTable";
 import { useGuestMode } from "@/hooks/useGuestMode";
 import { useMemo, useEffect, useState } from "react";
 import { useDevicesQuery } from "@/features/equipment/hooks/useDevicesQuery";
@@ -132,10 +133,15 @@ export default function MoistureMeterEquipment() {
         </div>
       )}
 
+      {/* Moisture Readings Table - MQTT Data */}
+      <div className="mt-8">
+        <MoistureReadingsTable deviceCodes={deviceIds} title="ประวัติเครื่องวัดความชื้นข้าว" />
+      </div>
+
       {/* Device History Table - Show to all users including guests */}
       {moistureMeterDevices.length > 0 && (
         <div id="device-history" className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-          <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติเครื่องวัดความชื้นข้าว" />
+          <DeviceHistoryTable deviceIds={deviceIds} title="ประวัติข้อมูลวิเคราะห์" />
         </div>
       )}
     </AppLayout>

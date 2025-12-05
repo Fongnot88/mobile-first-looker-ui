@@ -7,48 +7,48 @@
 
 ## ลำดับการแสดงคอลัมน์ในตาราง (40 คอลัมน์)
 
-| # | Database Column | Table Name | Thai (ไทย) | English | Chinese (中文) |
-|---|----------------|------------|------------|---------|----------------|
-| 1 | `machine_unix_time` | rice_quality_analysis | Timestamp เครื่องวัด | Machine Timestamp | 机器时间戳 |
-| 2 | `device_display_name` | device_settings (display_name) | ชื่ออุปกรณ์ | Device Name | 设备名称 |
-| 3 | `surveyor` | rice_quality_analysis | ผู้ตรวจ | Surveyor | 检查员 |
-| 4 | `cur_material` | rice_quality_analysis | วัตถุดิบและชนิดข้าว | Rice Type | 大米种类 |
-| 5 | `output` | rice_quality_analysis | จำนวนเมล็ด | Kernel Count | 颗粒数 |
-| 6 | `heavy_chalkiness_rate` | rice_quality_analysis | ท้องไข่ | Chalkiness Rate | 重度垩白率 |
-| 7 | `class1` | rice_quality_analysis | ชั้น 1 (>7.0mm) | Class 1 (>7.0mm) | 一级 (>7.0mm) |
-| 8 | `class2` | rice_quality_analysis | ชั้น 2 (>6.6-7.0mm) | Class 2 (>6.6-7.0mm) | 二级 (>6.6-7.0mm) |
-| 9 | `class3` | rice_quality_analysis | ชั้น 3 (>6.2-6.6mm) | Class 3 (>6.2-6.6mm) | 三级 (>6.2-6.6mm) |
-| 10 | `short_grain` | rice_quality_analysis | เมล็ดสั้น | Short Grain | 短粒率 |
-| 11 | `slender_kernel` | rice_quality_analysis | ข้าวลีบ | Slender Kernel | 瘦长粒率 |
-| 12 | `whole_kernels` | rice_quality_analysis | เต็มเมล็ด | Whole Kernels | 整粒率 |
-| 13 | `head_rice` | rice_quality_analysis | ต้นข้าว | Head Rice | 头米率 |
-| 14 | `total_brokens` | rice_quality_analysis | ข้าวหักรวม | Total Broken | 总碎米率 |
-| 15 | `small_brokens` | rice_quality_analysis | ปลายข้าว | Small Broken | 小碎米率 |
-| 16 | `small_brokens_c1` | rice_quality_analysis | ปลายข้าวC1 | Small Broken C1 | 小碎米C1率 |
-| 17 | `red_line_rate` | rice_quality_analysis | สีต่ำกว่ามาตรฐาน | Below Standard Color | 红线率 |
-| 18 | `parboiled_red_line` | rice_quality_analysis | เมล็ดแดง | Red Kernels | 红线米率 |
-| 19 | `parboiled_white_rice` | rice_quality_analysis | ข้าวดิบ | Raw Rice | 蒸谷白米率 |
-| 20 | `honey_rice` | rice_quality_analysis | เมล็ดม่วง | Purple Kernels | 紫米粒 |
-| 21 | `yellow_rice_rate` | rice_quality_analysis | เมล็ดเหลือง | Yellow Kernels | 黄粒率 |
-| 22 | `black_kernel` | rice_quality_analysis | เมล็ดดำ | Black Kernels | 黑粒率 |
-| 23 | `partly_black_peck` | rice_quality_analysis | ดำบางส่วน & จุดดำ | Partly Black & Black Spots | 黑斑及黑点率 |
-| 24 | `partly_black` | rice_quality_analysis | ดำบางส่วน | Partly Black | 黑斑率 |
-| 25 | `imperfection_rate` | rice_quality_analysis | เมล็ดเสีย | Damaged Kernels | 不完善粒率 |
-| 26 | `sticky_rice_rate` | rice_quality_analysis | ข้าวเหนียว | Sticky Rice | 糯米率 |
-| 27 | `impurity_num` | rice_quality_analysis | เมล็ดอื่นๆ | Other Kernels | 杂质 |
-| 28 | `paddy_rate` | rice_quality_analysis | ข้าวเปลือก(เมล็ด/กก.) | Paddy (kernels/kg) | 稻谷 (粒/公斤) |
-| 29 | `whiteness` | rice_quality_analysis | ความขาว | Whiteness | 白度 |
-| 30 | `process_precision` | rice_quality_analysis | ระดับขัดสี | Milling Level | 碾磨等级 |
-| 31 | `mix_rate` | rice_quality_analysis | อัตราส่วนผสม | Mix Rate | 混合率 |
-| 32 | `sprout_rate` | rice_quality_analysis | อัตราการงอก | Sprout Rate | 发芽率 |
-| 33 | `unripe_rate` | rice_quality_analysis | อัตราการไม่สุก | Unripe Rate | 未熟率 |
-| 34 | `brown_rice_rate` | rice_quality_analysis | อัตราข้าวกล้อง | Brown Rice Rate | 糙米率 |
-| 35 | `main_rate` | rice_quality_analysis | อัตราหลัก | Main Rate | 主要率 |
-| 36 | `mix_index` | rice_quality_analysis | ดัชนีผสม | Mix Index | 混合指数 |
-| 37 | `main_index` | rice_quality_analysis | ดัชนีหลัก | Main Index | 主要指数 |
-| 38 | `sample_index` | rice_quality_analysis | พอร์ตอุปกรณ์ | Device Port | 设备端口 |
-| 39 | `sample_source` | rice_quality_analysis | จาก | From | 来自 |
-| 40 | `created_at` | rice_quality_analysis | วันที่บันทึก | Date Recorded | 记录日期 |
+| # | Table Name | Database Column | Thai (ไทย) | English |
+|---|------------|-----------------|------------|---------|
+| 1 | rice_quality_analysis | `machine_unix_time` | Timestamp เครื่องวัด | Machine Timestamp |
+| 2 | device_settings (display_name) | `device_display_name` | ชื่ออุปกรณ์ | Device Name |
+| 3 | rice_quality_analysis | `surveyor` | ผู้ตรวจ | Surveyor |
+| 4 | rice_quality_analysis | `cur_material` | วัตถุดิบและชนิดข้าว | Rice Type |
+| 5 | rice_quality_analysis | `output` | จำนวนเมล็ด | Kernel Count |
+| 6 | rice_quality_analysis | `heavy_chalkiness_rate` | ท้องไข่ | Chalkiness Rate |
+| 7 | rice_quality_analysis | `class1` | ชั้น 1 (>7.0mm) | Class 1 (>7.0mm) |
+| 8 | rice_quality_analysis | `class2` | ชั้น 2 (>6.6-7.0mm) | Class 2 (>6.6-7.0mm) |
+| 9 | rice_quality_analysis | `class3` | ชั้น 3 (>6.2-6.6mm) | Class 3 (>6.2-6.6mm) |
+| 10 | rice_quality_analysis | `short_grain` | เมล็ดสั้น | Short Grain |
+| 11 | rice_quality_analysis | `slender_kernel` | ข้าวลีบ | Slender Kernel |
+| 12 | rice_quality_analysis | `whole_kernels` | เต็มเมล็ด | Whole Kernels |
+| 13 | rice_quality_analysis | `head_rice` | ต้นข้าว | Head Rice |
+| 14 | rice_quality_analysis | `total_brokens` | ข้าวหักรวม | Total Broken |
+| 15 | rice_quality_analysis | `small_brokens` | ปลายข้าว | Small Broken |
+| 16 | rice_quality_analysis | `small_brokens_c1` | ปลายข้าวC1 | Small Broken C1 |
+| 17 | rice_quality_analysis | `red_line_rate` | สีต่ำกว่ามาตรฐาน | Below Standard Color |
+| 18 | rice_quality_analysis | `parboiled_red_line` | เมล็ดแดง | Red Kernels |
+| 19 | rice_quality_analysis | `parboiled_white_rice` | ข้าวดิบ | Raw Rice |
+| 20 | rice_quality_analysis | `honey_rice` | เมล็ดม่วง | Purple Kernels |
+| 21 | rice_quality_analysis | `yellow_rice_rate` | เมล็ดเหลือง | Yellow Kernels |
+| 22 | rice_quality_analysis | `black_kernel` | เมล็ดดำ | Black Kernels |
+| 23 | rice_quality_analysis | `partly_black_peck` | ดำบางส่วน & จุดดำ | Partly Black & Black Spots |
+| 24 | rice_quality_analysis | `partly_black` | ดำบางส่วน | Partly Black |
+| 25 | rice_quality_analysis | `imperfection_rate` | เมล็ดเสีย | Damaged Kernels |
+| 26 | rice_quality_analysis | `sticky_rice_rate` | ข้าวเหนียว | Sticky Rice |
+| 27 | rice_quality_analysis | `impurity_num` | เมล็ดอื่นๆ | Other Kernels |
+| 28 | rice_quality_analysis | `paddy_rate` | ข้าวเปลือก(เมล็ด/กก.) | Paddy (kernels/kg) |
+| 29 | rice_quality_analysis | `whiteness` | ความขาว | Whiteness |
+| 30 | rice_quality_analysis | `process_precision` | ระดับขัดสี | Milling Level |
+| 31 | rice_quality_analysis | `mix_rate` | อัตราส่วนผสม | Mix Rate |
+| 32 | rice_quality_analysis | `sprout_rate` | อัตราการงอก | Sprout Rate |
+| 33 | rice_quality_analysis | `unripe_rate` | อัตราการไม่สุก | Unripe Rate |
+| 34 | rice_quality_analysis | `brown_rice_rate` | อัตราข้าวกล้อง | Brown Rice Rate |
+| 35 | rice_quality_analysis | `main_rate` | อัตราหลัก | Main Rate |
+| 36 | rice_quality_analysis | `mix_index` | ดัชนีผสม | Mix Index |
+| 37 | rice_quality_analysis | `main_index` | ดัชนีหลัก | Main Index |
+| 38 | rice_quality_analysis | `sample_index` | พอร์ตอุปกรณ์ | Device Port |
+| 39 | rice_quality_analysis | `sample_source` | จาก | From |
+| 40 | rice_quality_analysis | `created_at` | วันที่บันทึก | Date Recorded |
 
 ---
 

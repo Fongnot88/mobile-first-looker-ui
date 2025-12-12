@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Monitor, Layout, ArrowLeft } from "lucide-react";
+import { Monitor, Layout, ArrowLeft, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "@/constants/routes";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,6 +95,14 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
             Graph Summary
           </Button>
         </Link>
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white dark:border-gray-700"
+        >
+          <Play className="h-4 w-4 mr-2" />
+          Start manual
+        </Button>
       </div>
     </div>
   );

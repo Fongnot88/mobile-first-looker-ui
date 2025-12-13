@@ -20,7 +20,7 @@ export function MoistureReadingsTable({
   title = "ประวัติอุปกรณ์เครื่องวัดความชื้นข้าว" 
 }: MoistureReadingsTableProps) {
   const [pageSize, setPageSize] = useState(10);
-  const [sortKey, setSortKey] = useState<'reading_time' | 'device_name' | 'moisture_machine' | 'moisture_model' | 'temperature' | 'device_code'>('reading_time');
+  const [sortKey, setSortKey] = useState<'reading_time' | 'display_name' | 'moisture_machine' | 'moisture_model' | 'temperature' | 'device_code'>('reading_time');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const { data: readings, isLoading, error } = useMoistureReadings({
@@ -89,8 +89,8 @@ export function MoistureReadingsTable({
           const time = new Date(item.reading_time).getTime();
           return Number.isNaN(time) ? null : time;
         }
-        case 'device_name':
-          return (item.device_name || item.device_code || '').toLowerCase();
+        case 'display_name':
+          return (item.display_name || item.device_code || '').toLowerCase();
         case 'moisture_machine':
           return item.moisture_machine;
         case 'moisture_model':
@@ -199,8 +199,8 @@ export function MoistureReadingsTable({
                   </button>
                 </TableHead>
                 <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">
-                  <button type="button" className="flex items-center gap-1" onClick={() => handleSort('device_name')}>
-                    ชื่ออุปกรณ์ {renderSortIndicator('device_name')}
+                  <button type="button" className="flex items-center gap-1" onClick={() => handleSort('display_name')}>
+                    ชื่ออุปกรณ์ {renderSortIndicator('display_name')}
                   </button>
                 </TableHead>
                 <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
@@ -234,7 +234,7 @@ export function MoistureReadingsTable({
                     {formatDateTime(reading.reading_time)}
                   </TableCell>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
-                    {reading.device_name || reading.device_code || '-'}
+                    {reading.display_name || reading.device_code || '-'}
                   </TableCell>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
                     {formatNumber(reading.moisture_machine)}

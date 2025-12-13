@@ -356,6 +356,59 @@ export type Database = {
         }
         Relationships: []
       }
+      moisture_notifications: {
+        Row: {
+          created_at: string | null
+          device_code: string
+          id: string
+          notification_count: number
+          notification_message: string | null
+          read: boolean | null
+          reading_id: string | null
+          settings_snapshot: Json | null
+          threshold_type: string
+          timestamp: string | null
+          user_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string | null
+          device_code: string
+          id?: string
+          notification_count?: number
+          notification_message?: string | null
+          read?: boolean | null
+          reading_id?: string | null
+          settings_snapshot?: Json | null
+          threshold_type: string
+          timestamp?: string | null
+          user_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string | null
+          device_code?: string
+          id?: string
+          notification_count?: number
+          notification_message?: string | null
+          read?: boolean | null
+          reading_id?: string | null
+          settings_snapshot?: Json | null
+          threshold_type?: string
+          timestamp?: string | null
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moisture_notifications_reading_id_fkey"
+            columns: ["reading_id"]
+            isOneToOne: false
+            referencedRelation: "moisture_meter_readings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news: {
         Row: {
           content: string

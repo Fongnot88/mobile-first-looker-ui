@@ -5,6 +5,7 @@ import { th } from 'date-fns/locale';
 import { LatestMoistureReading } from '../hooks/useLatestMoistureReading';
 import { MoistureMeterSetting } from '../hooks/useMoistureMeterSettings';
 import { MoistureNotificationCard } from './MoistureNotificationCard';
+import { MoistureNotificationHistory } from './MoistureNotificationHistory';
 
 export interface MoistureSummaryStats {
   averageMoisture: number;
@@ -118,6 +119,11 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
       {/* Notification Settings Card */}
       <div className="mb-4">
         <MoistureNotificationCard deviceCode={reading.device_code} />
+      </div>
+
+      {/* Notification History */}
+      <div className="mb-4">
+        <MoistureNotificationHistory deviceCode={reading.device_code} limit={5} />
       </div>
 
       {/* Moisture Overview Summary */}

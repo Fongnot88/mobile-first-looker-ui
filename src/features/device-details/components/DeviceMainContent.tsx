@@ -11,8 +11,10 @@ import { lazy } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { MoistureMeterDashboard } from "@/features/moisture-meter/components";
 import { MoistureReadingDisplay } from "@/features/moisture-meter/components/MoistureReadingDisplay";
+import { MoistureTrendChart } from "@/features/moisture-meter/components/MoistureTrendChart";
 import { generateMockMoistureDevices } from "@/features/moisture-meter/utils/moistureCalculations";
 import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLatestMoistureReading";
+import { useMoistureHistory } from "@/features/moisture-meter/hooks/useMoistureHistory";
 import { useNavigate } from "react-router-dom";
 
 // Lazy load the DeviceHistoryTable component
@@ -65,6 +67,12 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
     isMoistureMeter ? deviceCode : ''
   );
   
+  // Fetch moisture history for trend chart
+  const { data: moistureHistory, isLoading: isLoadingHistory } = useMoistureHistory(
+    isMoistureMeter ? deviceCode : '',
+    { limit: 50 }
+  );
+  
   // Generate mock moisture devices for demo
   const [mockDevices] = useState(() => 
     isMoistureMeter ? generateMockMoistureDevices(5) : []
@@ -107,15 +115,19 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
           </div>
         </div>
         
-        {/* Show Moisture Reading Display for MM devices */}
+        {/* Show Moisture Reading Display and Trend Chart for MM devices */}
         {isMoistureMeter ? (
-          <div className="px-[5%] md:px-0 mb-6">
+          <div className="px-[5%] md:px-0 space-y-6 mb-6">
             <MoistureReadingDisplay
               moistureMachine={latestReading?.moisture_machine ?? null}
               moistureModel={latestReading?.moisture_model ?? null}
               temperature={latestReading?.temperature ?? null}
               readingTime={latestReading?.reading_time ?? null}
               isLoading={isLoadingMoisture}
+            />
+            <MoistureTrendChart
+              data={moistureHistory || []}
+              isLoading={isLoadingHistory}
             />
           </div>
         ) : (

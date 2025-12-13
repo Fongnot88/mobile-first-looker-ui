@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Droplets, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
@@ -20,6 +20,8 @@ export function MoistureReadingsTable({
   title = "ประวัติอุปกรณ์เครื่องวัดความชื้นข้าว" 
 }: MoistureReadingsTableProps) {
   const [pageSize, setPageSize] = useState(10);
+  const [sortKey, setSortKey] = useState<'reading_time' | 'device_name' | 'moisture_machine' | 'moisture_model' | 'temperature' | 'device_code'>('reading_time');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const { data: readings, isLoading, error } = useMoistureReadings({
     limit: pageSize
@@ -63,6 +65,68 @@ export function MoistureReadingsTable({
   const formatNumber = (value: number | null) => {
     if (value === null || value === undefined) return '-';
     return value.toFixed(2);
+  };
+
+  const handleSort = (key: typeof sortKey) => {
+    setSortKey((prev) => {
+      if (prev === key) {
+        setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+        return prev;
+      }
+      setSortDir(key === 'reading_time' ? 'desc' : 'asc');
+      return key;
+    });
+  };
+
+  const sortedReadings = useMemo(() => {
+    const copy = [...automaticReadings];
+    const dir = sortDir === 'asc' ? 1 : -1;
+
+    const getVal = (item: typeof automaticReadings[number]) => {
+      switch (sortKey) {
+        case 'reading_time': {
+          if (!item.reading_time) return null;
+          const time = new Date(item.reading_time).getTime();
+          return Number.isNaN(time) ? null : time;
+        }
+        case 'device_name':
+          return (item.device_name || item.device_code || '').toLowerCase();
+        case 'moisture_machine':
+          return item.moisture_machine;
+        case 'moisture_model':
+          return item.moisture_model;
+        case 'temperature':
+          return item.temperature;
+        case 'device_code':
+          return (item.device_code || '').toLowerCase();
+        default:
+          return null;
+      }
+    };
+
+    copy.sort((a, b) => {
+      const aVal = getVal(a);
+      const bVal = getVal(b);
+
+      const aNull = aVal === null || aVal === undefined || aVal === '';
+      const bNull = bVal === null || bVal === undefined || bVal === '';
+
+      if (aNull && bNull) return 0;
+      if (aNull) return 1; // nulls ไปท้าย
+      if (bNull) return -1;
+
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return (aVal - bVal) * dir;
+      }
+
+      return String(aVal).localeCompare(String(bVal)) * dir;
+    });
+    return copy;
+  }, [automaticReadings, sortDir, sortKey]);
+
+  const renderSortIndicator = (key: typeof sortKey) => {
+    if (sortKey !== key) return null;
+    return <span className="ml-1 text-[10px]">{sortDir === 'asc' ? '▲' : '▼'}</span>;
   };
 
   if (isLoading) {
@@ -112,25 +176,8 @@ export function MoistureReadingsTable({
         </h3>
         <div className="flex items-center gap-3 text-xs md:text-sm text-gray-500 dark:text-gray-300">
           <span className="whitespace-nowrap">
-            แสดง 4 คอลัมน์ | รวม {automaticReadings.length} รายการ
+            แสดง 6 คอลัมน์ | รวม {automaticReadings.length} รายการ
           </span>
-          <div className="flex items-center gap-1">
-            <span className="whitespace-nowrap">แถวต่อหน้า:</span>
-            {[10, 50, 100, 500].map((size) => (
-              <button
-                key={size}
-                type="button"
-                onClick={() => setPageSize(size)}
-                className={`px-2 py-0.5 rounded-full border text-[11px] md:text-xs transition-colors ${
-                  pageSize === size
-                    ? "bg-emerald-600 text-white border-emerald-600"
-                    : "bg-white/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/40"
-                }`}
-              >
-                {size}
-              </button>
-            ))}
-          </div>
         </div>
       </div>
 
@@ -145,32 +192,49 @@ export function MoistureReadingsTable({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">Event</TableHead>
-                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Droplets className="h-4 w-4" />
-                    Machine (%)
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Droplets className="h-4 w-4" />
-                    Model (%)
-                  </div>
+                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">
+                  <button type="button" className="flex items-center gap-1" onClick={() => handleSort('reading_time')}>
+                    <Clock className="h-4 w-4" />
+                    เวลา {renderSortIndicator('reading_time')}
+                  </button>
                 </TableHead>
                 <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    เวลา
-                  </div>
+                  <button type="button" className="flex items-center gap-1" onClick={() => handleSort('device_name')}>
+                    ชื่ออุปกรณ์ {renderSortIndicator('device_name')}
+                  </button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
+                  <button type="button" className="flex items-center justify-end gap-1 w-full" onClick={() => handleSort('moisture_machine')}>
+                    <Droplets className="h-4 w-4" />
+                    ค่าความชื้น {renderSortIndicator('moisture_machine')}
+                  </button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
+                  <button type="button" className="flex items-center justify-end gap-1 w-full" onClick={() => handleSort('moisture_model')}>
+                    <Droplets className="h-4 w-4" />
+                    Model % {renderSortIndicator('moisture_model')}
+                  </button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
+                  <button type="button" className="flex items-center justify-end gap-1 w-full" onClick={() => handleSort('temperature')}>
+                    อุณหภูมิ (°C) {renderSortIndicator('temperature')}
+                  </button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">
+                  <button type="button" className="flex items-center gap-1" onClick={() => handleSort('device_code')}>
+                    รหัสอุปกรณ์ {renderSortIndicator('device_code')}
+                  </button>
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {automaticReadings.map((reading) => (
+              {sortedReadings.map((reading) => (
                 <TableRow key={reading.id}>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
-                    {reading.event || '-'}
+                    {formatDateTime(reading.reading_time)}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
+                    {reading.device_name || reading.device_code || '-'}
                   </TableCell>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
                     {formatNumber(reading.moisture_machine)}
@@ -178,8 +242,11 @@ export function MoistureReadingsTable({
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
                     {formatNumber(reading.moisture_model)}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-muted-foreground">
-                    {formatDateTime(reading.reading_time)}
+                  <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
+                    {formatNumber(reading.temperature)}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
+                    {reading.device_code || '-'}
                   </TableCell>
                 </TableRow>
               ))}
@@ -187,6 +254,25 @@ export function MoistureReadingsTable({
           </Table>
         </div>
       )}
+      <div className="flex justify-end items-center mt-3 text-xs text-gray-600">
+        <div className="flex items-center gap-1">
+          <span className="whitespace-nowrap">แถวต่อหน้า:</span>
+          {[10, 50, 100, 500].map((size) => (
+            <button
+              key={size}
+              type="button"
+              onClick={() => setPageSize(size)}
+              className={`px-2 py-0.5 rounded-full border text-[11px] md:text-xs transition-colors ${
+                pageSize === size
+                  ? "bg-emerald-600 text-white border-emerald-600"
+                  : "bg-white/60 dark:bg-gray-800/60 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/40"
+              }`}
+            >
+              {size}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

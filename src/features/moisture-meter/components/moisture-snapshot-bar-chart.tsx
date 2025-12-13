@@ -152,22 +152,6 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
     return null;
   };
 
-  const renderAvgDot = (color: string) => (props: any) => {
-    const { cx, cy } = props;
-    if (cx === undefined || cy === undefined) return null;
-    return (
-      <circle
-        cx={cx}
-        cy={cy}
-        r={6}
-        fill={color}
-        stroke="#fff"
-        strokeWidth={1.5}
-        className="animate-pulse"
-      />
-    );
-  };
-
   return (
     <div className="bg-white/70 dark:bg-gray-800/40 p-6 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
       <div className="flex items-center justify-between mb-4">
@@ -185,7 +169,7 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
         </div>
       </div>
 
-      <div className="h-72">
+      <div className="h-72 recharts-dotless">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={latestItems} margin={{ top: 0, right: 0, left: 0, bottom: 0 }} barGap={6}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -232,10 +216,10 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
                 dataKey="moistureAvg"
                 name="ค่าเฉลี่ยความชื้น"
                 stroke="#06b6d4"
-                strokeDasharray="6 4"
                 strokeWidth={3}
-                dot={renderAvgDot("#06b6d4")}
-                activeDot={renderAvgDot("#06b6d4")}
+                strokeLinecap="round"
+                dot={false}
+                activeDot={false}
                 connectNulls
               />
             )}
@@ -245,10 +229,10 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
                 dataKey="temperatureAvg"
                 name="ค่าเฉลี่ยอุณหภูมิ"
                 stroke="#f59e0b"
-                strokeDasharray="6 4"
                 strokeWidth={3}
-                dot={renderAvgDot("#f59e0b")}
-                activeDot={renderAvgDot("#f59e0b")}
+                strokeLinecap="round"
+                dot={false}
+                activeDot={false}
                 connectNulls
               />
             )}
@@ -259,6 +243,14 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
       <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
         แสดง 4 ช่วงเวลาล่าสุด พร้อมค่าปัจจุบัน / แจ้งเตือน / ค่าเฉลี่ย
       </p>
+
+      {/* ซ่อน dot ทั้งหมดใน Recharts สำหรับกราฟนี้ เผื่อค่า dot/activeDot ถูกใส่มาโดยอัตโนมัติ */}
+      <style>{`
+        .recharts-dotless .recharts-dot,
+        .recharts-dotless .recharts-active-dot {
+          display: none !important;
+        }
+      `}</style>
     </div>
   );
 };

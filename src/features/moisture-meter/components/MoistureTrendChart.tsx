@@ -149,7 +149,7 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
         ))}
       </div>
       
-      <div className="h-80 md:h-96">
+      <div className="h-80 md:h-96 recharts-dotless">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: -5, left: -15, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -187,8 +187,8 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
                 name="ความชื้น (เครื่อง)"
                 stroke="#3b82f6"
                 strokeWidth={2}
-                dot={{ r: 3, fill: '#3b82f6' }}
-                activeDot={{ r: 5 }}
+                dot={false}
+                activeDot={false}
                 connectNulls
               />
             )}
@@ -200,8 +200,8 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
                 name="อุณหภูมิ"
                 stroke="#f97316"
                 strokeWidth={2}
-                dot={{ r: 3, fill: '#f97316' }}
-                activeDot={{ r: 5 }}
+                dot={false}
+                activeDot={false}
                 connectNulls
               />
             )}
@@ -215,6 +215,7 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
                 strokeWidth={2}
                 strokeDasharray="6 4"
                 dot={false}
+                activeDot={false}
                 connectNulls
               />
             )}
@@ -228,6 +229,7 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
                 strokeWidth={2}
                 strokeDasharray="6 4"
                 dot={false}
+                activeDot={false}
                 connectNulls
               />
             )}
@@ -238,6 +240,14 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
       <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 text-center">
         แสดงข้อมูล {data.length} รายการล่าสุด
       </p>
+
+      {/* ซ่อน dot ทั้งหมดใน Recharts สำหรับกราฟนี้ เผื่อค่า dot/activeDot ถูกใส่มาโดยอัตโนมัติ */}
+      <style>{`
+        .recharts-dotless .recharts-dot,
+        .recharts-dotless .recharts-active-dot {
+          display: none !important;
+        }
+      `}</style>
     </div>
   );
 };

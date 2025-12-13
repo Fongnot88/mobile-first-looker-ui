@@ -14,7 +14,7 @@ import { MoistureTrendChart } from "@/features/moisture-meter/components/Moistur
 import { MoistureSnapshotBarChart } from "@/features/moisture-meter/components/moisture-snapshot-bar-chart";
 import { MoistureDeviceHistoryTable } from "@/features/moisture-meter/components/MoistureDeviceHistoryTable";
 import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLatestMoistureReading";
-import { useMoistureHistory } from "@/features/moisture-meter/hooks/useMoistureHistory";
+import { useMoistureHistory, MoistureTimeFrame } from "@/features/moisture-meter/hooks/useMoistureHistory";
 import { useMoistureMeterSettingByDeviceCode } from "@/features/moisture-meter/hooks/useMoistureMeterSettings";
 import { useNavigate } from "react-router-dom";
 
@@ -59,6 +59,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   const isMobile = useIsMobile();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [timeFrame, setTimeFrame] = useState<MoistureTimeFrame>('24h');
 
   // Check if this is a moisture meter device (case-insensitive)
   const isMoistureMeter = deviceCode?.toLowerCase().startsWith('mm');
@@ -76,7 +77,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   // Fetch moisture history for trend chart
   const { data: moistureHistory, isLoading: isLoadingHistory } = useMoistureHistory(
     isMoistureMeter ? deviceCode : '',
-    { limit: 50 }
+    { limit: 50, timeFrame }
   );
 
   // Calculate moisture summary stats for overview card
@@ -152,6 +153,39 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
         {/* Show Moisture Device Detail and Trend Chart for MM devices */}
         {isMoistureMeter ? (
           <div className="space-y-6 mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                เลือกกรอบเวลา
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  { value: '5m', label: '5 นาที' },
+                  { value: '15m', label: '15 นาที' },
+                  { value: '30m', label: '30 นาที' },
+                  { value: '1h', label: '1 ชั่วโมง' },
+                  { value: '24h', label: '24 ชั่วโมง' },
+                  { value: '7d', label: '7 วัน' },
+                  { value: '30d', label: '30 วัน' },
+                ] as { value: MoistureTimeFrame; label: string }[]).map((option) => {
+                  const isActive = timeFrame === option.value;
+                  return (
+                    <button
+                      key={option.value}
+                      onClick={() => setTimeFrame(option.value)}
+                      className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+                        isActive
+                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700'
+                      }`}
+                      aria-pressed={isActive}
+                      type="button"
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <MoistureDeviceDetail
               reading={latestReading || null}
               settings={moistureSettings || null}

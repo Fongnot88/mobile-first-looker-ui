@@ -83,7 +83,7 @@ export function DevicesGrid({
             <EquipmentCard
               key={device.device_code}
               deviceCode={device.device_code}
-              lastUpdated={device.updated_at}
+              lastUpdated={device.deviceData?.machine_unix_time || device.updated_at}
               isAdmin={isAdmin}
               isSuperAdmin={isSuperAdmin}
               displayName={device.display_name}

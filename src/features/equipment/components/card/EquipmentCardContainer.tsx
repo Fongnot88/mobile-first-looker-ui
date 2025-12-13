@@ -188,6 +188,7 @@ export function EquipmentCardContainer({
           isAdmin={isAdmin || isSuperAdmin}
           onEditClick={() => setIsEditDialogOpen(true)}
           deviceData={deviceData}
+          isMoistureMeter={isMoistureMeter}
         />
       </Card>
       

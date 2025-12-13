@@ -14,6 +14,7 @@ interface EquipmentCardContentProps {
   isAdmin: boolean;
   onEditClick: () => void;
   deviceData?: any;
+  isMoistureMeter?: boolean;
 }
 
 export function EquipmentCardContent({
@@ -21,14 +22,15 @@ export function EquipmentCardContent({
   lastUpdated,
   isAdmin,
   onEditClick,
-  deviceData
+  deviceData,
+  isMoistureMeter = false
 }: EquipmentCardContentProps) {
   const { t, language } = useTranslation();
   const { data: notificationStatus, isLoading, error } = useNotificationStatus(deviceCode);
   // subscribe realtime so bell updates immediately when settings change
   useNotificationStatusRealtime(deviceCode);
   const formattedTime = formatEquipmentTime(lastUpdated, language);
-  const isRecent = isRecentUpdate(lastUpdated, deviceData);
+  const isRecent = isRecentUpdate(lastUpdated, deviceData, isMoistureMeter);
   const timeClasses = getTimeClasses(isRecent);
 
   // สถานะเปิด/ปิดแจ้งเตือนระดับผู้ใช้

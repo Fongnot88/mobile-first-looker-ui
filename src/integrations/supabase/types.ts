@@ -332,6 +332,36 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_delivery_log: {
+        Row: {
+          created_at: string
+          device_code: string
+          id: string
+          rice_quality_id: number
+          rice_type_id: string
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_code: string
+          id?: string
+          rice_quality_id: number
+          rice_type_id: string
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_code?: string
+          id?: string
+          rice_quality_id?: number
+          rice_type_id?: string
+          trigger_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_settings: {
         Row: {
           created_at: string
@@ -844,6 +874,36 @@ export type Database = {
           whiteness?: number | null
           whole_kernels?: number | null
           yellow_rice_rate?: number | null
+        }
+        Relationships: []
+      }
+      rice_quality_events: {
+        Row: {
+          attempts: number
+          created_at: string
+          device_code: string
+          id: string
+          last_error: string | null
+          processed_at: string | null
+          rice_quality_id: number
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          device_code: string
+          id?: string
+          last_error?: string | null
+          processed_at?: string | null
+          rice_quality_id: number
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          device_code?: string
+          id?: string
+          last_error?: string | null
+          processed_at?: string | null
+          rice_quality_id?: number
         }
         Relationships: []
       }

@@ -122,7 +122,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   return (
     <AppLayout showFooterNav={true} contentPaddingBottom={isMobile ? 'pb-32' : 'pb-4'}>
       <div className="flex-1">
-        <div className="px-[5%] mb-3 flex justify-between items-center md:px-0">
+        <div className="mb-3 flex justify-between items-center">
           <div className="flex flex-col">
             {/* Back Button - Above Device Header */}
             {onBack && (
@@ -151,7 +151,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
         
         {/* Show Moisture Device Detail and Trend Chart for MM devices */}
         {isMoistureMeter ? (
-          <div className="px-[5%] md:px-0 space-y-6 mb-6">
+          <div className="space-y-6 mb-6">
             <MoistureDeviceDetail
               reading={latestReading || null}
               settings={moistureSettings || null}

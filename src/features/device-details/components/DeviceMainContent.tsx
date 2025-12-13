@@ -11,6 +11,7 @@ import { lazy } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { MoistureDeviceDetail, MoistureSummaryStats } from "@/features/moisture-meter/components/MoistureDeviceDetail";
 import { MoistureTrendChart } from "@/features/moisture-meter/components/MoistureTrendChart";
+import { MoistureSnapshotBarChart } from "@/features/moisture-meter/components/moisture-snapshot-bar-chart";
 import { MoistureDeviceHistoryTable } from "@/features/moisture-meter/components/MoistureDeviceHistoryTable";
 import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLatestMoistureReading";
 import { useMoistureHistory } from "@/features/moisture-meter/hooks/useMoistureHistory";
@@ -165,6 +166,11 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
                 isLoading={isLoadingHistory}
               />
             </div>
+            <MoistureSnapshotBarChart
+              readings={moistureHistory || []}
+              moistureSummary={moistureSummary}
+              isLoading={isLoadingHistory}
+            />
             {/* Moisture Device History Table */}
             <div className="bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
               <MoistureDeviceHistoryTable deviceCode={deviceCode} />

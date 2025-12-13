@@ -5,6 +5,7 @@ import { EquipmentCardDialogs } from "./EquipmentCardDialogs";
 import { DeleteConfirmationDialog } from "./DeleteConfirmationDialog";
 import { UserAccessDialog } from "../access/UserAccessDialog";
 import { useEquipmentCard } from "./hooks/useEquipmentCard";
+import { useMoistureMeterCard } from "@/features/moisture-meter/hooks/useMoistureMeterCard";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +20,7 @@ interface EquipmentCardContainerProps {
   displayName?: string;
   onDeviceUpdated?: () => void;
   deviceData?: any; // เพิ่ม prop สำหรับข้อมูลอุปกรณ์
+  isMoistureMeter?: boolean; // เพิ่ม prop สำหรับเครื่องวัดความชื้น
 }
 
 export function EquipmentCardContainer({
@@ -28,7 +30,8 @@ export function EquipmentCardContainer({
   isSuperAdmin = false,
   displayName,
   onDeviceUpdated,
-  deviceData
+  deviceData,
+  isMoistureMeter = false
 }: EquipmentCardContainerProps) {
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -37,13 +40,17 @@ export function EquipmentCardContainer({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   
+  // ใช้ hook ที่เหมาะสมตามประเภทอุปกรณ์
+  const equipmentHook = useEquipmentCard(deviceCode, displayName, onDeviceUpdated);
+  const moistureMeterHook = useMoistureMeterCard(deviceCode, displayName, onDeviceUpdated);
+  
   const {
     isEditDialogOpen,
     setIsEditDialogOpen,
     newDisplayName,
     setNewDisplayName,
     handleSaveDisplayName
-  } = useEquipmentCard(deviceCode, displayName, onDeviceUpdated);
+  } = isMoistureMeter ? moistureMeterHook : equipmentHook;
 
   const handleDeleteConfirm = async () => {
     console.log('🗑️ Starting complete device deletion for:', deviceCode);

@@ -10,6 +10,7 @@ interface DevicesGridProps {
   isLoading: boolean;
   isSuperAdmin?: boolean;
   onDeviceUpdated?: () => void;
+  isMoistureMeter?: boolean;
 }
 
 export function DevicesGrid({ 
@@ -17,7 +18,8 @@ export function DevicesGrid({
   isAdmin, 
   isLoading, 
   isSuperAdmin = false,
-  onDeviceUpdated 
+  onDeviceUpdated,
+  isMoistureMeter = false
 }: DevicesGridProps) {
   const [sortBy, setSortBy] = useState<SortOption>("device_code");
 
@@ -87,6 +89,7 @@ export function DevicesGrid({
               displayName={device.display_name}
               onDeviceUpdated={onDeviceUpdated}
               deviceData={device.deviceData}
+              isMoistureMeter={isMoistureMeter}
             />
           );
         })}

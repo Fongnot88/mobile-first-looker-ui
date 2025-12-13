@@ -128,7 +128,8 @@ export default function MoistureMeterEquipment() {
         isAdmin={isAdmin && !isGuest} 
         isLoading={isLoading} 
         isSuperAdmin={isSuperAdmin && !isGuest} 
-        onDeviceUpdated={handleRefresh} 
+        onDeviceUpdated={handleRefresh}
+        isMoistureMeter={true}
       />
 
       {/* Empty State when no moisture meters found */}

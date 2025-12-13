@@ -9,6 +9,9 @@ verify_jwt = true
 [functions.check_notifications]
 verify_jwt = false
 
+[functions.check_moisture_notifications]
+verify_jwt = false
+
 [functions.run_manual]
 verify_jwt = false
 

@@ -27,7 +27,7 @@ export function MoistureReadingsTable({
     limit: pageSize
   });
 
-  const automaticReadings = readings?.filter((reading) => reading.event === "automatic_read") ?? [];
+  const allReadings = readings ?? [];
 
   const formatDateTime = (dateString: string | null) => {
     if (!dateString) return "-";
@@ -79,10 +79,10 @@ export function MoistureReadingsTable({
   };
 
   const sortedReadings = useMemo(() => {
-    const copy = [...automaticReadings];
+    const copy = [...allReadings];
     const dir = sortDir === 'asc' ? 1 : -1;
 
-    const getVal = (item: typeof automaticReadings[number]) => {
+    const getVal = (item: typeof allReadings[number]) => {
       switch (sortKey) {
         case 'reading_time': {
           if (!item.reading_time) return null;
@@ -120,7 +120,7 @@ export function MoistureReadingsTable({
       return String(aVal).localeCompare(String(bVal)) * dir;
     });
     return copy;
-  }, [automaticReadings, sortDir, sortKey]);
+  }, [allReadings, sortDir, sortKey]);
 
   const renderSortIndicator = (key: typeof sortKey) => {
     if (sortKey !== key) return null;
@@ -174,12 +174,12 @@ export function MoistureReadingsTable({
         </h3>
         <div className="flex items-center gap-3 text-xs md:text-sm text-gray-500 dark:text-gray-300">
           <span className="whitespace-nowrap">
-            แสดง 5 คอลัมน์ | รวม {automaticReadings.length} รายการ
+            แสดง 6 คอลัมน์ | รวม {allReadings.length} รายการ
           </span>
         </div>
       </div>
 
-      {automaticReadings.length === 0 ? (
+      {allReadings.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <Droplets className="h-12 w-12 mx-auto mb-3 opacity-20 text-gray-400" />
           <p>ยังไม่มีข้อมูลจากเครื่องวัดความชื้น</p>

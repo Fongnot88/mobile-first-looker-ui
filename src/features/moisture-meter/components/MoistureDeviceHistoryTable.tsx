@@ -73,7 +73,7 @@ export function MoistureDeviceHistoryTable({
     refetchInterval: 60000,
   });
 
-  const automaticReadings = readings?.filter((reading) => reading.event === "automatic_read") ?? [];
+  const deviceReadings = readings ?? [];
 
   const formatDateTime = (dateString: string | null) => {
     if (!dateString) return "-";
@@ -122,7 +122,7 @@ export function MoistureDeviceHistoryTable({
   };
 
   const sortedReadings = useMemo(() => {
-    const copy = [...automaticReadings];
+    const copy = [...deviceReadings];
     const dir = sortDir === 'asc' ? 1 : -1;
 
     const getVal = (item: MoistureReading) => {
@@ -163,7 +163,7 @@ export function MoistureDeviceHistoryTable({
       return String(aVal).localeCompare(String(bVal)) * dir;
     });
     return copy;
-  }, [automaticReadings, sortDir, sortKey]);
+  }, [deviceReadings, sortDir, sortKey]);
 
   const renderSortIndicator = (key: typeof sortKey) => {
     if (sortKey !== key) return null;
@@ -217,12 +217,12 @@ export function MoistureDeviceHistoryTable({
         </h3>
         <div className="flex items-center gap-3 text-xs md:text-sm text-gray-500 dark:text-gray-300">
           <span className="whitespace-nowrap">
-            แสดง 5 คอลัมน์ | รวม {automaticReadings.length} รายการ
+            แสดง 6 คอลัมน์ | รวม {deviceReadings.length} รายการ
           </span>
         </div>
       </div>
 
-      {automaticReadings.length === 0 ? (
+      {deviceReadings.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <Droplets className="h-12 w-12 mx-auto mb-3 opacity-20 text-gray-400" />
           <p>ยังไม่มีข้อมูลจากเครื่องวัดความชื้นนี้</p>

@@ -28,53 +28,43 @@ export default function MoistureMeterEquipment() {
   const { saveNavigationHistory } = useNavigationHistory();
   const { data: moistureReadings } = useMoistureReadings({ limit: 200 });
   
-  const latestReadingsByDeviceCode = useMemo(() => {
+  // สร้าง devices จาก moisture_meter_readings โดยตรง (group by device_code)
+  const moistureMeterDevicesWithReadings = useMemo(() => {
     const map: Record<string, MoistureReading> = {};
     (moistureReadings ?? []).forEach((reading) => {
       if (!reading.device_code) return;
+      // เก็บเฉพาะ reading ล่าสุดของแต่ละ device_code
       if (!map[reading.device_code]) {
         map[reading.device_code] = reading;
       }
     });
-    return map;
-  }, [moistureReadings]);
-  
-  // Filter devices for moisture meters only
-  const moistureMeterDevices = useMemo(() => {
-    const filteredDevices = devices.filter(device => 
-      device.display_name?.toLowerCase().includes('ความชื้น') ||
-      device.display_name?.toLowerCase().includes('moisture') ||
-      device.device_code?.toLowerCase().includes('mm') ||
-      device.deviceData?.device_name?.toLowerCase().includes('ความชื้น') ||
-      device.deviceData?.device_name?.toLowerCase().includes('moisture') ||
-      device.deviceData?.device_type?.toLowerCase().includes('moisture')
-    );
     
-    // If no real devices found, add demo data
-    if (filteredDevices.length === 0 && !isLoading) {
-      console.log('📋 No moisture meter devices found, adding demo data');
+    // แปลงเป็น DeviceInfo format
+    const devicesFromReadings = Object.values(map).map((reading) => ({
+      device_code: reading.device_code || '',
+      display_name: reading.device_name || reading.device_code || '',
+      updated_at: reading.reading_time || new Date().toISOString(),
+      deviceData: {
+        device_name: reading.device_name || reading.device_code || '',
+        moisture_machine: reading.moisture_machine,
+        moisture_model: reading.moisture_model,
+        temperature: reading.temperature
+      }
+    }));
+    
+    // ถ้าไม่มี readings ใช้ demo data
+    if (devicesFromReadings.length === 0 && !isLoading) {
+      console.log('📋 No moisture meter readings found, adding demo data');
       return [demoMoistureMeterData as any];
     }
     
-    return filteredDevices;
-  }, [devices, isLoading]);
-  
-  const moistureMeterDevicesWithReadings = useMemo(() => {
-    return moistureMeterDevices.map((device) => {
-      const latest = latestReadingsByDeviceCode[device.device_code];
-      return {
-        ...device,
-        device_code: latest?.device_code || device.device_code,
-        display_name: latest?.device_name || device.display_name || device.device_code,
-        updated_at: latest?.reading_time || device.updated_at
-      };
-    });
-  }, [moistureMeterDevices, latestReadingsByDeviceCode]);
+    return devicesFromReadings;
+  }, [moistureReadings, isLoading]);
   
   // Memoize deviceIds to prevent unnecessary re-renders
   const deviceIds = useMemo(() => {
-    return moistureMeterDevices.map(d => d.device_code);
-  }, [moistureMeterDevices]);
+    return moistureMeterDevicesWithReadings.map(d => d.device_code);
+  }, [moistureMeterDevicesWithReadings]);
   
   // Memoize refresh handler to prevent recreating on every render
   const handleRefresh = useMemo(() => {
@@ -101,7 +91,7 @@ export default function MoistureMeterEquipment() {
         <DevicesHeader 
           isRefreshing={isRefreshing} 
           handleRefresh={handleRefresh} 
-          totalUniqueDevices={moistureMeterDevices.length} 
+          totalUniqueDevices={moistureMeterDevicesWithReadings.length} 
           isSuperAdmin={isSuperAdmin} 
         />
       </div>
@@ -114,7 +104,7 @@ export default function MoistureMeterEquipment() {
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           แสดงเฉพาะอุปกรณ์ที่เกี่ยวข้องกับการวัดความชื้นข้าว
         </p>
-        {moistureMeterDevices.length > 0 && moistureMeterDevices[0]?.is_demo && (
+        {moistureMeterDevicesWithReadings.length > 0 && (moistureMeterDevicesWithReadings[0] as any)?.is_demo && (
           <div className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -142,7 +132,7 @@ export default function MoistureMeterEquipment() {
       />
 
       {/* Empty State when no moisture meters found */}
-      {!isLoading && moistureMeterDevices.length === 0 && (
+      {!isLoading && moistureMeterDevicesWithReadings.length === 0 && (
         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           <div className="text-gray-400 dark:text-gray-500 mb-4">
             <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +149,7 @@ export default function MoistureMeterEquipment() {
       )}
 
       {/* Device History Table - Moisture meter readings (MQTT data) */}
-      {moistureMeterDevices.length > 0 && (
+      {moistureMeterDevicesWithReadings.length > 0 && (
         <div id="device-history" className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
           <MoistureReadingsTable title="ประวัติเครื่องวัดความชื้นข้าว" />
         </div>

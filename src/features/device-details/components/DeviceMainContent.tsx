@@ -1,5 +1,5 @@
 
-import React, { Suspense, useState, useMemo } from "react";
+import React, { Suspense, useState, useMemo, useRef } from "react";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Wheat, ArrowLeft } from "lucide-react";
@@ -9,12 +9,11 @@ import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
 import { NotificationSetting } from "../types";
 import { lazy } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { MoistureMeterDashboard } from "@/features/moisture-meter/components";
-import { MoistureReadingDisplay } from "@/features/moisture-meter/components/MoistureReadingDisplay";
+import { MoistureDeviceDetail } from "@/features/moisture-meter/components/MoistureDeviceDetail";
 import { MoistureTrendChart } from "@/features/moisture-meter/components/MoistureTrendChart";
-import { generateMockMoistureDevices } from "@/features/moisture-meter/utils/moistureCalculations";
 import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLatestMoistureReading";
 import { useMoistureHistory } from "@/features/moisture-meter/hooks/useMoistureHistory";
+import { useMoistureMeterSettingByDeviceCode } from "@/features/moisture-meter/hooks/useMoistureMeterSettings";
 import { useNavigate } from "react-router-dom";
 
 // Lazy load the DeviceHistoryTable component
@@ -67,22 +66,22 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
     isMoistureMeter ? deviceCode : ''
   );
   
+  // Fetch moisture meter settings
+  const { data: moistureSettings } = useMoistureMeterSettingByDeviceCode(
+    isMoistureMeter ? deviceCode : ''
+  );
+  
   // Fetch moisture history for trend chart
   const { data: moistureHistory, isLoading: isLoadingHistory } = useMoistureHistory(
     isMoistureMeter ? deviceCode : '',
     { limit: 50 }
   );
   
-  // Generate mock moisture devices for demo
-  const [mockDevices] = useState(() => 
-    isMoistureMeter ? generateMockMoistureDevices(5) : []
-  );
+  // Reference for chart section
+  const chartRef = useRef<HTMLDivElement>(null);
 
-  const handleViewHistory = (deviceId: string) => {
-    const device = mockDevices.find(d => d.id === deviceId);
-    if (device) {
-      navigate(`/device/${device.deviceCode}/moisture`);
-    }
+  const handleScrollToChart = () => {
+    chartRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -115,20 +114,21 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
           </div>
         </div>
         
-        {/* Show Moisture Reading Display and Trend Chart for MM devices */}
+        {/* Show Moisture Device Detail and Trend Chart for MM devices */}
         {isMoistureMeter ? (
           <div className="px-[5%] md:px-0 space-y-6 mb-6">
-            <MoistureReadingDisplay
-              moistureMachine={latestReading?.moisture_machine ?? null}
-              moistureModel={latestReading?.moisture_model ?? null}
-              temperature={latestReading?.temperature ?? null}
-              readingTime={latestReading?.reading_time ?? null}
+            <MoistureDeviceDetail
+              reading={latestReading || null}
+              settings={moistureSettings || null}
               isLoading={isLoadingMoisture}
+              onViewHistory={handleScrollToChart}
             />
-            <MoistureTrendChart
-              data={moistureHistory || []}
-              isLoading={isLoadingHistory}
-            />
+            <div ref={chartRef}>
+              <MoistureTrendChart
+                data={moistureHistory || []}
+                isLoading={isLoadingHistory}
+              />
+            </div>
           </div>
         ) : (
           <>

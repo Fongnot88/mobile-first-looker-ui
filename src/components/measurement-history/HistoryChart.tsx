@@ -103,7 +103,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
           {graphStyle === 'area' ? (
             <AreaChart
               data={chartData}
-              margin={{ top: 0, right: -15, left: -15, bottom: 0 }}
+              margin={{ top: 0, right: -10, left: -10, bottom: 0 }}
             >
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -176,7 +176,7 @@ const HistoryChart: React.FC<HistoryChartProps> = ({
           ) : (
             <LineChart
               data={chartData}
-              margin={{ top: 0, right: -15, left: -15, bottom: 0 }}
+              margin={{ top: 0, right: -10, left: -10, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" vertical={true} stroke="#e0e0e0" strokeWidth={1} />
               <XAxis 

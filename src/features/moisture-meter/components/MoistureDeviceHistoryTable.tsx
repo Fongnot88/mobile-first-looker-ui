@@ -22,6 +22,7 @@ interface MoistureReading {
   id: string;
   event: string | null;
   device_code: string | null;
+  display_name?: string | null;
   moisture_machine: number | null;
   moisture_model: number | null;
   temperature: number | null;
@@ -33,12 +34,13 @@ export function MoistureDeviceHistoryTable({
   title = "ประวัติข้อมูลเครื่องวัดความชื้น" 
 }: MoistureDeviceHistoryTableProps) {
   const [pageSize, setPageSize] = useState(10);
-  const [sortKey, setSortKey] = useState<'reading_time' | 'moisture_machine' | 'moisture_model' | 'temperature' | 'device_code'>('reading_time');
+  const [sortKey, setSortKey] = useState<'reading_time' | 'display_name' | 'moisture_machine' | 'moisture_model' | 'temperature' | 'device_code'>('reading_time');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const { data: readings, isLoading, error } = useQuery({
     queryKey: ['moisture-device-history', deviceCode, pageSize],
     queryFn: async () => {
+      // ดึงข้อมูล readings
       const { data, error } = await supabase
         .from('moisture_meter_readings')
         .select('*')
@@ -51,7 +53,20 @@ export function MoistureDeviceHistoryTable({
         throw error;
       }
 
-      return (data || []) as MoistureReading[];
+      // ดึง display_name จาก moisture_meter_settings
+      const { data: settings } = await supabase
+        .from('moisture_meter_settings')
+        .select('device_code, display_name')
+        .eq('device_code', deviceCode)
+        .single();
+
+      const displayName = settings?.display_name || deviceCode;
+
+      // รวม display_name เข้ากับ readings
+      return (data || []).map((item) => ({
+        ...item,
+        display_name: displayName,
+      })) as MoistureReading[];
     },
     enabled: !!deviceCode,
     staleTime: 30000,
@@ -117,6 +132,8 @@ export function MoistureDeviceHistoryTable({
           const time = new Date(item.reading_time).getTime();
           return Number.isNaN(time) ? null : time;
         }
+        case 'display_name':
+          return (item.display_name || item.device_code || '').toLowerCase();
         case 'moisture_machine':
           return item.moisture_machine;
         case 'moisture_model':
@@ -202,7 +219,7 @@ export function MoistureDeviceHistoryTable({
         </h3>
         <div className="flex items-center gap-3 text-xs md:text-sm text-gray-500 dark:text-gray-300">
           <span className="whitespace-nowrap">
-            แสดง 5 คอลัมน์ | รวม {automaticReadings.length} รายการ
+            แสดง 6 คอลัมน์ | รวม {automaticReadings.length} รายการ
           </span>
         </div>
       </div>
@@ -222,6 +239,11 @@ export function MoistureDeviceHistoryTable({
                   <button type="button" className="flex items-center gap-1" onClick={() => handleSort('reading_time')}>
                     <Clock className="h-4 w-4" />
                     เวลา {renderSortIndicator('reading_time')}
+                  </button>
+                </TableHead>
+                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">
+                  <button type="button" className="flex items-center gap-1" onClick={() => handleSort('display_name')}>
+                    ชื่ออุปกรณ์ {renderSortIndicator('display_name')}
                   </button>
                 </TableHead>
                 <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
@@ -253,6 +275,9 @@ export function MoistureDeviceHistoryTable({
                 <TableRow key={reading.id}>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
                     {formatDateTime(reading.reading_time)}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
+                    {reading.display_name || reading.device_code || '-'}
                   </TableCell>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
                     {formatNumber(reading.moisture_machine)}

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Bell, BellOff, Droplets, Thermometer, Settings2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bell, BellOff, Droplets, Thermometer, Settings2, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,6 +20,31 @@ export const MoistureNotificationCard: React.FC<MoistureNotificationCardProps> =
   const { user } = useAuth();
   const { loading, saving, settings, setSettings, saveSettings, hasSettings } = useMoistureNotificationSettings(deviceCode);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [testing, setTesting] = useState(false);
+
+  const handleTestNotification = async () => {
+    if (!deviceCode) return;
+    
+    setTesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('check_moisture_notifications', {
+        body: { deviceCode }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.notificationsCreated > 0) {
+        toast.success(`พบ ${data.notificationsCreated} การแจ้งเตือนใหม่`);
+      } else {
+        toast.info('ไม่พบค่าที่เกินเกณฑ์');
+      }
+    } catch (error: any) {
+      console.error('Test notification error:', error);
+      toast.error('เกิดข้อผิดพลาดในการทดสอบ');
+    } finally {
+      setTesting(false);
+    }
+  };
 
   const updateSetting = <K extends keyof MoistureNotificationSettingsState>(
     key: K,
@@ -217,14 +244,25 @@ export const MoistureNotificationCard: React.FC<MoistureNotificationCardProps> =
             )}
           </div>
 
-          {/* Save Button */}
-          <Button
-            onClick={saveSettings}
-            disabled={saving}
-            className="w-full bg-amber-600 hover:bg-amber-700 text-white"
-          >
-            {saving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
-          </Button>
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <Button
+              onClick={saveSettings}
+              disabled={saving}
+              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              {saving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
+            </Button>
+            <Button
+              onClick={handleTestNotification}
+              disabled={testing || !hasSettings}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <PlayCircle size={16} />
+              {testing ? 'กำลังทดสอบ...' : 'ทดสอบ'}
+            </Button>
+          </div>
         </CollapsibleContent>
       </Collapsible>
     </div>

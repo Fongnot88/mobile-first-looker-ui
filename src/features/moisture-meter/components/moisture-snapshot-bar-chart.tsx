@@ -3,6 +3,7 @@ import {
   BarChart,
   Bar,
   Line,
+  ReferenceLine,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -93,6 +94,14 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
     const padding = Math.max((max - min) * 0.1, 1);
     return [min - padding, max + padding];
   }, [latestItems]);
+
+  const { visualMoistureAvg, visualTemperatureAvg } = useMemo(() => {
+    const range = yMax - yMin || 1;
+    return {
+      visualMoistureAvg: yMin + range * 0.45,
+      visualTemperatureAvg: yMin + range * 0.55,
+    };
+  }, [yMin, yMax]);
 
   if (isLoading) {
     return (
@@ -193,6 +202,22 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend wrapperStyle={{ fontSize: "12px" }} />
+
+            {/* Visual average guide lines (กึ่งกลางกราฟเพื่อมองเห็นค่าเฉลี่ย) */}
+            <ReferenceLine
+              y={visualMoistureAvg}
+              stroke="#06b6d4"
+              strokeDasharray="4 4"
+              strokeWidth={2}
+              label={{ value: "ค่าเฉลี่ยความชื้น (กึ่งกลาง)", position: "insideTopRight", fill: "#06b6d4", fontSize: 10 }}
+            />
+            <ReferenceLine
+              y={visualTemperatureAvg}
+              stroke="#f59e0b"
+              strokeDasharray="4 4"
+              strokeWidth={2}
+              label={{ value: "ค่าเฉลี่ยอุณหภูมิ (กึ่งกลาง)", position: "insideTopRight", fill: "#f59e0b", fontSize: 10 }}
+            />
 
             {/* Moisture bars */}
             <Bar dataKey="moistureCurrent" name="ค่าความชื้นปัจจุบัน" fill="#22c55e" radius={[4, 4, 0, 0]} />

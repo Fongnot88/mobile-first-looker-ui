@@ -43,8 +43,12 @@ export const formatEquipmentTime = (lastUpdated: string | null, language: 'th' |
   }
 };
 
-export const isRecentUpdate = (lastUpdated: string | null, deviceData?: any): boolean => {
-  console.log("🔍 isRecentUpdate called with:", { lastUpdated, deviceData });
+export const isRecentUpdate = (
+  lastUpdated: string | null, 
+  deviceData?: any,
+  isMoistureMeter: boolean = false
+): boolean => {
+  console.log("🔍 isRecentUpdate called with:", { lastUpdated, deviceData, isMoistureMeter });
   
   // ตรวจสอบ lastUpdated ก่อน
   if (!lastUpdated || lastUpdated === "-") {
@@ -54,13 +58,13 @@ export const isRecentUpdate = (lastUpdated: string | null, deviceData?: any): bo
   
   // ตรวจสอบข้อมูลอุปกรณ์ (ต้องมีและต้องไม่มีค่า "-" ในฟิลด์สำคัญ)
   if (deviceData) {
-    console.log("🔍 Checking deviceData for '-' values:", deviceData);
+    console.log("🔍 Checking deviceData for invalid values:", deviceData);
     
-    // คอลัมน์ที่สำคัญในการวิเคราะห์คุณภาพข้าว
-    const importantFields = [
-      'class1', 'class2', 'class3', 'whole_kernels', 'head_rice', 
-      'total_brokens', 'small_brokens', 'whiteness', 'process_precision'
-    ];
+    // เลือกฟิลด์ที่ต้องตรวจสอบตามประเภทอุปกรณ์
+    const importantFields = isMoistureMeter
+      ? ['moisture_machine', 'moisture_model', 'temperature'] // สำหรับเครื่องวัดความชื้น
+      : ['class1', 'class2', 'class3', 'whole_kernels', 'head_rice', 
+         'total_brokens', 'small_brokens', 'whiteness', 'process_precision']; // สำหรับเครื่องวัดคุณภาพข้าว
     
     // ตรวจสอบทุกฟิลด์สำคัญ
     for (const field of importantFields) {

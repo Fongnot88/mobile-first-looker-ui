@@ -187,7 +187,7 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
 
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={latestItems} margin={{ top: 10, right: 10, left: -10, bottom: 5 }} barGap={6}>
+          <BarChart data={latestItems} margin={{ top: 0, right: 0, left: 0, bottom: 0 }} barGap={6}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis
               dataKey="time"

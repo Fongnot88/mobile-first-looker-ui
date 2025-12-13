@@ -241,25 +241,31 @@ export type Database = {
       }
       moisture_meter_readings: {
         Row: {
+          device_code: string | null
           event: string | null
           id: string
           moisture_machine: number | null
           moisture_model: number | null
           reading_time: string | null
+          temperature: number | null
         }
         Insert: {
+          device_code?: string | null
           event?: string | null
           id?: string
           moisture_machine?: number | null
           moisture_model?: number | null
           reading_time?: string | null
+          temperature?: number | null
         }
         Update: {
+          device_code?: string | null
           event?: string | null
           id?: string
           moisture_machine?: number | null
           moisture_model?: number | null
           reading_time?: string | null
+          temperature?: number | null
         }
         Relationships: []
       }

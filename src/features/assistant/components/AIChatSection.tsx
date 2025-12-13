@@ -157,10 +157,14 @@ export const AIChatSection = () => {
         <ScrollArea className="h-[300px] pr-4 mb-4" ref={scrollRef}>
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-amber-700/60">
-              <Bot className="h-12 w-12 mb-2" />
+              <img
+                src="/lovable-uploads/d1e48214-f533-48ef-b56e-2d827e8773f9.png"
+                alt="หลงจู๊"
+                className="h-16 w-16 mb-2 object-contain"
+              />
               <p className="text-center text-sm">
-                สวัสดีครับ! ผมเป็น AI Assistant<br />
-                ถามอะไรเกี่ยวกับข้อมูลข้าวได้เลยครับ
+                สวัสดีหลานรัก ลุงหลงจู๊เองนะ<br />
+                มีอะไรเรื่องข้อมูลข้าวให้ลุงช่วยบอกได้เลย
               </p>
               <div className="mt-4 space-y-2 text-xs text-amber-600">
                 <p>💡 ตัวอย่าง: "ค่า whiteness เฉลี่ยวันนี้เท่าไหร่?"</p>

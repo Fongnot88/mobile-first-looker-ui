@@ -126,6 +126,10 @@ const AssistantContent = () => {
                 </div>
                 <span className="absolute bottom-2 right-3 text-xs text-amber-400/50 group-hover:text-amber-400 transition-colors">- {t('assistant', 'clickToContinueChat')} -</span>
               </div>
+
+              <div className="sm:col-span-2 lg:col-span-1">
+                <AIChatSection />
+              </div>
             </div>
           </div>
 
@@ -300,16 +304,6 @@ const AssistantContent = () => {
             </div>
           </div>
         </div>
-
-        {/* AI Chat Section */}
-        <div className="mb-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-            <div className="lg:col-start-3 lg:col-span-3">
-              <AIChatSection />
-            </div>
-          </div>
-        </div>
-
         {/* Notes Section */}
         <div className="mb-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">

@@ -1,5 +1,6 @@
 import React from "react";
 import { DeviceDisplay } from "@/features/assistant/components/DeviceDisplay";
+import { AIChatSection } from "@/features/assistant/components/AIChatSection";
 import { useMemo, useState } from "react";
 import { AssistantProvider, useAssistant } from "@/features/assistant/context/AssistantContext";
 import { AppLayout } from "@/components/layouts/app-layout";
@@ -296,6 +297,15 @@ const AssistantContent = () => {
                   </div>
                 </DialogContent>
               </Dialog>
+            </div>
+          </div>
+        </div>
+
+        {/* AI Chat Section */}
+        <div className="mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <div className="lg:col-start-3 lg:col-span-3">
+              <AIChatSection />
             </div>
           </div>
         </div>

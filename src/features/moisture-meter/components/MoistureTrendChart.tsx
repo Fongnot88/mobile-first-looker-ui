@@ -149,9 +149,9 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
         ))}
       </div>
       
-      <div className="h-72">
+      <div className="h-80 md:h-96">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+          <LineChart data={chartData} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis 
               dataKey="time" 

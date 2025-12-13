@@ -167,13 +167,13 @@ const PublicMoistureView = () => {
 
         {/* Moisture Data */}
         <div className="space-y-4">
-          {/* Moisture Machine */}
+          {/* Moisture */}
           <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Droplets className="w-5 h-5" />
                 <span className="text-sm font-medium">
-                  {language === 'th' ? 'ค่าความชื้น (เครื่อง)' : 'Moisture (Machine)'}
+                  {language === 'th' ? 'ค่าความชื้น' : 'Moisture'}
                 </span>
               </div>
               <div className="text-2xl font-bold">
@@ -182,39 +182,35 @@ const PublicMoistureView = () => {
             </div>
           </div>
 
-          {/* Moisture Model */}
-          {reading.moisture_model !== null && (
-            <div className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Droplets className="w-5 h-5" />
-                  <span className="text-sm font-medium">
-                    {language === 'th' ? 'ค่าความชื้น (โมเดล)' : 'Moisture (Model)'}
-                  </span>
-                </div>
-                <div className="text-2xl font-bold">
-                  {formatNumber(reading.moisture_model)}%
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Temperature */}
-          {reading.temperature !== null && (
-            <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Thermometer className="w-5 h-5" />
-                  <span className="text-sm font-medium">
-                    {language === 'th' ? 'อุณหภูมิ' : 'Temperature'}
-                  </span>
-                </div>
-                <div className="text-2xl font-bold">
-                  {formatNumber(reading.temperature)}°C
-                </div>
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Thermometer className="w-5 h-5" />
+                <span className="text-sm font-medium">
+                  {language === 'th' ? 'อุณหภูมิ' : 'Temperature'}
+                </span>
+              </div>
+              <div className="text-2xl font-bold">
+                {formatNumber(reading.temperature)}°C
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Time */}
+          <div className="bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                <span className="text-sm font-medium">
+                  {language === 'th' ? 'เวลา' : 'Time'}
+                </span>
+              </div>
+              <div className="text-lg font-bold">
+                {formatDateTime(reading.reading_time)}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}

@@ -37,6 +37,7 @@ import AboutRiceflow from "./pages/AboutRiceflow";
 import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 import Assistant from "./pages/Assistant";
 import PublicAnalysisView from "./pages/PublicAnalysisView";
+import PublicMoistureView from "./pages/PublicMoistureView";
 import APITestPage from "./pages/APITestPage"; // เพิ่ม import สำหรับหน้าทดสอบ
 import NotificationSettingsPage from "./pages/NotificationSettingsPage";
 
@@ -430,6 +431,11 @@ export const router = createBrowserRouter([
       {
         path: "shared/:token",
         element: <PublicAnalysisView />,
+      },
+      // Public shared moisture reading route (no auth required)
+      {
+        path: "shared-moisture/:token",
+        element: <PublicMoistureView />,
       },
     ],
   },

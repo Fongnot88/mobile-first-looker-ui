@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Droplets, Clock } from "lucide-react";
+import { Droplets, Clock, Share2 } from "lucide-react";
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import {
@@ -10,8 +10,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/AuthProvider";
+import { MoistureShareLinkModal } from "@/components/shared-links/MoistureShareLinkModal";
 
 interface MoistureDeviceHistoryTableProps {
   deviceCode: string;
@@ -36,6 +39,10 @@ export function MoistureDeviceHistoryTable({
   const [pageSize, setPageSize] = useState(10);
   const [sortKey, setSortKey] = useState<'reading_time' | 'display_name' | 'moisture_machine' | 'temperature' | 'device_code'>('reading_time');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [selectedReadingId, setSelectedReadingId] = useState<string | null>(null);
+  const [selectedDeviceName, setSelectedDeviceName] = useState<string>('');
+  const { user } = useAuth();
 
   const { data: readings, isLoading, error } = useQuery({
     queryKey: ['moisture-device-history', deviceCode, pageSize],
@@ -260,6 +267,11 @@ export function MoistureDeviceHistoryTable({
                     รหัสอุปกรณ์ {renderSortIndicator('device_code')}
                   </button>
                 </TableHead>
+                {user && (
+                  <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-center">
+                    แชร์
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -280,6 +292,23 @@ export function MoistureDeviceHistoryTable({
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
                     {reading.device_code || '-'}
                   </TableCell>
+                  {user && (
+                    <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                        onClick={() => {
+                          setSelectedReadingId(reading.id);
+                          setSelectedDeviceName(reading.display_name || reading.device_code || '');
+                          setShareModalOpen(true);
+                        }}
+                        title="สร้างลิงก์แชร์"
+                      >
+                        <Share2 className="h-3.5 w-3.5 text-blue-600" />
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -305,6 +334,16 @@ export function MoistureDeviceHistoryTable({
           ))}
         </div>
       </div>
+
+      {/* Share Link Modal */}
+      {selectedReadingId && (
+        <MoistureShareLinkModal
+          open={shareModalOpen}
+          onOpenChange={setShareModalOpen}
+          readingId={selectedReadingId}
+          deviceName={selectedDeviceName}
+        />
+      )}
     </div>
   );
 }

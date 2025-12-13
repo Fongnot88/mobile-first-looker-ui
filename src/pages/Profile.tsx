@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { KeyRound, CheckCircle, AlertCircle } from "lucide-react";
 import { SharedLinksSection } from "@/components/profile/SharedLinksSection";
+import { MoistureSharedLinksSection } from "@/components/profile/MoistureSharedLinksSection";
 import { NotificationSoundSettings } from "@/components/profile/NotificationSoundSettings";
 import { useTranslation } from "@/hooks/useTranslation";
 const Profile = () => {
@@ -98,6 +99,9 @@ const Profile = () => {
             
             {/* ลิงก์แชร์ของฉัน Section */}
             <SharedLinksSection />
+            
+            {/* ลิงก์แชร์ความชื้น Section */}
+            <MoistureSharedLinksSection />
             
             {/* การตั้งค่าเสียงแจ้งเตือน Section */}
             <NotificationSoundSettings />

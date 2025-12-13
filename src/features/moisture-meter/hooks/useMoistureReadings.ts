@@ -5,7 +5,7 @@ export interface MoistureReading {
   id: string;
   event: string | null;
   device_code: string | null;
-  device_name?: string | null;
+  display_name?: string | null;
   moisture_machine: number | null;
   moisture_model: number | null;
   temperature: number | null;
@@ -22,7 +22,8 @@ export function useMoistureReadings(options: UseMoistureReadingsOptions = {}) {
   return useQuery({
     queryKey: ['moisture-readings', limit],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // ดึงข้อมูล readings
+      const { data: readings, error } = await supabase
         .from('moisture_meter_readings')
         .select('*')
         .order('reading_time', { ascending: false })
@@ -33,13 +34,31 @@ export function useMoistureReadings(options: UseMoistureReadingsOptions = {}) {
         throw error;
       }
 
-      const readings = (data || []) as MoistureReading[];
+      // ดึง display_name จาก moisture_meter_settings
+      const deviceCodes = [...new Set((readings || []).map(r => r.device_code).filter(Boolean))];
+      
+      let settingsMap: Record<string, string> = {};
+      if (deviceCodes.length > 0) {
+        const { data: settings } = await supabase
+          .from('moisture_meter_settings')
+          .select('device_code, display_name')
+          .in('device_code', deviceCodes);
+        
+        if (settings) {
+          settingsMap = settings.reduce((acc, s) => {
+            if (s.device_code) {
+              acc[s.device_code] = s.display_name || s.device_code;
+            }
+            return acc;
+          }, {} as Record<string, string>);
+        }
+      }
 
-      // ใช้ device_name จากตาราง moisture_meter_readings โดยตรง และ fallback เป็น device_code หากไม่มี
-      return readings.map((item) => ({
+      // รวม display_name เข้ากับ readings
+      return (readings || []).map((item) => ({
         ...item,
-        device_name: item.device_name ?? item.device_code ?? null,
-      }));
+        display_name: settingsMap[item.device_code || ''] || item.device_code || null,
+      })) as MoistureReading[];
     },
     staleTime: 30000,
     refetchInterval: 60000, // Auto refetch every minute for MQTT data

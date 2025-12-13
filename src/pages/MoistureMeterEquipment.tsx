@@ -8,6 +8,7 @@ import { useGuestMode } from "@/hooks/useGuestMode";
 import { useMemo, useEffect } from "react";
 import { useDevicesQuery } from "@/features/equipment/hooks/useDevicesQuery";
 import { useMoistureReadings, type MoistureReading } from "@/features/moisture-meter/hooks/useMoistureReadings";
+import { useMoistureMeterSettings } from "@/features/moisture-meter/hooks/useMoistureMeterSettings";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNavigationHistory } from "@/hooks/useNavigationHistory";
 import demoMoistureMeterData from "@/data/demo-moisture-meter.json";
@@ -27,6 +28,7 @@ export default function MoistureMeterEquipment() {
   const { t } = useTranslation();
   const { saveNavigationHistory } = useNavigationHistory();
   const { data: moistureReadings } = useMoistureReadings({ limit: 200 });
+  const { data: moistureMeterSettings } = useMoistureMeterSettings();
   
   // สร้าง devices จาก moisture_meter_readings โดยตรง (group by device_code)
   const moistureMeterDevicesWithReadings = useMemo(() => {
@@ -39,18 +41,29 @@ export default function MoistureMeterEquipment() {
       }
     });
     
-    // แปลงเป็น DeviceInfo format
-    const devicesFromReadings = Object.values(map).map((reading) => ({
-      device_code: reading.device_code || '',
-      display_name: reading.device_name || reading.device_code || '',
-      updated_at: reading.reading_time || new Date().toISOString(),
-      deviceData: {
-        device_name: reading.device_name || reading.device_code || '',
-        moisture_machine: reading.moisture_machine,
-        moisture_model: reading.moisture_model,
-        temperature: reading.temperature
+    // สร้าง settings map สำหรับ display_name
+    const settingsMap: Record<string, string> = {};
+    (moistureMeterSettings ?? []).forEach(s => {
+      if (s.device_code) {
+        settingsMap[s.device_code] = s.display_name || s.device_code;
       }
-    }));
+    });
+    
+    // แปลงเป็น DeviceInfo format
+    const devicesFromReadings = Object.values(map).map((reading) => {
+      const displayName = settingsMap[reading.device_code || ''] || reading.device_code || '';
+      return {
+        device_code: reading.device_code || '',
+        display_name: displayName,
+        updated_at: reading.reading_time || new Date().toISOString(),
+        deviceData: {
+          device_name: displayName,
+          moisture_machine: reading.moisture_machine,
+          moisture_model: reading.moisture_model,
+          temperature: reading.temperature
+        }
+      };
+    });
     
     // ถ้าไม่มี readings ใช้ demo data
     if (devicesFromReadings.length === 0 && !isLoading) {
@@ -59,7 +72,7 @@ export default function MoistureMeterEquipment() {
     }
     
     return devicesFromReadings;
-  }, [moistureReadings, isLoading]);
+  }, [moistureReadings, moistureMeterSettings, isLoading]);
   
   // Memoize deviceIds to prevent unnecessary re-renders
   const deviceIds = useMemo(() => {

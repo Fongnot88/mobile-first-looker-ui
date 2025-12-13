@@ -242,7 +242,6 @@ export type Database = {
       moisture_meter_readings: {
         Row: {
           device_code: string | null
-          device_name: string | null
           event: string | null
           id: string
           moisture_machine: number | null
@@ -252,7 +251,6 @@ export type Database = {
         }
         Insert: {
           device_code?: string | null
-          device_name?: string | null
           event?: string | null
           id?: string
           moisture_machine?: number | null
@@ -262,13 +260,42 @@ export type Database = {
         }
         Update: {
           device_code?: string | null
-          device_name?: string | null
           event?: string | null
           id?: string
           moisture_machine?: number | null
           moisture_model?: number | null
           reading_time?: string | null
           temperature?: number | null
+        }
+        Relationships: []
+      }
+      moisture_meter_settings: {
+        Row: {
+          created_at: string | null
+          device_code: string
+          display_name: string | null
+          id: string
+          is_active: boolean | null
+          location: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          device_code: string
+          display_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          device_code?: string
+          display_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }

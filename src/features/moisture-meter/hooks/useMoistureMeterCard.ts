@@ -10,11 +10,19 @@ export const useMoistureMeterCard = (deviceCode: string, displayName?: string, o
 
   const handleSaveDisplayName = async () => {
     try {
-      // อัพเดท device_name ใน moisture_meter_readings สำหรับ device_code นี้
+      // Upsert ข้อมูลใน moisture_meter_settings
       const { error } = await supabase
-        .from('moisture_meter_readings')
-        .update({ device_name: newDisplayName })
-        .eq('device_code', deviceCode);
+        .from('moisture_meter_settings')
+        .upsert(
+          { 
+            device_code: deviceCode, 
+            display_name: newDisplayName,
+            updated_at: new Date().toISOString()
+          },
+          { 
+            onConflict: 'device_code' 
+          }
+        );
 
       if (error) throw error;
 

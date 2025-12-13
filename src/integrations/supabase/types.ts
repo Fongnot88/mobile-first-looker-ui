@@ -966,6 +966,50 @@ export type Database = {
           },
         ]
       }
+      shared_moisture_links: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          reading_id: string
+          share_token: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          reading_id: string
+          share_token: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          reading_id?: string
+          share_token?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_moisture_links_reading_id_fkey"
+            columns: ["reading_id"]
+            isOneToOne: false
+            referencedRelation: "moisture_meter_readings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       slow_query_log: {
         Row: {
           created_at: string | null

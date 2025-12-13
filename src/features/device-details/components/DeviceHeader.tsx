@@ -23,6 +23,9 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
   const [isRunningManual, setIsRunningManual] = useState(false);
   const { t } = useTranslation();
 
+  // Check if this is a moisture meter device (starts with 'mm' case-insensitive)
+  const isMoistureMeter = deviceCode?.toLowerCase().startsWith('mm');
+
   // Fetch device display name if not provided as prop
   useEffect(() => {
     const fetchDeviceDisplayName = async () => {
@@ -34,8 +37,11 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
       if (!deviceCode) return;
 
       try {
+        // Use different table based on device type
+        const tableName = isMoistureMeter ? 'moisture_meter_settings' : 'device_settings';
+        
         const { data, error } = await supabase
-          .from('device_settings')
+          .from(tableName)
           .select('display_name')
           .eq('device_code', deviceCode)
           .maybeSingle();
@@ -53,7 +59,7 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
     };
 
     fetchDeviceDisplayName();
-  }, [deviceCode, propDisplayName]);
+  }, [deviceCode, propDisplayName, isMoistureMeter]);
 
   const handleStartManual = async () => {
     setIsRunningManual(true);

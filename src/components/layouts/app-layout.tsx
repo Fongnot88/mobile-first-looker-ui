@@ -60,14 +60,11 @@ export function AppLayout({
 
   // คำนวณ padding-bottom อัตโนมัติ
   const getMainPaddingBottom = () => {
-    const basePadding = 'p-5'; // 20px padding รอบๆ
-    
     if (isMobile && showFooterNav) {
-      // เพิ่ม padding-bottom 80px (20 พื้นฐาน + 60 สำหรับ footer) บน mobile เมื่อมี footer
-      return cn(basePadding, 'pb-20', contentPaddingBottom);
+      // เพิ่ม padding-bottom สำหรับ footer บน mobile
+      return cn('pb-20', contentPaddingBottom);
     } else {
-      // ใช้ padding ปกติบน desktop หรือเมื่อไม่มี footer
-      return cn(basePadding, contentPaddingBottom);
+      return cn(contentPaddingBottom);
     }
   };
 

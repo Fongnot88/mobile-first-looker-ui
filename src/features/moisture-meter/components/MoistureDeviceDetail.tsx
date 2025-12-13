@@ -56,12 +56,14 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
   const location = settings?.location || 'โรงงาน 1';
   const isActive = settings?.is_active ?? true;
   
-  const lastUpdated = reading.reading_time 
-    ? formatDistanceToNow(new Date(reading.reading_time), { addSuffix: true, locale: th })
+  const readingTime = reading.reading_time ? new Date(reading.reading_time) : null;
+
+  const lastUpdated = readingTime
+    ? formatDistanceToNow(readingTime, { addSuffix: true, locale: th })
     : 'ไม่ทราบ';
 
-  const formattedTime = reading.reading_time
-    ? format(new Date(reading.reading_time), 'd MMM yyyy HH:mm', { locale: th })
+  const formattedTime = readingTime
+    ? format(readingTime, 'd MMM yyyy HH:mm', { locale: th })
     : '-';
 
   return (

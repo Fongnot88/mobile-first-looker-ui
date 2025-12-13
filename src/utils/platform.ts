@@ -36,19 +36,8 @@ export const getPlatformInfo = (): PlatformInfo => {
 };
 
 export const getBaseUrl = (): string => {
-  const platformInfo = getPlatformInfo();
-  
-  // Always use production URL for shared links, regardless of platform
-  const productionUrl = 'https://setup.riceflow.app';
-  
-  // For development, check if we're in dev mode
-  if (import.meta.env.DEV && platformInfo.isWeb) {
-    // Only use localhost for web development
-    return window.location.origin;
-  }
-  
-  // Always return production URL for native apps and production builds
-  return productionUrl;
+  // Always use production URL for shared links
+  return 'https://setup.riceflow.app';
 };
 
 export const isRunningInCapacitor = (): boolean => {

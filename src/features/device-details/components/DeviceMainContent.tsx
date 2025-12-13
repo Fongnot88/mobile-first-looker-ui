@@ -166,8 +166,8 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
           </>
         )}
 
-        {/* Add Device History Table at the bottom - Show to all users including guests with proper container styling */}
-        {deviceCode && deviceCode !== 'default' && (
+        {/* Add Device History Table at the bottom - Only for rice quality meters, not moisture meters */}
+        {deviceCode && deviceCode !== 'default' && !isMoistureMeter && (
           <div className="px-0">
             <div className="mt-8 bg-white/70 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
               <Suspense fallback={

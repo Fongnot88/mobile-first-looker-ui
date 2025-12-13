@@ -242,6 +242,7 @@ export type Database = {
       moisture_meter_readings: {
         Row: {
           device_code: string | null
+          device_name: string | null
           event: string | null
           id: string
           moisture_machine: number | null
@@ -251,6 +252,7 @@ export type Database = {
         }
         Insert: {
           device_code?: string | null
+          device_name?: string | null
           event?: string | null
           id?: string
           moisture_machine?: number | null
@@ -260,6 +262,7 @@ export type Database = {
         }
         Update: {
           device_code?: string | null
+          device_name?: string | null
           event?: string | null
           id?: string
           moisture_machine?: number | null

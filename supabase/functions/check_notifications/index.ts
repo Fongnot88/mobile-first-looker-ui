@@ -229,7 +229,7 @@ serve(async (req) => {
     console.error('Unexpected error:', error);
     return new Response(JSON.stringify({ 
       error: "Internal server error", 
-      details: error.message || String(error),
+      details: error instanceof Error ? error.message : String(error),
       time: new Date().toISOString()
     }), {
       status: 500,

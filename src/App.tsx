@@ -14,6 +14,7 @@ import { Capacitor } from "@capacitor/core";
 
 import { NotificationPermissionPopup } from '@/components/NotificationPermissionPopup';
 import { GlobalNotificationManager } from '@/components/GlobalNotificationManager';
+import { MoistureNotificationManager } from '@/components/MoistureNotificationManager';
 import { iOSLogger } from './utils/iOSDebugLogger';
 
 // Log app initialization
@@ -281,6 +282,7 @@ const App: React.FC = () => {
             <AuthProvider>
               <QueryClientProvider client={queryClient}>
                 <GlobalNotificationManager />
+                <MoistureNotificationManager />
                 <RouterProvider router={router} />
                 <Toaster />
                 {/* Disabled notification popup to prevent annoying modal */}

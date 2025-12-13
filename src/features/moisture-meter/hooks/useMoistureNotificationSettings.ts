@@ -97,13 +97,14 @@ export function useMoistureNotificationSettings(deviceCode: string | undefined) 
     }
   }, [user?.id, deviceCode]);
 
-  const saveSettings = useCallback(async () => {
+  const saveSettings = useCallback(async (): Promise<{ success: boolean; isNew: boolean }> => {
     if (!user?.id || !deviceCode) {
       toast.error('กรุณาเข้าสู่ระบบก่อน');
-      return false;
+      return { success: false, isNew: false };
     }
 
     setSaving(true);
+    const isNew = existingId === null;
     try {
       const payload = {
         user_id: user.id,
@@ -139,12 +140,11 @@ export function useMoistureNotificationSettings(deviceCode: string | undefined) 
         setExistingId(data.id);
       }
 
-      toast.success('บันทึกการตั้งค่าแจ้งเตือนสำเร็จ');
-      return true;
+      return { success: true, isNew };
     } catch (error) {
       console.error('Error saving moisture notification settings:', error);
       toast.error('ไม่สามารถบันทึกการตั้งค่าได้');
-      return false;
+      return { success: false, isNew: false };
     } finally {
       setSaving(false);
     }

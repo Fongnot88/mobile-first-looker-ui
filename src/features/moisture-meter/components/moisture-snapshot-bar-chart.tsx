@@ -185,7 +185,7 @@ export const MoistureSnapshotBarChart: React.FC<MoistureSnapshotBarChartProps> =
               domain={[yMin, yMax]}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: "12px" }} />
+            <Legend wrapperStyle={{ fontSize: "12px", paddingRight: "10px" }} />
 
             {/* Visual average guide lines (กึ่งกลางกราฟเพื่อมองเห็นค่าเฉลี่ย) */}
             <ReferenceLine

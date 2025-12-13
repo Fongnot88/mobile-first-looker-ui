@@ -9,7 +9,7 @@ import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
 import { NotificationSetting } from "../types";
 import { lazy } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
-import { MoistureDeviceDetail } from "@/features/moisture-meter/components/MoistureDeviceDetail";
+import { MoistureDeviceDetail, MoistureSummaryStats } from "@/features/moisture-meter/components/MoistureDeviceDetail";
 import { MoistureTrendChart } from "@/features/moisture-meter/components/MoistureTrendChart";
 import { MoistureDeviceHistoryTable } from "@/features/moisture-meter/components/MoistureDeviceHistoryTable";
 import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLatestMoistureReading";
@@ -77,6 +77,39 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
     isMoistureMeter ? deviceCode : '',
     { limit: 50 }
   );
+
+  // Calculate moisture summary stats for overview card
+  const moistureSummary: MoistureSummaryStats | null = useMemo(() => {
+    if (!moistureHistory || moistureHistory.length === 0) return null;
+
+    const moistureValues = moistureHistory
+      .map(reading => reading.moisture_machine ?? reading.moisture_model)
+      .filter((value): value is number => value !== null && value !== undefined);
+
+    if (moistureValues.length === 0) return null;
+
+    const averageMoisture =
+      moistureValues.reduce((sum, value) => sum + value, 0) / moistureValues.length;
+
+    const maxMoisture = Math.max(...moistureValues);
+    const minMoisture = Math.min(...moistureValues);
+
+    const temperatureValues = moistureHistory
+      .map(reading => reading.temperature)
+      .filter((value): value is number => value !== null && value !== undefined);
+
+    const averageTemperature =
+      temperatureValues.length > 0
+        ? temperatureValues.reduce((sum, value) => sum + value, 0) / temperatureValues.length
+        : null;
+
+    return {
+      averageMoisture,
+      maxMoisture,
+      minMoisture,
+      averageTemperature,
+    };
+  }, [moistureHistory]);
   
   // Reference for chart section
   const chartRef = useRef<HTMLDivElement>(null);
@@ -122,6 +155,8 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
               reading={latestReading || null}
               settings={moistureSettings || null}
               isLoading={isLoadingMoisture}
+              isLoadingSummary={isLoadingHistory}
+              moistureSummary={moistureSummary}
               onViewHistory={handleScrollToChart}
             />
             <div ref={chartRef}>

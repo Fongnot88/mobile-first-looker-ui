@@ -5,10 +5,19 @@ import { th } from 'date-fns/locale';
 import { LatestMoistureReading } from '../hooks/useLatestMoistureReading';
 import { MoistureMeterSetting } from '../hooks/useMoistureMeterSettings';
 
+export interface MoistureSummaryStats {
+  averageMoisture: number;
+  maxMoisture: number;
+  minMoisture: number;
+  averageTemperature: number | null;
+}
+
 interface MoistureDeviceDetailProps {
   reading: LatestMoistureReading | null;
   settings: MoistureMeterSetting | null;
   isLoading?: boolean;
+  isLoadingSummary?: boolean;
+  moistureSummary?: MoistureSummaryStats | null;
   onViewHistory?: () => void;
 }
 
@@ -16,6 +25,8 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
   reading,
   settings,
   isLoading = false,
+  isLoadingSummary = false,
+  moistureSummary = null,
   onViewHistory,
 }) => {
   if (isLoading) {
@@ -104,6 +115,56 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
             </div>
           )}
         </div>
+      </div>
+
+      {/* Moisture Overview Summary */}
+      <div className="bg-white/60 dark:bg-gray-900/40 p-4 rounded-lg border border-gray-100 dark:border-gray-800/40 mb-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Droplets className="text-emerald-600 dark:text-emerald-400" size={18} />
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">ภาพรวมความชื้นทั้งหมด</h4>
+        </div>
+
+        {isLoadingSummary ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-pulse">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="h-16 bg-gray-100 dark:bg-gray-800/60 rounded-lg"
+              />
+            ))}
+          </div>
+        ) : moistureSummary ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-white/70 dark:bg-gray-800/50 p-3 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">ค่าความชื้นเฉลี่ย</p>
+              <div className="text-2xl font-semibold text-gray-900 dark:text-white">
+                {moistureSummary.averageMoisture.toFixed(1)}%
+              </div>
+            </div>
+            <div className="bg-white/70 dark:bg-gray-800/50 p-3 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">ค่าความชื้นสูงสุด</p>
+              <div className="text-2xl font-semibold text-red-600 dark:text-red-400">
+                {moistureSummary.maxMoisture.toFixed(1)}%
+              </div>
+            </div>
+            <div className="bg-white/70 dark:bg-gray-800/50 p-3 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">ค่าความชื้นต่ำสุด</p>
+              <div className="text-2xl font-semibold text-emerald-600 dark:text-emerald-400">
+                {moistureSummary.minMoisture.toFixed(1)}%
+              </div>
+            </div>
+            <div className="bg-white/70 dark:bg-gray-800/50 p-3 rounded-lg">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">อุณหภูมิเฉลี่ย</p>
+              <div className="text-2xl font-semibold text-orange-600 dark:text-orange-400">
+                {moistureSummary.averageTemperature !== null
+                  ? `${moistureSummary.averageTemperature.toFixed(1)}°C`
+                  : '-'}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 dark:text-gray-400">ยังไม่มีข้อมูลสถิติ</p>
+        )}
       </div>
 
       {/* Details Grid */}

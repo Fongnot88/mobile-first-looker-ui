@@ -64,6 +64,7 @@ export default function MoistureMeterEquipment() {
       const latest = latestReadingsByDeviceCode[device.device_code];
       return {
         ...device,
+        device_code: latest?.device_code || device.device_code,
         display_name: latest?.device_name || device.display_name || device.device_code,
         updated_at: latest?.reading_time || device.updated_at
       };

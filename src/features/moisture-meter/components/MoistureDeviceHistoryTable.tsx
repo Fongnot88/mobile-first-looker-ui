@@ -33,7 +33,7 @@ export function MoistureDeviceHistoryTable({
   title = "ประวัติข้อมูลเครื่องวัดความชื้น" 
 }: MoistureDeviceHistoryTableProps) {
   const [pageSize, setPageSize] = useState(10);
-  const [sortKey, setSortKey] = useState<'reading_time' | 'moisture_machine' | 'moisture_model' | 'temperature'>('reading_time');
+  const [sortKey, setSortKey] = useState<'reading_time' | 'moisture_machine' | 'moisture_model' | 'temperature' | 'device_code'>('reading_time');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const { data: readings, isLoading, error } = useQuery({
@@ -123,6 +123,8 @@ export function MoistureDeviceHistoryTable({
           return item.moisture_model;
         case 'temperature':
           return item.temperature;
+        case 'device_code':
+          return (item.device_code || '').toLowerCase();
         default:
           return null;
       }
@@ -143,7 +145,7 @@ export function MoistureDeviceHistoryTable({
         return (aVal - bVal) * dir;
       }
 
-      return 0;
+      return String(aVal).localeCompare(String(bVal)) * dir;
     });
     return copy;
   }, [automaticReadings, sortDir, sortKey]);
@@ -200,7 +202,7 @@ export function MoistureDeviceHistoryTable({
         </h3>
         <div className="flex items-center gap-3 text-xs md:text-sm text-gray-500 dark:text-gray-300">
           <span className="whitespace-nowrap">
-            แสดง 4 คอลัมน์ | รวม {automaticReadings.length} รายการ
+            แสดง 5 คอลัมน์ | รวม {automaticReadings.length} รายการ
           </span>
         </div>
       </div>
@@ -239,6 +241,11 @@ export function MoistureDeviceHistoryTable({
                     อุณหภูมิ (°C) {renderSortIndicator('temperature')}
                   </button>
                 </TableHead>
+                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium">
+                  <button type="button" className="flex items-center gap-1" onClick={() => handleSort('device_code')}>
+                    รหัสอุปกรณ์ {renderSortIndicator('device_code')}
+                  </button>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -255,6 +262,9 @@ export function MoistureDeviceHistoryTable({
                   </TableCell>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
                     {formatNumber(reading.temperature)}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px]">
+                    {reading.device_code || '-'}
                   </TableCell>
                 </TableRow>
               ))}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, BellOff, Droplets, Thermometer, Settings2, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
+import { Bell, BellOff, Droplets, Thermometer, Settings2, ChevronDown, ChevronUp, PlayCircle, History } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { SuccessDialog } from '@/components/ui/success-dialog';
 import { useMoistureNotificationSettings, MoistureNotificationSettingsState } from '../hooks/useMoistureNotificationSettings';
 import { useAuth } from '@/components/AuthProvider';
+import { Link } from 'react-router-dom';
 
 interface MoistureNotificationCardProps {
   deviceCode: string | undefined;
@@ -126,10 +127,17 @@ export const MoistureNotificationCard: React.FC<MoistureNotificationCardProps> =
               การแจ้งเตือน
             </h4>
           </div>
-          <Switch
-            checked={settings.enabled}
-            onCheckedChange={(checked) => updateSetting('enabled', checked)}
-          />
+          <div className="flex items-center gap-2">
+            <Link to="/moisture-notification-history">
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <History size={16} className="text-muted-foreground" />
+              </Button>
+            </Link>
+            <Switch
+              checked={settings.enabled}
+              onCheckedChange={(checked) => updateSetting('enabled', checked)}
+            />
+          </div>
         </div>
 
         {/* Summary when collapsed */}

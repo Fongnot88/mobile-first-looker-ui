@@ -38,8 +38,9 @@ import DeviceAccessManagement from "./pages/DeviceAccessManagement";
 import Assistant from "./pages/Assistant";
 import PublicAnalysisView from "./pages/PublicAnalysisView";
 import PublicMoistureView from "./pages/PublicMoistureView";
-import APITestPage from "./pages/APITestPage"; // เพิ่ม import สำหรับหน้าทดสอบ
+import APITestPage from "./pages/APITestPage";
 import NotificationSettingsPage from "./pages/NotificationSettingsPage";
+import MoistureNotificationHistory from "./pages/MoistureNotificationHistory";
 
 import { NotificationSenderPage } from "./pages/NotificationSenderPage";
 
@@ -426,8 +427,15 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-
-      // Public shared analysis route (no auth required)
+      // Moisture notification history route - require login
+      {
+        path: "moisture-notification-history",
+        element: (
+          <ProtectedRoute>
+            <MoistureNotificationHistory />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: "shared/:token",
         element: <PublicAnalysisView />,

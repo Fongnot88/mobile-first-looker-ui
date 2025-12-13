@@ -4,6 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { LatestMoistureReading } from '../hooks/useLatestMoistureReading';
 import { MoistureMeterSetting } from '../hooks/useMoistureMeterSettings';
+import { MoistureNotificationCard } from './MoistureNotificationCard';
 
 export interface MoistureSummaryStats {
   averageMoisture: number;
@@ -111,21 +112,12 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
               <span className="text-xl text-cyan-600 dark:text-cyan-400">%</span>
             </div>
           </div>
-          {reading.moisture_model !== null && (
-            <div className="text-right">
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1 justify-end">
-                <Droplets size={12} />
-                ความชื้น (โมเดล)
-              </p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {reading.moisture_model?.toFixed(1) ?? '-'}
-                </span>
-                <span className="text-sm text-purple-600 dark:text-purple-400">%</span>
-              </div>
-            </div>
-          )}
         </div>
+      </div>
+
+      {/* Notification Settings Card */}
+      <div className="mb-4">
+        <MoistureNotificationCard deviceCode={reading.device_code} />
       </div>
 
       {/* Moisture Overview Summary */}

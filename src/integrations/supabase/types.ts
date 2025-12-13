@@ -299,6 +299,63 @@ export type Database = {
         }
         Relationships: []
       }
+      moisture_notification_settings: {
+        Row: {
+          created_at: string
+          device_code: string
+          enabled: boolean | null
+          id: string
+          moisture_enabled: boolean | null
+          moisture_max_enabled: boolean | null
+          moisture_max_threshold: number | null
+          moisture_min_enabled: boolean | null
+          moisture_min_threshold: number | null
+          temperature_enabled: boolean | null
+          temperature_max_enabled: boolean | null
+          temperature_max_threshold: number | null
+          temperature_min_enabled: boolean | null
+          temperature_min_threshold: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_code: string
+          enabled?: boolean | null
+          id?: string
+          moisture_enabled?: boolean | null
+          moisture_max_enabled?: boolean | null
+          moisture_max_threshold?: number | null
+          moisture_min_enabled?: boolean | null
+          moisture_min_threshold?: number | null
+          temperature_enabled?: boolean | null
+          temperature_max_enabled?: boolean | null
+          temperature_max_threshold?: number | null
+          temperature_min_enabled?: boolean | null
+          temperature_min_threshold?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_code?: string
+          enabled?: boolean | null
+          id?: string
+          moisture_enabled?: boolean | null
+          moisture_max_enabled?: boolean | null
+          moisture_max_threshold?: number | null
+          moisture_min_enabled?: boolean | null
+          moisture_min_threshold?: number | null
+          temperature_enabled?: boolean | null
+          temperature_max_enabled?: boolean | null
+          temperature_max_threshold?: number | null
+          temperature_min_enabled?: boolean | null
+          temperature_min_threshold?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           content: string

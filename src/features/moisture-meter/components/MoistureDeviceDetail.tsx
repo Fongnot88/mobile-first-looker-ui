@@ -1,9 +1,10 @@
 import React from 'react';
-import { MapPin, Thermometer, Clock, TrendingUp, Droplets } from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
+import { MapPin, Thermometer, Clock, TrendingUp, Droplets, BellRing } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { LatestMoistureReading } from '../hooks/useLatestMoistureReading';
 import { MoistureMeterSetting } from '../hooks/useMoistureMeterSettings';
+import { DEFAULT_MOISTURE_THRESHOLD } from '../utils/moistureCalculations';
 
 export interface MoistureSummaryStats {
   averageMoisture: number;
@@ -55,6 +56,13 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
   const displayName = settings?.display_name || reading.device_code || 'ไม่ระบุ';
   const location = settings?.location || 'โรงงาน 1';
   const isActive = settings?.is_active ?? true;
+  const modelMoisture = reading.moisture_model ?? null;
+  const alertThreshold = DEFAULT_MOISTURE_THRESHOLD.critical;
+  const hasAlertConfig = Boolean(settings);
+  const alertConditionText = hasAlertConfig
+    ? `แจ้งเตือนเมื่อ ≥ ${alertThreshold.toFixed(1)}%`
+    : 'ยังไม่ได้ตั้งค่าแจ้งเตือน';
+  const isInAlert = hasAlertConfig && modelMoisture !== null && modelMoisture >= alertThreshold;
   
   const readingTime = reading.reading_time ? new Date(reading.reading_time) : null;
 
@@ -111,20 +119,57 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
               <span className="text-xl text-cyan-600 dark:text-cyan-400">%</span>
             </div>
           </div>
-          {reading.moisture_model !== null && (
-            <div className="text-right">
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1 justify-end">
-                <Droplets size={12} />
-                ความชื้น (โมเดล)
-              </p>
-              <div className="flex items-baseline gap-1">
-                <span className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                  {reading.moisture_model?.toFixed(1) ?? '-'}
-                </span>
-                <span className="text-sm text-purple-600 dark:text-purple-400">%</span>
+          <div className="text-right">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1 justify-end">
+              <BellRing size={12} />
+              สถานะแจ้งเตือน
+            </p>
+            <div className="flex flex-col items-end gap-1">
+              <div
+                className={`flex items-center gap-2 px-2 py-1 rounded-md text-xs font-medium ${
+                  hasAlertConfig
+                    ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-900/40 dark:text-gray-300'
+                }`}
+              >
+                <BellRing size={14} />
+                <span>{alertConditionText}</span>
               </div>
+              <div className="flex items-baseline gap-1">
+                <span
+                  className={`text-2xl font-bold ${
+                    isInAlert
+                      ? 'text-red-600 dark:text-red-400 animate-pulse'
+                      : 'text-purple-600 dark:text-purple-400'
+                  }`}
+                >
+                  {modelMoisture !== null ? modelMoisture.toFixed(1) : '-'}
+                </span>
+                <span
+                  className={`text-sm ${
+                    isInAlert
+                      ? 'text-red-600 dark:text-red-400 animate-pulse'
+                      : 'text-purple-600 dark:text-purple-400'
+                  }`}
+                >
+                  %
+                </span>
+              </div>
+              <p
+                className={`text-xs ${
+                  isInAlert
+                    ? 'text-red-600 dark:text-red-300'
+                    : 'text-gray-600 dark:text-gray-400'
+                }`}
+              >
+                {isInAlert
+                  ? 'เข้าเงื่อนไขแจ้งเตือนแล้ว'
+                  : hasAlertConfig
+                    ? 'ยังไม่ถึงพิกัดแจ้งเตือน'
+                    : 'ยังไม่ได้ตั้งค่าแจ้งเตือน'}
+              </p>
             </div>
-          )}
+          </div>
         </div>
       </div>
 

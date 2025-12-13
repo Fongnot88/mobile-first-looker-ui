@@ -10,7 +10,9 @@ import { NotificationSetting } from "../types";
 import { lazy } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { MoistureMeterDashboard } from "@/features/moisture-meter/components";
+import { MoistureReadingDisplay } from "@/features/moisture-meter/components/MoistureReadingDisplay";
 import { generateMockMoistureDevices } from "@/features/moisture-meter/utils/moistureCalculations";
+import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLatestMoistureReading";
 import { useNavigate } from "react-router-dom";
 
 // Lazy load the DeviceHistoryTable component
@@ -55,8 +57,13 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Check if this is a moisture meter device
-  const isMoistureMeter = deviceCode?.startsWith('MM');
+  // Check if this is a moisture meter device (case-insensitive)
+  const isMoistureMeter = deviceCode?.toLowerCase().startsWith('mm');
+  
+  // Fetch latest moisture reading for moisture meter devices
+  const { data: latestReading, isLoading: isLoadingMoisture } = useLatestMoistureReading(
+    isMoistureMeter ? deviceCode : ''
+  );
   
   // Generate mock moisture devices for demo
   const [mockDevices] = useState(() => 
@@ -100,12 +107,15 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
           </div>
         </div>
         
-        {/* Show Moisture Meter Dashboard for MM devices */}
+        {/* Show Moisture Reading Display for MM devices */}
         {isMoistureMeter ? (
           <div className="px-[5%] md:px-0 mb-6">
-            <MoistureMeterDashboard
-              devices={mockDevices}
-              onViewHistory={handleViewHistory}
+            <MoistureReadingDisplay
+              moistureMachine={latestReading?.moisture_machine ?? null}
+              moistureModel={latestReading?.moisture_model ?? null}
+              temperature={latestReading?.temperature ?? null}
+              readingTime={latestReading?.reading_time ?? null}
+              isLoading={isLoadingMoisture}
             />
           </div>
         ) : (

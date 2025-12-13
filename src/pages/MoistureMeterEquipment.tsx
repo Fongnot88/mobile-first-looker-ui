@@ -5,8 +5,9 @@ import { AppLayout } from "@/components/layouts";
 import { DeviceHistoryTable } from "@/features/device-details/components/DeviceHistoryTable";
 import { MoistureReadingsTable } from "@/features/moisture-meter/components/MoistureReadingsTable";
 import { useGuestMode } from "@/hooks/useGuestMode";
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect } from "react";
 import { useDevicesQuery } from "@/features/equipment/hooks/useDevicesQuery";
+import { useMoistureReadings, type MoistureReading } from "@/features/moisture-meter/hooks/useMoistureReadings";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNavigationHistory } from "@/hooks/useNavigationHistory";
 import demoMoistureMeterData from "@/data/demo-moisture-meter.json";
@@ -25,6 +26,18 @@ export default function MoistureMeterEquipment() {
   const { isGuest } = useGuestMode();
   const { t } = useTranslation();
   const { saveNavigationHistory } = useNavigationHistory();
+  const { data: moistureReadings } = useMoistureReadings({ limit: 200 });
+  
+  const latestReadingsByDeviceCode = useMemo(() => {
+    const map: Record<string, MoistureReading> = {};
+    (moistureReadings ?? []).forEach((reading) => {
+      if (!reading.device_code) return;
+      if (!map[reading.device_code]) {
+        map[reading.device_code] = reading;
+      }
+    });
+    return map;
+  }, [moistureReadings]);
   
   // Filter devices for moisture meters only
   const moistureMeterDevices = useMemo(() => {
@@ -45,6 +58,17 @@ export default function MoistureMeterEquipment() {
     
     return filteredDevices;
   }, [devices, isLoading]);
+  
+  const moistureMeterDevicesWithReadings = useMemo(() => {
+    return moistureMeterDevices.map((device) => {
+      const latest = latestReadingsByDeviceCode[device.device_code];
+      return {
+        ...device,
+        display_name: latest?.device_name || device.display_name || device.device_code,
+        updated_at: latest?.reading_time || device.updated_at
+      };
+    });
+  }, [moistureMeterDevices, latestReadingsByDeviceCode]);
   
   // Memoize deviceIds to prevent unnecessary re-renders
   const deviceIds = useMemo(() => {
@@ -109,7 +133,7 @@ export default function MoistureMeterEquipment() {
       
       {/* Moisture Meter Devices Grid - Show for both authenticated users and guests */}
       <DevicesGrid 
-        devices={moistureMeterDevices} 
+        devices={moistureMeterDevicesWithReadings} 
         isAdmin={isAdmin && !isGuest} 
         isLoading={isLoading} 
         isSuperAdmin={isSuperAdmin && !isGuest} 

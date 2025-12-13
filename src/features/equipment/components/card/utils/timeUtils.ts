@@ -2,19 +2,37 @@
 import { format } from "date-fns";
 import { th, enUS, zhCN } from "date-fns/locale";
 
+const parseTimestamp = (value: string | null): Date | null => {
+  if (!value || value === "-") return null;
+
+  // พยายาม parse รูปแบบ "YYYY-MM-DD HH:mm:ss" (เช่นจาก moisture_meter_readings)
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (match) {
+    const [, year, month, day, hour, minute, second = "0"] = match;
+    return new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(hour),
+      Number(minute),
+      Number(second)
+    );
+  }
+
+  const date = new Date(value);
+  return isNaN(date.getTime()) ? null : date;
+};
+
 export const formatEquipmentTime = (lastUpdated: string | null, language: 'th' | 'en' | 'zh' = 'th') => {
-  if (!lastUpdated || lastUpdated === "-") {
+  const date = parseTimestamp(lastUpdated);
+  if (!date) {
     switch (language) {
       case 'en': return "No data";
       case 'zh': return "无数据";
       default: return "ไม่มีข้อมูล";
     }
   }
-  
-  const date = new Date(lastUpdated);
-  // เพิ่มเวลาอีก 7 ชั่วโมง
-  date.setHours(date.getHours() + 7);
-  
+
   switch (language) {
     case 'en':
       return format(date, "dd MMM yy HH:mm", { locale: enUS });
@@ -64,10 +82,8 @@ export const isRecentUpdate = (lastUpdated: string | null, deviceData?: any): bo
   
   // ตรวจสอบเวลา (ภายใน 30 นาที)
   try {
-    const adjustedLastUpdateDate = new Date(lastUpdated);
-    adjustedLastUpdateDate.setHours(adjustedLastUpdateDate.getHours() + 7);
-    
-    if (isNaN(adjustedLastUpdateDate.getTime())) {
+    const adjustedLastUpdateDate = parseTimestamp(lastUpdated);
+    if (!adjustedLastUpdateDate) {
       console.warn("❌ Invalid date string:", lastUpdated);
       return false;
     }

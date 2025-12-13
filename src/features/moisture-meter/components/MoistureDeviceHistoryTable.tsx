@@ -34,7 +34,7 @@ export function MoistureDeviceHistoryTable({
   title = "ประวัติข้อมูลเครื่องวัดความชื้น" 
 }: MoistureDeviceHistoryTableProps) {
   const [pageSize, setPageSize] = useState(10);
-  const [sortKey, setSortKey] = useState<'reading_time' | 'display_name' | 'moisture_machine' | 'moisture_model' | 'temperature' | 'device_code'>('reading_time');
+  const [sortKey, setSortKey] = useState<'reading_time' | 'display_name' | 'moisture_machine' | 'temperature' | 'device_code'>('reading_time');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
   const { data: readings, isLoading, error } = useQuery({
@@ -136,8 +136,6 @@ export function MoistureDeviceHistoryTable({
           return (item.display_name || item.device_code || '').toLowerCase();
         case 'moisture_machine':
           return item.moisture_machine;
-        case 'moisture_model':
-          return item.moisture_model;
         case 'temperature':
           return item.temperature;
         case 'device_code':
@@ -219,7 +217,7 @@ export function MoistureDeviceHistoryTable({
         </h3>
         <div className="flex items-center gap-3 text-xs md:text-sm text-gray-500 dark:text-gray-300">
           <span className="whitespace-nowrap">
-            แสดง 6 คอลัมน์ | รวม {automaticReadings.length} รายการ
+            แสดง 5 คอลัมน์ | รวม {automaticReadings.length} รายการ
           </span>
         </div>
       </div>
@@ -253,12 +251,6 @@ export function MoistureDeviceHistoryTable({
                   </button>
                 </TableHead>
                 <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
-                  <button type="button" className="flex items-center justify-end gap-1 w-full" onClick={() => handleSort('moisture_model')}>
-                    <Droplets className="h-4 w-4" />
-                    Model % {renderSortIndicator('moisture_model')}
-                  </button>
-                </TableHead>
-                <TableHead className="whitespace-nowrap px-1.5 py-0.5 text-[11px] font-medium text-right">
                   <button type="button" className="flex items-center justify-end gap-1 w-full" onClick={() => handleSort('temperature')}>
                     อุณหภูมิ (°C) {renderSortIndicator('temperature')}
                   </button>
@@ -281,9 +273,6 @@ export function MoistureDeviceHistoryTable({
                   </TableCell>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
                     {formatNumber(reading.moisture_machine)}
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
-                    {formatNumber(reading.moisture_model)}
                   </TableCell>
                   <TableCell className="whitespace-nowrap px-1.5 py-0.5 text-[11px] text-right font-mono">
                     {formatNumber(reading.temperature)}

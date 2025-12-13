@@ -17,8 +17,6 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
   const [visibleLines, setVisibleLines] = useState({
     moistureMachine: true,
     moistureMachineAvg: true,
-    moistureModel: false,
-    moistureModelAvg: false,
     temperature: false,
     temperatureAvg: false,
   });
@@ -26,9 +24,6 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
   const averages = useMemo(() => {
     const moistureMachineValues = data
       .map((r) => r.moisture_machine)
-      .filter((v): v is number => v !== null && v !== undefined);
-    const moistureModelValues = data
-      .map((r) => r.moisture_model)
       .filter((v): v is number => v !== null && v !== undefined);
     const temperatureValues = data
       .map((r) => r.temperature)
@@ -39,7 +34,6 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
 
     return {
       moistureMachineAvg: avg(moistureMachineValues),
-      moistureModelAvg: avg(moistureModelValues),
       temperatureAvg: avg(temperatureValues),
     };
   }, [data]);
@@ -53,10 +47,8 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
         ? format(new Date(reading.reading_time), "d MMM yyyy HH:mm", { locale: th })
         : "-",
       moistureMachine: reading.moisture_machine,
-      moistureModel: reading.moisture_model,
       temperature: reading.temperature,
       moistureMachineAvg: averages.moistureMachineAvg,
-      moistureModelAvg: averages.moistureModelAvg,
       temperatureAvg: averages.temperatureAvg,
     }));
   }, [data, averages]);
@@ -75,8 +67,6 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
     setVisibleLines({
       moistureMachine: next,
       moistureMachineAvg: next,
-      moistureModel: next,
-      moistureModelAvg: next,
       temperature: next,
       temperatureAvg: next,
     });
@@ -137,10 +127,8 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
         </button>
         {[
           { key: "moistureMachine", label: "ความชื้น (เครื่อง)", color: "#3b82f6" },
-          { key: "moistureModel", label: "ความชื้น (โมเดล)", color: "#06b6d4" },
           { key: "temperature", label: "อุณหภูมิ", color: "#f97316" },
           { key: "moistureMachineAvg", label: "ค่าเฉลี่ย (เครื่อง)", color: "#60a5fa" },
-          { key: "moistureModelAvg", label: "ค่าเฉลี่ย (โมเดล)", color: "#22d3ee" },
           { key: "temperatureAvg", label: "ค่าเฉลี่ยอุณหภูมิ", color: "#fb923c" },
         ].map((item) => (
           <button
@@ -204,19 +192,6 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
                 connectNulls
               />
             )}
-            {visibleLines.moistureModel && (
-              <Line
-                yAxisId="moisture"
-                type="monotone"
-                dataKey="moistureModel"
-                name="ความชื้น (โมเดล)"
-                stroke="#06b6d4"
-                strokeWidth={2}
-                dot={{ r: 3, fill: '#06b6d4' }}
-                activeDot={{ r: 5 }}
-                connectNulls
-              />
-            )}
             {visibleLines.temperature && (
               <Line
                 yAxisId="temperature"
@@ -237,19 +212,6 @@ export const MoistureTrendChart: React.FC<MoistureTrendChartProps> = ({
                 dataKey="moistureMachineAvg"
                 name="ค่าเฉลี่ย (เครื่อง)"
                 stroke="#60a5fa"
-                strokeWidth={2}
-                strokeDasharray="6 4"
-                dot={false}
-                connectNulls
-              />
-            )}
-            {visibleLines.moistureModelAvg && averages.moistureModelAvg !== null && (
-              <Line
-                yAxisId="moisture"
-                type="monotone"
-                dataKey="moistureModelAvg"
-                name="ค่าเฉลี่ย (โมเดล)"
-                stroke="#22d3ee"
                 strokeWidth={2}
                 strokeDasharray="6 4"
                 dot={false}

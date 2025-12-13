@@ -58,13 +58,22 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
   
   const readingTime = reading.reading_time ? new Date(reading.reading_time) : null;
 
+  const formatUtcDateTime = (date: Date) =>
+    new Intl.DateTimeFormat('th-TH', {
+      timeZone: 'UTC',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(date);
+
   const lastUpdated = readingTime
     ? formatDistanceToNow(readingTime, { addSuffix: true, locale: th })
     : 'ไม่ทราบ';
 
-  const formattedTime = readingTime
-    ? format(readingTime, 'd MMM yyyy HH:mm', { locale: th })
-    : '-';
+  const formattedTime = readingTime ? formatUtcDateTime(readingTime) : '-';
 
   return (
     <div className="bg-white/70 dark:bg-gray-800/40 p-6 rounded-xl border border-gray-100 dark:border-gray-800/30 shadow-md backdrop-blur-sm">
@@ -203,8 +212,7 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
       {/* Last Updated */}
       <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-4 pb-4 border-b border-gray-200 dark:border-gray-700">
         <Clock size={14} />
-        <span>อัพเดตล่าสุด: {lastUpdated}</span>
-        <span className="text-xs text-gray-400">({formattedTime})</span>
+        <span>อัพเดตล่าสุด: {formattedTime}</span>
       </div>
 
       {/* View History Button */}

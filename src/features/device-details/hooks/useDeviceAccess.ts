@@ -2,7 +2,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
-import { fetchDevicesWithDetails } from "@/features/equipment/services";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useDeviceAccess = (deviceCode: string | undefined) => {
@@ -11,18 +10,29 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
 
-  // Check device access permissions for authenticated users
+  // Check device access permissions for authenticated users directly from user_device_access table
+  // This supports both rice quality meters AND moisture meters
   const {
-    data: accessibleDevices,
+    data: accessibleDeviceCodes,
     isLoading: isCheckingAccess
   } = useQuery({
-    queryKey: ['deviceAccess', user?.id, userRoles],
+    queryKey: ['userDeviceAccess', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      // Both admin and superadmin get full access to all devices
-      return await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
+      
+      const { data, error } = await supabase
+        .from('user_device_access')
+        .select('device_code')
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('Error fetching user device access:', error);
+        return [];
+      }
+      
+      return data?.map(item => item.device_code) || [];
     },
-    enabled: !!user && !isGuest
+    enabled: !!user && !isGuest && !isAdmin && !isSuperAdmin
   });
 
   // Check guest device access
@@ -58,8 +68,8 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
     if (isAdmin || isSuperAdmin) {
       hasDeviceAccess = true; // Admin and SuperAdmin have access to all devices
     } else {
-      // Regular users need to check their specific device access
-      hasDeviceAccess = accessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
+      // Regular users need to check their specific device access from user_device_access table
+      hasDeviceAccess = accessibleDeviceCodes?.includes(deviceCode || '') ?? false;
     }
   }
 

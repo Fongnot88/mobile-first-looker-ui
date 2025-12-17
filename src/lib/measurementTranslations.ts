@@ -9,7 +9,7 @@ export const useMeasurementTranslations = () => {
     const translationMap: Record<string, { category: string, key: string }> = {
       'created_at': { category: 'measurements', key: 'recordDate' },
       'device_code': { category: 'measurements', key: 'deviceCode' },
-      'machine_unix_time': { category: 'measurements', key: 'machineUnixTime' },
+      'machine_unix_time_minus_1h': { category: 'measurements', key: 'machineUnixTime' },
       'class1': { category: 'measurements', key: 'class1' },
       'class2': { category: 'measurements', key: 'class2' },
       'class3': { category: 'measurements', key: 'class3' },

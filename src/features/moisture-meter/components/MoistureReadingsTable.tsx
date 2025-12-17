@@ -11,14 +11,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useMoistureReadings } from "../hooks/useMoistureReadings";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface MoistureReadingsTableProps {
   title?: string;
 }
 
 export function MoistureReadingsTable({ 
-  title = "ประวัติอุปกรณ์เครื่องวัดความชื้นข้าว" 
+  title 
 }: MoistureReadingsTableProps) {
+  const { t } = useTranslation();
+  const defaultTitle = t('dataCategories', 'moistureAllDevicesHistoryTitle');
   const [pageSize, setPageSize] = useState(10);
   const [sortKey, setSortKey] = useState<'reading_time' | 'display_name' | 'moisture_machine' | 'temperature' | 'device_code'>('reading_time');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
@@ -27,7 +30,21 @@ export function MoistureReadingsTable({
     limit: pageSize
   });
 
-  const allReadings = readings ?? [];
+  // Filter out duplicate readings based on ID
+  const uniqueReadings = useMemo(() => {
+    const seen = new Set<string>();
+    return (readings ?? []).filter(item => {
+      const key = item.id;
+      if (seen.has(key)) {
+        console.warn('Duplicate reading found:', key);
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }, [readings]);
+
+  const allReadings = uniqueReadings;
 
   const formatDateTime = (dateString: string | null) => {
     if (!dateString) return "-";
@@ -131,7 +148,7 @@ export function MoistureReadingsTable({
     return (
       <div className="w-full">
         <h3 className="text-lg font-semibold mb-4 text-emerald-800 dark:text-emerald-400">
-          {title}
+          {title || defaultTitle}
         </h3>
         <div className="flex justify-center items-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
@@ -144,7 +161,7 @@ export function MoistureReadingsTable({
     console.error("MoistureReadingsTable error:", error);
     return (
       <div className="w-full">
-        <h3 className="text-lg font-semibold mb-4 text-emerald-800 dark:text-emerald-400">{title}</h3>
+        <h3 className="text-lg font-semibold mb-4 text-emerald-800 dark:text-emerald-400">{title || defaultTitle}</h3>
         <div className="text-center py-8">
           <div className="text-amber-600 dark:text-amber-400 mb-2">
             <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +187,7 @@ export function MoistureReadingsTable({
     <div className="w-full">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold text-emerald-800 dark:text-emerald-400">
-          {title}
+          {title || defaultTitle}
         </h3>
         <div className="flex items-center gap-3 text-xs md:text-sm text-gray-500 dark:text-gray-300">
           <span className="whitespace-nowrap">

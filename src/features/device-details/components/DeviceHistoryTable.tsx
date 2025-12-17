@@ -10,7 +10,7 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 export const DeviceHistoryTable: React.FC<DeviceHistoryTableProps & { title?: string }> = ({ deviceIds, title }) => {
   const { t } = useTranslation();
-  const actualTitle = title || t('dataCategories', 'historyTitle');
+  const actualTitle = title || t('dataCategories', 'riceQualityHistoryTitle');
   const [selectedRow, setSelectedRow] = useState<RiceQualityData | null>(null);
   
   const {

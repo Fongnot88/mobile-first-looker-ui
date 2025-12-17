@@ -32,11 +32,48 @@ export const useHistoryData = (deviceIds?: string[]) => {
         console.error('Error fetching history data:', error);
         throw error;
       }
+
+      // Smart Deduplication: Content-based and Time-based
+      // Handles double entries where timestamps differ slightly (e.g. milliseconds) but data is identical
+      const uniqueData = data ? (data as any[]).filter((item, index, self) => {
+        // 1. Check for exact duplicates first (fastest)
+        const exactKey = `${item.device_code}-${item.created_at}`;
+        const firstExactIndex = self.findIndex(t => `${t.device_code}-${t.created_at}` === exactKey);
+        if (index !== firstExactIndex) return false;
+
+        // 2. Deep content check for "effectively duplicate" records
+        // Same device, similar time (< 60s diff), identical critical values
+        const currentMs = new Date(item.created_at).getTime();
+        
+        // Check if there is any earlier record (lower index) that matches criteria
+        const isDuplicateOfPrevious = self.slice(0, index).some(prev => {
+          if (prev.device_code !== item.device_code) return false;
+          
+          // Time check: un-duplicates usually happen within seconds
+          const prevMs = new Date(prev.created_at).getTime();
+          if (Math.abs(currentMs - prevMs) > 60000) return false; // > 1 minute diff = distinct
+          
+          // Content check: Compare key quality metrics
+          // If all these matched, it's overwhelmingly likely to be the same sample
+          return (
+            prev.whole_kernels === item.whole_kernels &&
+            prev.head_rice === item.head_rice &&
+            prev.total_brokens === item.total_brokens &&
+            prev.yellow_rice_rate === item.yellow_rice_rate
+          );
+        });
+
+        return !isDuplicateOfPrevious;
+      }) : [];
       
-      console.log('Successfully fetched history data:', { count, dataLength: data?.length });
+      console.log('Successfully fetched history data:', { 
+        count, 
+        rawLength: data?.length, 
+        uniqueLength: uniqueData.length 
+      });
       
-      // Get unique device codes from the results
-      const deviceCodes = [...new Set(data?.map(item => item.device_code))];
+      // Get unique device codes from the filtered unique results
+      const deviceCodes = [...new Set(uniqueData.map(item => item.device_code))];
       
       // Fetch device display names if we have device codes
       let deviceNamesMap: Record<string, string> = {};
@@ -57,7 +94,7 @@ export const useHistoryData = (deviceIds?: string[]) => {
       }
       
       // Add device_display_name and ensure all required fields exist with defaults
-      const enhancedData = data?.map(item => ({
+      const enhancedData = uniqueData.map(item => ({
         ...item,
         device_display_name: deviceNamesMap[item.device_code] || item.device_code,
         // Add default values for new columns if they don't exist - using bracket notation for type safety
@@ -72,6 +109,7 @@ export const useHistoryData = (deviceIds?: string[]) => {
         // New fields
         cur_material: (item as any)['cur_material'] ?? null,
         cur_variety: (item as any)['cur_variety'] ?? null,
+        machine_unix_time: (item as any)['machine_unix_time'] ?? null,
         simple_index: (item as any)['simple_index'] ?? null,
         msg_id: (item as any)['msg_id'] ?? null,
         surveyor: (item as any)['surveyor'] ?? null,

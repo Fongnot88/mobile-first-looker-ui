@@ -76,7 +76,7 @@ export const COLUMN_ORDER = [
   // New columns
   'cur_material',
   'sample_index',
-  'machine_unix_time_minus_1h',
+  'machine_unix_time',
   // Move to end
   'device_code',
   'sample_source'
@@ -118,7 +118,7 @@ export const formatCellValue = (key: string, value: any): string => {
     return value?.toString() || '-';
   }
 
-  if (key === 'machine_unix_time_minus_1h') {
+  if (key === 'machine_unix_time') {
     if (!value) return '-';
     // Display timestamp as-is without timezone conversion
     const dateStr = String(value);

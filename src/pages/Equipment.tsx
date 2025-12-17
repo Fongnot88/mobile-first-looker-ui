@@ -22,11 +22,22 @@ export default function Equipment() {
   
   const { isGuest } = useGuestMode();
   const { t } = useTranslation();
+
+  // Constants for Guest mode
+  const GUEST_ALLOWED_DEVICES = [
+    '6400000401398',
+    '6400000401483',
+    '6400000401493',
+    '6400000401497'
+  ];
   
   // Memoize deviceIds to prevent unnecessary re-renders
   const deviceIds = useMemo(() => {
+    if (isGuest) {
+      return GUEST_ALLOWED_DEVICES;
+    }
     return devices.map(d => d.device_code);
-  }, [devices]);
+  }, [devices, isGuest]);
   
   // Memoize refresh handler to prevent recreating on every render
   const handleRefresh = useMemo(() => {
@@ -72,7 +83,7 @@ export default function Equipment() {
 
       {/* Device History Table - Show to all users including guests */}
       <div id="device-history" className="mt-8 bg-white dark:bg-gray-800 p-5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-        <DeviceHistoryTable deviceIds={deviceIds} title={t('device', 'deviceHistory')} />
+        <DeviceHistoryTable deviceIds={deviceIds} title={t('dataCategories', 'riceQualityHistoryTitle')} />
       </div>
     </AppLayout>
   );

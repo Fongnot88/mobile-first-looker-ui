@@ -36,6 +36,9 @@ export function EquipmentCardContent({
     ? deviceData?.reading_time || lastUpdated
     : deviceData?.machine_unix_time || lastUpdated;
   
+  // Debug log เพื่อตรวจสอบค่าที่ใช้แสดงผล
+  console.log(`⏰ Device ${deviceCode} - timeToDisplay:`, timeToDisplay, '| machine_unix_time:', deviceData?.machine_unix_time);
+  
   const formattedTime = formatEquipmentTime(timeToDisplay, language);
   const isRecent = isRecentUpdate(timeToDisplay, deviceData, isMoistureMeter);
   const timeClasses = getTimeClasses(isRecent);

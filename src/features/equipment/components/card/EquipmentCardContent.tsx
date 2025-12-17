@@ -29,8 +29,15 @@ export function EquipmentCardContent({
   const { data: notificationStatus, isLoading, error } = useNotificationStatus(deviceCode);
   // subscribe realtime so bell updates immediately when settings change
   useNotificationStatusRealtime(deviceCode);
-  const formattedTime = formatEquipmentTime(lastUpdated, language);
-  const isRecent = isRecentUpdate(lastUpdated, deviceData, isMoistureMeter);
+  
+  // สำหรับเครื่องวัดคุณภาพข้าว ใช้ machine_unix_time จาก deviceData โดยตรง
+  // สำหรับเครื่องวัดความชื้น ใช้ reading_time จาก deviceData
+  const timeToDisplay = isMoistureMeter 
+    ? deviceData?.reading_time || lastUpdated
+    : deviceData?.machine_unix_time || lastUpdated;
+  
+  const formattedTime = formatEquipmentTime(timeToDisplay, language);
+  const isRecent = isRecentUpdate(timeToDisplay, deviceData, isMoistureMeter);
   const timeClasses = getTimeClasses(isRecent);
 
   // สถานะเปิด/ปิดแจ้งเตือนระดับผู้ใช้

@@ -152,7 +152,9 @@ export const useNotificationStatusRealtime = (deviceCode: string) => {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        channel.unsubscribe();
+      }
     };
   }, [user?.id, deviceCode, queryClient]);
 };

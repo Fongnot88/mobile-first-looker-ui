@@ -2,13 +2,16 @@
 import { format } from "date-fns";
 import { th, enUS, zhCN } from "date-fns/locale";
 
+// Parse timestamp โดยไม่แปลง timezone (สำหรับ machine_unix_time ที่เป็นเวลาไทยอยู่แล้ว)
 const parseTimestamp = (value: string | null): Date | null => {
   if (!value || value === "-") return null;
 
-  // พยายาม parse รูปแบบ "YYYY-MM-DD HH:mm:ss" (เช่นจาก moisture_meter_readings)
+  // พยายาม parse รูปแบบ "YYYY-MM-DD HH:mm:ss" หรือ "YYYY-MM-DDTHH:mm:ss"
+  // โดยไม่แปลง timezone - ถือว่าเป็น local time
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
   if (match) {
     const [, year, month, day, hour, minute, second = "0"] = match;
+    // สร้าง Date object โดยใช้ค่าตรงๆ ไม่แปลง timezone
     return new Date(
       Number(year),
       Number(month) - 1,
@@ -19,6 +22,7 @@ const parseTimestamp = (value: string | null): Date | null => {
     );
   }
 
+  // ถ้าไม่ตรงรูปแบบ ลอง parse แบบปกติ
   const date = new Date(value);
   return isNaN(date.getTime()) ? null : date;
 };

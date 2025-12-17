@@ -44,6 +44,8 @@ export interface RiceQualityData {
   msg_id: string | null;
   surveyor: string | null;
   sample_source: string | null;
+  machine_unix_time: string | null;
+  machine_unix_time_minus_1h: string | null;
   [key: string]: any;
 }
 

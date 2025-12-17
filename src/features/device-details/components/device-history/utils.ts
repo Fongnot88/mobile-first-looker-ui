@@ -119,7 +119,20 @@ export const formatCellValue = (key: string, value: any): string => {
   }
 
   if (key === 'machine_unix_time_minus_1h') {
-    return value?.toString() || '-';
+    if (!value) return '-';
+    // Display timestamp as-is without timezone conversion
+    const dateStr = String(value);
+    // If format is "YYYY-MM-DD HH:MM:SS", extract and format
+    if (dateStr.includes(' ') || dateStr.includes('T')) {
+      const parts = dateStr.replace('T', ' ').split(' ');
+      const datePart = parts[0]; // YYYY-MM-DD
+      const timePart = parts[1]?.slice(0, 5) || ''; // HH:MM
+      if (datePart && datePart.includes('-')) {
+        const [year, month, day] = datePart.split('-');
+        return `${day}/${month}/${year} ${timePart}`;
+      }
+    }
+    return dateStr;
   }
 
   if (key === 'cur_material' || key === 'cur_variety') {

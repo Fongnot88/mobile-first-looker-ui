@@ -30,14 +30,14 @@ export function EquipmentCardContent({
   // subscribe realtime so bell updates immediately when settings change
   useNotificationStatusRealtime(deviceCode);
   
-  // สำหรับเครื่องวัดคุณภาพข้าว ใช้ machine_unix_time จาก deviceData โดยตรง
+  // สำหรับเครื่องวัดคุณภาพข้าว ใช้ machine_unix_time_minus_1h เป็นมาตรฐาน (ไม่ต้องแปลง timezone)
   // สำหรับเครื่องวัดความชื้น ใช้ reading_time จาก deviceData
   const timeToDisplay = isMoistureMeter 
     ? deviceData?.reading_time || lastUpdated
-    : deviceData?.machine_unix_time || lastUpdated;
+    : deviceData?.machine_unix_time_minus_1h || lastUpdated;
   
   // Debug log เพื่อตรวจสอบค่าที่ใช้แสดงผล
-  console.log(`⏰ Device ${deviceCode} - timeToDisplay:`, timeToDisplay, '| machine_unix_time:', deviceData?.machine_unix_time);
+  console.log(`⏰ Device ${deviceCode} - timeToDisplay:`, timeToDisplay, '| machine_unix_time_minus_1h:', deviceData?.machine_unix_time_minus_1h);
   
   const formattedTime = formatEquipmentTime(timeToDisplay, language);
   const isRecent = isRecentUpdate(timeToDisplay, deviceData, isMoistureMeter);

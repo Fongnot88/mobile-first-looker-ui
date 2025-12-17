@@ -2,7 +2,7 @@
 import { format } from "date-fns";
 import { th, enUS, zhCN } from "date-fns/locale";
 
-// Parse timestamp โดยไม่แปลง timezone (สำหรับ machine_unix_time ที่เป็นเวลาไทยอยู่แล้ว)
+// Parse timestamp โดยไม่แปลง timezone (สำหรับ machine_unix_time_minus_1h ที่เป็นเวลาไทยอยู่แล้ว)
 const parseTimestamp = (value: string | null): Date | null => {
   if (!value || value === "-") return null;
 

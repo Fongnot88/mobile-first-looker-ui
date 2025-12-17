@@ -113,6 +113,7 @@ export const columnTranslations: Record<string, string> = {
   msg_id: 'เวลา_msg',
   surveyor: 'ผู้ตรวจ',
   sample_source: 'จาก',
+  machine_unix_time_minus_1h: 'เวลาเครื่อง',
 };
 
 export const columnTranslationsEn: Record<string, string> = {
@@ -161,6 +162,7 @@ export const columnTranslationsEn: Record<string, string> = {
   msg_id: 'Message Time',
   surveyor: 'Surveyor',
   sample_source: 'From',
+  machine_unix_time_minus_1h: 'Machine Time',
 };
 
 export const columnTranslationsZh: Record<string, string> = {
@@ -209,4 +211,5 @@ export const columnTranslationsZh: Record<string, string> = {
   msg_id: '消息时间',
   surveyor: '检查员',
   sample_source: '来自',
+  machine_unix_time_minus_1h: '机器时间',
 };

@@ -79,10 +79,10 @@ export function DevicesGrid({
         {sortedDevices.map((device) => {
           console.log(`🎯 Rendering card for ${device.device_code} with deviceData:`, device.deviceData);
           
-          // สำหรับเครื่องวัดความชื้นใช้ reading_time, สำหรับเครื่องวัดคุณภาพใช้ machine_unix_time
+          // สำหรับเครื่องวัดความชื้นใช้ reading_time, สำหรับเครื่องวัดคุณภาพใช้ machine_unix_time_minus_1h
           const lastUpdatedTime = isMoistureMeter 
             ? device.deviceData?.reading_time || device.updated_at
-            : device.deviceData?.machine_unix_time || device.updated_at;
+            : device.deviceData?.machine_unix_time_minus_1h || device.updated_at;
           
           return (
             <EquipmentCard

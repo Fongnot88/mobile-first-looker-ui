@@ -675,6 +675,7 @@ export type Database = {
           impurity_num: number | null
           light_honey_rice: number
           machine_unix_time: string | null
+          machine_unix_time_minus_1h: string | null
           main_index: number | null
           main_rate: number | null
           mix_index: number | null
@@ -726,6 +727,7 @@ export type Database = {
           impurity_num?: number | null
           light_honey_rice?: number
           machine_unix_time?: string | null
+          machine_unix_time_minus_1h?: string | null
           main_index?: number | null
           main_rate?: number | null
           mix_index?: number | null
@@ -777,6 +779,7 @@ export type Database = {
           impurity_num?: number | null
           light_honey_rice?: number
           machine_unix_time?: string | null
+          machine_unix_time_minus_1h?: string | null
           main_index?: number | null
           main_rate?: number | null
           mix_index?: number | null

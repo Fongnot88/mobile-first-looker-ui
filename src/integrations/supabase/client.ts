@@ -26,31 +26,52 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   }
 });
 
-// Comprehensive realtime disable by overriding the channel method completely
-const originalChannel = supabase.channel;
+// Comprehensive realtime disable by overriding channel methods completely
 supabase.channel = function(name: string) {
   console.log('🚫 Supabase channel creation blocked:', name);
   
-  // Return a comprehensive mock channel
+  // Return a comprehensive mock channel with all required methods
   const mockChannel = {
     on: () => mockChannel,
     subscribe: (callback?: (status: string) => void) => {
       console.log('🚫 Mock channel subscribe blocked:', name);
-      // Don't call callback to avoid triggering any handlers
-      return Promise.resolve({ error: null });
+      return mockChannel;
     },
     unsubscribe: () => {
       console.log('🚫 Mock channel unsubscribe:', name);
-      return Promise.resolve({ error: null });
+      return Promise.resolve('ok');
     },
     send: () => Promise.resolve({ error: null }),
     track: () => Promise.resolve({ error: null }),
     untrack: () => Promise.resolve({ error: null }),
     presence: { state: {} },
-    state: 'closed'
+    state: 'closed',
+    topic: name,
+    params: {},
+    socket: null,
+    bindings: [],
+    timeout: 10000,
+    joinedOnce: false,
+    joinPush: null,
+    rejoinTimer: null,
+    pushBuffer: []
   };
 
   return mockChannel as any;
+};
+
+// Override removeChannel to prevent errors when cleaning up mock channels
+const originalRemoveChannel = supabase.removeChannel.bind(supabase);
+supabase.removeChannel = async function(channel: any) {
+  console.log('🚫 Supabase removeChannel blocked');
+  return Promise.resolve('ok');
+};
+
+// Override removeAllChannels to prevent errors
+const originalRemoveAllChannels = supabase.removeAllChannels.bind(supabase);
+supabase.removeAllChannels = async function() {
+  console.log('🚫 Supabase removeAllChannels blocked');
+  return Promise.resolve([]);
 };
 
 // Log Supabase client creation
@@ -76,22 +97,33 @@ export const supabaseAdmin = createClient<Database>(SUPABASE_URL, SUPABASE_SERVI
   }
 });
 
-// Also override admin client channel method
+// Also override admin client channel methods
 supabaseAdmin.channel = function(name: string) {
   console.log('🚫 Supabase Admin channel creation blocked:', name);
   
   const mockChannel = {
     on: () => mockChannel,
-    subscribe: () => Promise.resolve({ error: null }),
-    unsubscribe: () => Promise.resolve({ error: null }),
+    subscribe: () => mockChannel,
+    unsubscribe: () => Promise.resolve('ok'),
     send: () => Promise.resolve({ error: null }),
     track: () => Promise.resolve({ error: null }),
     untrack: () => Promise.resolve({ error: null }),
     presence: { state: {} },
-    state: 'closed'
+    state: 'closed',
+    topic: name
   };
 
   return mockChannel as any;
+};
+
+supabaseAdmin.removeChannel = async function(channel: any) {
+  console.log('🚫 Supabase Admin removeChannel blocked');
+  return Promise.resolve('ok');
+};
+
+supabaseAdmin.removeAllChannels = async function() {
+  console.log('🚫 Supabase Admin removeAllChannels blocked');
+  return Promise.resolve([]);
 };
 
 /**

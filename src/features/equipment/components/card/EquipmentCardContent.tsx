@@ -7,9 +7,11 @@ import { useTranslation } from "@/hooks/useTranslation";
 import { useNotificationStatus, useNotificationStatusRealtime } from "../../hooks/useNotificationStatus";
 import { getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from "@/hooks/useAlertSound";
 import { useEffect, useState } from "react";
+import { useDeviceStatusLogger } from "../../hooks/useDeviceStatusLogger";
 
 interface EquipmentCardContentProps {
   deviceCode: string;
+  displayName?: string;
   lastUpdated: string | null;
   isAdmin: boolean;
   onEditClick: () => void;
@@ -19,6 +21,7 @@ interface EquipmentCardContentProps {
 
 export function EquipmentCardContent({
   deviceCode,
+  displayName,
   lastUpdated,
   isAdmin,
   onEditClick,
@@ -42,6 +45,15 @@ export function EquipmentCardContent({
   const formattedTime = formatEquipmentTime(timeToDisplay, language);
   const isRecent = isRecentUpdate(timeToDisplay, deviceData, isMoistureMeter);
   const timeClasses = getTimeClasses(isRecent);
+
+  // บันทึก log เมื่อสถานะเปลี่ยน (online ↔ offline)
+  useDeviceStatusLogger(
+    deviceCode,
+    displayName,
+    isRecent,
+    isMoistureMeter ? 'moisture_meter' : 'rice_quality',
+    timeToDisplay
+  );
 
   // สถานะเปิด/ปิดแจ้งเตือนระดับผู้ใช้
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(getNotificationsEnabled());

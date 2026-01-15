@@ -95,6 +95,45 @@ export type Database = {
         }
         Relationships: []
       }
+      device_status_logs: {
+        Row: {
+          created_at: string
+          detected_by_user: string | null
+          device_code: string
+          device_type: string
+          display_name: string | null
+          id: string
+          last_data_time: string | null
+          new_status: string
+          previous_status: string
+          status_changed_at: string
+        }
+        Insert: {
+          created_at?: string
+          detected_by_user?: string | null
+          device_code: string
+          device_type: string
+          display_name?: string | null
+          id?: string
+          last_data_time?: string | null
+          new_status: string
+          previous_status: string
+          status_changed_at?: string
+        }
+        Update: {
+          created_at?: string
+          detected_by_user?: string | null
+          device_code?: string
+          device_type?: string
+          display_name?: string | null
+          id?: string
+          last_data_time?: string | null
+          new_status?: string
+          previous_status?: string
+          status_changed_at?: string
+        }
+        Relationships: []
+      }
       firebase_fcm_tokens: {
         Row: {
           created_at: string | null

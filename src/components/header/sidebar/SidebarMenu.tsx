@@ -1,5 +1,5 @@
 
-import { Home, Settings, AlertCircle, History, User, Users, FileText, Wheat } from "lucide-react";
+import { Home, Settings, AlertCircle, History, User, Users, FileText, Wheat, Activity } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useActivePath } from "./sidebar-utils";
@@ -96,7 +96,16 @@ export const SidebarMenu = ({ isCollapsed, isMobile, userRoles, user }: SidebarM
           />
         )}
         
-        
+        {/* Device Status Logs - only for superadmin */}
+        {user && isSuperAdmin && (
+          <SidebarMenuItem 
+            path="/device-status-logs" 
+            icon={Activity}
+            label="Online/Offline Log"
+            isActive={isActive("/device-status-logs")}
+            isCollapsed={isCollapsed}
+          />
+        )}
         {/* Show login option for guests */}
         {isGuest && (
           <SidebarMenuItem 

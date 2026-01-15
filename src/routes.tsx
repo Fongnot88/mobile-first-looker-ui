@@ -41,6 +41,7 @@ import PublicMoistureView from "./pages/PublicMoistureView";
 import APITestPage from "./pages/APITestPage";
 import NotificationSettingsPage from "./pages/NotificationSettingsPage";
 import MoistureNotificationHistory from "./pages/MoistureNotificationHistory";
+import DeviceStatusLogs from "./pages/DeviceStatusLogs";
 
 import { NotificationSenderPage } from "./pages/NotificationSenderPage";
 
@@ -384,7 +385,15 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      // Notification routes - require login
+      // Device Status Logs - superadmin only
+      {
+        path: "device-status-logs",
+        element: (
+          <ProtectedRoute requiredRoles={["superadmin"]}>
+            <DeviceStatusLogs />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: "notifications",
         element: (

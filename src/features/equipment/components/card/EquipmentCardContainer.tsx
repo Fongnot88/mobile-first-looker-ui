@@ -184,6 +184,7 @@ export function EquipmentCardContainer({
         
         <EquipmentCardContent
           deviceCode={deviceCode}
+          displayName={displayName}
           lastUpdated={lastUpdated}
           isAdmin={isAdmin || isSuperAdmin}
           onEditClick={() => setIsEditDialogOpen(true)}

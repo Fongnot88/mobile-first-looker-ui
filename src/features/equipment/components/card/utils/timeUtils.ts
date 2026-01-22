@@ -9,7 +9,7 @@ const parseTimestamp = (value: string | null): Date | null => {
   // ตัด timezone suffix ออกก่อน (เช่น +00:00, +07:00, Z) เพราะเวลาที่เก็บเป็นเวลาไทยอยู่แล้ว
   // ไม่ต้องการให้ JS แปลง timezone
   const cleanedValue = value.replace(/([+-]\d{2}:\d{2}|Z)$/, '').trim();
-  
+
   // พยายาม parse รูปแบบ "YYYY-MM-DD HH:mm:ss" หรือ "YYYY-MM-DDTHH:mm:ss"
   // โดยไม่แปลง timezone - ถือว่าเป็น local time
   const match = cleanedValue.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
@@ -52,46 +52,22 @@ export const formatEquipmentTime = (lastUpdated: string | null, language: 'th' |
 };
 
 export const isRecentUpdate = (
-  lastUpdated: string | null, 
+  lastUpdated: string | null,
   deviceData?: any,
   isMoistureMeter: boolean = false
 ): boolean => {
   console.log("🔍 isRecentUpdate called with:", { lastUpdated, deviceData, isMoistureMeter });
-  
+
   // ตรวจสอบ lastUpdated ก่อน
   if (!lastUpdated || lastUpdated === "-") {
     console.log("❌ No lastUpdated or lastUpdated is '-', returning false");
     return false;
   }
-  
-  // ตรวจสอบข้อมูลอุปกรณ์ (ต้องมีและต้องไม่มีค่า "-" ในฟิลด์สำคัญ)
-  if (deviceData) {
-    console.log("🔍 Checking deviceData for invalid values:", deviceData);
-    
-    // เลือกฟิลด์ที่ต้องตรวจสอบตามประเภทอุปกรณ์
-    const importantFields = isMoistureMeter
-      ? ['moisture_machine', 'moisture_model', 'temperature'] // สำหรับเครื่องวัดความชื้น
-      : ['class1', 'class2', 'class3', 'whole_kernels', 'head_rice', 
-         'total_brokens', 'small_brokens', 'whiteness', 'process_precision']; // สำหรับเครื่องวัดคุณภาพข้าว
-    
-    // ตรวจสอบทุกฟิลด์สำคัญ
-    for (const field of importantFields) {
-      const fieldValue = deviceData[field];
-      console.log(`🔍 Checking field ${field}:`, fieldValue);
-      
-      // ถ้าพบค่า "-", null, หรือ undefined ในฟิลด์ใดก็ตาม
-      if (fieldValue === "-" || fieldValue === null || fieldValue === undefined || fieldValue === "") {
-        console.log(`❌ Found invalid value in field ${field}: "${fieldValue}", returning false`);
-        return false;
-      }
-    }
-    
-    console.log("✅ All important fields have valid values");
-  } else {
-    console.log("⚠️ No deviceData provided, treating as invalid update");
-    return false; // ถ้าไม่มีข้อมูลอุปกรณ์ให้ถือว่าไม่ใช่การอัพเดทที่ถูกต้อง
-  }
-  
+
+  // Modified: Removed strict data validation as requested. 
+  // Now simpler: checking time purely (within 30 mins).
+  // Previous logic checked for empty fields (moisture_model etc) which caused false negatives.
+
   // ตรวจสอบเวลา (ภายใน 30 นาที)
   try {
     const adjustedLastUpdateDate = parseTimestamp(lastUpdated);
@@ -99,23 +75,23 @@ export const isRecentUpdate = (
       console.warn("❌ Invalid date string:", lastUpdated);
       return false;
     }
-    
+
     const now = new Date();
     const thirtyMinutesInMs = 30 * 60 * 1000;
     const diffMs = now.getTime() - adjustedLastUpdateDate.getTime();
     const isWithin30Minutes = diffMs >= 0 && diffMs < thirtyMinutesInMs;
-    
-    console.log("⏰ Time check result:", { 
-      now: now.toISOString(), 
-      adjustedTime: adjustedLastUpdateDate.toISOString(), 
-      diffMs, 
-      thirtyMinutesInMs, 
-      isWithin30Minutes 
+
+    console.log("⏰ Time check result:", {
+      now: now.toISOString(),
+      adjustedTime: adjustedLastUpdateDate.toISOString(),
+      diffMs,
+      thirtyMinutesInMs,
+      isWithin30Minutes
     });
-    
+
     const finalResult = isWithin30Minutes;
     console.log(`🎯 Final result for ${lastUpdated}:`, finalResult ? "🟢 GREEN" : "🔴 RED");
-    
+
     return finalResult;
   } catch (error) {
     console.error("❌ Error processing date:", lastUpdated, error);
@@ -127,7 +103,7 @@ export const getTimeClasses = (isRecent: boolean): string => {
   const classes = isRecent
     ? "font-bold text-green-700 bg-yellow-200 dark:text-green-300 dark:bg-yellow-600/40 px-1.5 py-0.5 rounded-md"
     : "font-medium text-gray-800 dark:text-teal-200";
-  
+
   console.log(`🎨 getTimeClasses returning:`, isRecent ? "GREEN classes" : "RED classes");
   return classes;
 };

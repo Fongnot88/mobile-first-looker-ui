@@ -2,13 +2,17 @@
 import { format } from "date-fns";
 import { th, enUS, zhCN } from "date-fns/locale";
 
-// Parse timestamp โดยไม่แปลง timezone (สำหรับ machine_unix_time_minus_1h ที่เป็นเวลาไทยอยู่แล้ว)
+// Parse timestamp โดยไม่แปลง timezone (สำหรับ machine_unix_time_minus_1h และ reading_time ที่เป็นเวลาไทยอยู่แล้ว)
 const parseTimestamp = (value: string | null): Date | null => {
   if (!value || value === "-") return null;
 
+  // ตัด timezone suffix ออกก่อน (เช่น +00:00, +07:00, Z) เพราะเวลาที่เก็บเป็นเวลาไทยอยู่แล้ว
+  // ไม่ต้องการให้ JS แปลง timezone
+  const cleanedValue = value.replace(/([+-]\d{2}:\d{2}|Z)$/, '').trim();
+  
   // พยายาม parse รูปแบบ "YYYY-MM-DD HH:mm:ss" หรือ "YYYY-MM-DDTHH:mm:ss"
   // โดยไม่แปลง timezone - ถือว่าเป็น local time
-  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
+  const match = cleanedValue.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?/);
   if (match) {
     const [, year, month, day, hour, minute, second = "0"] = match;
     // สร้าง Date object โดยใช้ค่าตรงๆ ไม่แปลง timezone
@@ -22,8 +26,8 @@ const parseTimestamp = (value: string | null): Date | null => {
     );
   }
 
-  // ถ้าไม่ตรงรูปแบบ ลอง parse แบบปกติ
-  const date = new Date(value);
+  // ถ้าไม่ตรงรูปแบบ ลอง parse แบบปกติ (fallback)
+  const date = new Date(cleanedValue);
   return isNaN(date.getTime()) ? null : date;
 };
 

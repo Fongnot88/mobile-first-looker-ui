@@ -91,21 +91,31 @@ serve(async (req) => {
       client.on('connect', () => {
         console.log('[run_manual] MQTT Connected');
 
-        // Topic structure: For verification, we are using 'test/topic' as requested by the user
-        // const topic = deviceCode ? `device/${deviceCode}/command` : 'test/topic';
-        const topic = 'test/topic';
-        // User requested message "moisture-start"
-        const message = 'moisture-start';
+        // Topic structure based on user example: c2tch/mm000001/cmd
+        const targetDevice = deviceCode || 'mm000001';
+        const topic = `c2tch/${targetDevice}/cmd`;
 
-        client.publish(topic, message, (err) => {
+        // Payload based on user example: JSON object
+        const payload = {
+          cmd: "START",
+          moisture: moisture,
+          correction: correction,
+          timestamp: new Date().toISOString()
+        };
+        const message = JSON.stringify(payload);
+
+        console.log(`[run_manual] Publishing to ${topic}:`, message);
+
+        client.publish(topic, message, { qos: 1 }, (err) => {
           if (err) {
             console.error('[run_manual] MQTT Publish Error:', err);
+            client.end(); // Ensure close on error
             reject(err);
           } else {
-            console.log(`[run_manual] Published to ${topic}: ${message}`);
+            console.log('[run_manual] Publish Success');
+            client.end(); // Ensure close on success
             resolve({ topic, message });
           }
-          client.end();
         });
       });
 

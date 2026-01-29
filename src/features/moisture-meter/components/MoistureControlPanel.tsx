@@ -270,6 +270,46 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         }
     };
 
+    // Auto Restart Timer State (for Auto Mode when stopped)
+    const [autoRestartTimeLeft, setAutoRestartTimeLeft] = useState<number | null>(null);
+
+    // Effect: Auto Restart Countdown (Only when Stopped + Auto Mode + Not NoRice)
+    useEffect(() => {
+        let restartTimer: NodeJS.Timeout;
+
+        // If stopped in Auto mode and NoRice is FALSE (normal stop), start countdown
+        if (!isRunning && mode === 'auto' && !isNoRice) {
+
+            // Initialize if null
+            if (autoRestartTimeLeft === null) {
+                setAutoRestartTimeLeft(60); // 1 minute
+            }
+
+            // Countdown
+            else if (autoRestartTimeLeft > 0) {
+                restartTimer = setInterval(() => {
+                    setAutoRestartTimeLeft(prev => (prev ? prev - 1 : 0));
+                }, 1000);
+            }
+
+            // Trigger Auto Start
+            else if (autoRestartTimeLeft === 0) {
+                console.log('[MoistureControlPanel] Auto Restart Triggered');
+                startAuto();
+                setAutoRestartTimeLeft(null); // Reset
+            }
+
+        } else {
+            // Reset if conditions not met (e.g. switched to manual, or running, or NoRice)
+            if (autoRestartTimeLeft !== null) setAutoRestartTimeLeft(null);
+        }
+
+        return () => {
+            if (restartTimer) clearInterval(restartTimer);
+        };
+    }, [isRunning, mode, isNoRice, autoRestartTimeLeft]);
+
+
     // Handlers
     const handleToggleRun = () => {
         if (isRunning) {
@@ -378,7 +418,13 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
                 ) : (
                     <>
                         <Power className="mr-2 h-5 w-5" />
-                        {mode === 'manual' ? "เริ่มทำงาน (Manual)" : "เริ่มทำงาน (Auto)"}
+                        {mode === 'manual'
+                            ? "เริ่มทำงาน (Manual)"
+                            : (autoRestartTimeLeft !== null
+                                ? `เริ่มทำงาน (Auto) - เริ่มเองใน ${autoRestartTimeLeft}s`
+                                : "เริ่มทำงาน (Auto)"
+                            )
+                        }
                     </>
                 )}
             </Button>

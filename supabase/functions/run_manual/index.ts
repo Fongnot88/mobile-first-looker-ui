@@ -91,15 +91,18 @@ serve(async (req) => {
 
     // --- MQTT Logic ---
     console.log('[run_manual] Connecting to MQTT broker...');
-    const client = mqtt.connect('mqtt://mqttserver.riceflow.app:1883');
+    const client = mqtt.connect('mqtt://mqttserver.riceflow.app:1883', {
+      username: 'myuser',
+      password: 'mypass'
+    });
 
     const publishPromise = new Promise((resolve, reject) => {
       client.on('connect', () => {
         console.log('[run_manual] MQTT Connected');
 
-        // Topic structure based on user example: c2tch/mm000001/cmd
+        // Topic structure: c2tech/mm000001/cmd (Fixed typo c2tch -> c2tech)
         const targetDevice = deviceCode || 'mm000001';
-        const topic = `c2tch/${targetDevice}/cmd`;
+        const topic = `c2tech/${targetDevice}/cmd`;
 
         // Payload construction
         let mqttPayload = {};

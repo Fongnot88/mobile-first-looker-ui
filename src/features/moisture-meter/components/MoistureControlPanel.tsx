@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, Square } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     Select,
@@ -108,16 +108,25 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
         }
     };
 
-    const handleStartManual = async () => {
+    const handleToggleRun = async () => {
         setIsLoading(true);
+        const newRunState = !isRunning;
+        setIsRunning(newRunState); // Optimistic update
+
+        if (deviceCode) {
+            localStorage.setItem(`moisture_running_${deviceCode}`, String(newRunState));
+        }
+
         try {
-            console.log('[MoistureControlPanel] Starting manual run for:', deviceCode);
+            const command = newRunState ? 'run_manual' : 'stop';
+            console.log(`[MoistureControlPanel] Sending command: ${command} for:`, deviceCode);
+
             const { data, error } = await supabase.functions.invoke('run_manual', {
                 body: {
-                    command: 'run_manual',
-                    mode: 'manual', // Explicitly stating manual context
-                    moisture: 15.0, // Default test value
-                    correction: 3.0, // Default test value
+                    command: command,
+                    mode: 'manual',
+                    moisture: 15.0,
+                    correction: 3.0,
                     deviceCode: deviceCode
                 }
             });
@@ -128,27 +137,36 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
 
             if (data.ok) {
                 toast({
-                    title: "ส่งคำสั่งสำเร็จ",
-                    description: `เครื่อง ${deviceCode || 'test'} เริ่มทำงานแล้ว`,
-                    variant: "default",
+                    title: newRunState ? "เริ่มทำงานสำเร็จ" : "หยุดทำงานสำเร็จ",
+                    description: `เครื่อง ${deviceCode || 'test'} ${newRunState ? 'เริ่มทำงานแล้ว' : 'หยุดทำงานแล้ว'}`,
+                    variant: newRunState ? "default" : "destructive",
                 });
             } else {
+                // Revert state if failed
+                setIsRunning(!newRunState);
+                if (deviceCode) {
+                    localStorage.setItem(`moisture_running_${deviceCode}`, String(!newRunState));
+                }
                 throw new Error(data.message || 'Unknown error');
             }
 
         } catch (error) {
             console.error('[MoistureControlPanel] Error:', error);
+            // Revert state on error
+            setIsRunning(!newRunState);
+            if (deviceCode) {
+                localStorage.setItem(`moisture_running_${deviceCode}`, String(!newRunState));
+            }
+
             toast({
                 title: "เกิดข้อผิดพลาด",
-                description: error instanceof Error ? error.message : "ไม่สามารถส่งคำสั่งได้",
+                description: `ไม่สามารถส่งคำสั่ง ${newRunState ? 'เริ่ม' : 'หยุด'} ได้: ${(error as Error).message}`,
                 variant: "destructive",
             });
         } finally {
             setIsLoading(false);
         }
     };
-
-
 
     return (
         <div className="grid grid-cols-2 gap-2 mt-4">
@@ -194,18 +212,24 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
                     </Select>
                 ) : (
                     <Button
-                        variant="default"
-                        className="w-full h-8 sm:h-9 text-xs bg-emerald-600 hover:bg-emerald-700 text-white border-0"
-                        onClick={handleStartManual}
+                        className={cn(
+                            "w-full h-8 sm:h-9 text-xs sm:text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg border-0",
+                            isRunning
+                                ? "bg-red-500 hover:bg-red-600 text-white"
+                                : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        )}
+                        onClick={handleToggleRun}
                         disabled={isLoading}
                     >
                         <div className="flex items-center justify-center">
                             {isLoading ? (
-                                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                            ) : isRunning ? (
+                                <Square className="mr-2 h-3 w-3 sm:h-4 sm:w-4 fill-current" />
                             ) : (
-                                <Play className="w-3 h-3 mr-1 fill-current" />
+                                <Play className="mr-2 h-3 w-3 sm:h-4 sm:w-4 fill-current" />
                             )}
-                            {isLoading ? "กำลังส่ง..." : "เริ่มต้นทันที"}
+                            {isLoading ? "กำลังส่ง..." : isRunning ? "หยุด" : "เริ่มต้นทันที"}
                         </div>
                     </Button>
                 )}

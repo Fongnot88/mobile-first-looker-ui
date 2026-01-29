@@ -2,7 +2,7 @@
 import React, { Suspense, useState, useMemo, useRef, useEffect } from "react";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Wheat, ArrowLeft } from "lucide-react";
+import { Wheat, ArrowLeft, AlertTriangle } from "lucide-react";
 import { DeviceHeader } from "./DeviceHeader";
 import { MeasurementTabs } from "./MeasurementTabs";
 import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
@@ -202,6 +202,16 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
                 })}
               </div>
             </div>
+
+            {/* Zero Moisture Alert */}
+            {latestReading?.moisture_machine === 0 && (
+              <div className="flex justify-end mt-2 animate-pulse">
+                <div className="bg-red-400 text-white px-4 py-1.5 rounded-full flex items-center gap-2 shadow-sm shadow-red-200">
+                  <AlertTriangle className="h-4 w-4 fill-white text-red-500" />
+                  <span className="text-sm font-medium">ความชื้น 0% ตรวจไม่พบวัตถุดิบ</span>
+                </div>
+              </div>
+            )}
             <MoistureDeviceDetail
               reading={latestReading || null}
               settings={moistureSettings || null}

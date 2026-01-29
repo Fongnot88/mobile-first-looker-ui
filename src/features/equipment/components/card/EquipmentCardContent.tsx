@@ -116,7 +116,9 @@ export function EquipmentCardContent({
           <div className="flex flex-col">
             <span className={timeClasses}>{formattedTime}</span>
           </div>
-          {isRecent ? (
+          {isMoistureMeter && deviceData?.moisture_machine === 0 ? (
+            <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500 animate-pulse" />
+          ) : isRecent ? (
             <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
           ) : (
             <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500" />

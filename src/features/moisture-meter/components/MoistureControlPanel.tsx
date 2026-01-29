@@ -12,8 +12,8 @@ interface MoistureControlPanelProps {
 }
 
 export function MoistureControlPanel({ deviceCode, currentTemperature, currentMoisture }: MoistureControlPanelProps) {
-    // Fixed Duration for Manual Timer (5 minutes)
-    const MANUAL_DURATION = 5 * 60;
+    // Fixed Duration for Manual Timer (3.5 minutes = 210 seconds)
+    const MANUAL_DURATION = 3.5 * 60;
 
     // Mode State: 'manual' or 'auto'
     const [mode, setMode] = useState<'manual' | 'auto'>(() => {
@@ -77,6 +77,36 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         }
     }, [isNoRice, mode, isRunning]);
 
+    // Effect: Periodic Safety Stop Command (Every 2 minutes when stopped)
+    useEffect(() => {
+        let safetyInterval: NodeJS.Timeout;
+
+        if (!isRunning) {
+            console.log('[MoistureControlPanel] Safety Stop Interval Activated (2 mins)');
+            safetyInterval = setInterval(async () => {
+                console.log('[MoistureControlPanel] Sending Safety Stop Command...');
+                try {
+                    await supabase.functions.invoke('run_manual', {
+                        body: {
+                            command: 'stop',
+                            mode: 'manual', // Enforce manual mode on safety stop
+                            deviceCode: deviceCode
+                        }
+                    });
+                } catch (err) {
+                    console.error('[MoistureControlPanel] Safety Stop Failed:', err);
+                }
+            }, 2 * 60 * 1000); // 2 minutes
+        }
+
+        return () => {
+            if (safetyInterval) {
+                console.log('[MoistureControlPanel] Clearing Safety Stop Interval');
+                clearInterval(safetyInterval);
+            }
+        };
+    }, [isRunning, deviceCode]);
+
     // Effect: Manual Timer Countdown
     useEffect(() => {
         let timer: NodeJS.Timeout;
@@ -136,7 +166,7 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             toast({
                 title: "หยุดการทำงานสำเร็จ",
                 description: reasonContext === 'Manual Timer Finished'
-                    ? "ครบเวลาทำงาน 5 นาทีแล้ว (Manual)"
+                    ? "ครบเวลาทำงาน 3 นาทีครึ่งแล้ว (Manual)"
                     : reasonContext
                         ? `ระบบหยุดทำงานอัตโนมัติ (${reasonContext})`
                         : "สั่งหยุดเครื่องเรียบร้อยแล้ว",
@@ -180,7 +210,7 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
 
             toast({
                 title: "เริ่มโหมด Manual",
-                description: "เริ่มทำงาน 5 นาทีนับถอยหลัง",
+                description: "เริ่มทำงาน 3 นาทีครึ่งนับถอยหลัง",
                 className: "bg-emerald-50 border-emerald-200 text-emerald-800",
             });
 
@@ -363,8 +393,8 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             <div className="text-center">
                 <p className="text-[10px] text-gray-400">
                     {mode === 'manual'
-                        ? (isRunning ? "ระบบ Manual กำลังทำงานนับถอยหลัง" : "โหมด Manual ทำงาน 5 นาทีแล้วหยุดอัตโนมัติ")
-                        : (isRunning ? "ระบบ Auto กำลังทำงาน" : "โหมด Auto ทำงานสลับพักทุก 5 นาที")
+                        ? (isRunning ? "ระบบ Manual กำลังทำงานนับถอยหลัง" : "โหมด Manual ทำงาน 3 นาทีครึ่งแล้วหยุดอัตโนมัติ")
+                        : (isRunning ? "ระบบ Auto กำลังทำงาน" : "โหมด Auto เก็บสถิติ ทุก 5 นาที")
                     }
                 </p>
             </div>

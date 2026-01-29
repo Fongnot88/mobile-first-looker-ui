@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, BellOff, Droplets, Thermometer, Settings2, ChevronDown, ChevronUp, PlayCircle, History } from 'lucide-react';
+import { Bell, BellOff, Droplets, Thermometer, Settings2, ChevronDown, ChevronUp, History } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
@@ -22,8 +22,7 @@ export const MoistureNotificationCard: React.FC<MoistureNotificationCardProps> =
   const { user } = useAuth();
   const { loading, saving, settings, setSettings, saveSettings, hasSettings } = useMoistureNotificationSettings(deviceCode);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [testing, setTesting] = useState(false);
-  
+
   // Dialog states
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [dialogConfig, setDialogConfig] = useState<{
@@ -37,7 +36,7 @@ export const MoistureNotificationCard: React.FC<MoistureNotificationCardProps> =
     if (result.success) {
       setDialogConfig({
         title: result.isNew ? 'สร้างการตั้งค่าสำเร็จ!' : 'บันทึกการตั้งค่าสำเร็จ!',
-        description: result.isNew 
+        description: result.isNew
           ? 'ระบบได้สร้างการตั้งค่าแจ้งเตือนใหม่แล้ว'
           : 'ระบบได้อัปเดตการตั้งค่าแจ้งเตือนแล้ว',
         variant: 'success',
@@ -46,43 +45,7 @@ export const MoistureNotificationCard: React.FC<MoistureNotificationCardProps> =
     }
   };
 
-  const handleTestNotification = async () => {
-    if (!deviceCode) return;
-    
-    setTesting(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('check_moisture_notifications', {
-        body: { deviceCode }
-      });
-      
-      if (error) throw error;
-      
-      if (data?.notificationsCreated > 0) {
-        setDialogConfig({
-          title: 'ทดสอบสำเร็จ!',
-          description: `พบ ${data.notificationsCreated} การแจ้งเตือนใหม่`,
-          variant: 'success',
-        });
-      } else {
-        setDialogConfig({
-          title: 'ไม่พบการแจ้งเตือน',
-          description: 'ค่าปัจจุบันอยู่ในเกณฑ์ปกติ',
-          variant: 'info',
-        });
-      }
-      setShowSuccessDialog(true);
-    } catch (error: any) {
-      console.error('Test notification error:', error);
-      setDialogConfig({
-        title: 'เกิดข้อผิดพลาด',
-        description: 'ไม่สามารถทดสอบการแจ้งเตือนได้',
-        variant: 'error',
-      });
-      setShowSuccessDialog(true);
-    } finally {
-      setTesting(false);
-    }
-  };
+
 
   const updateSetting = <K extends keyof MoistureNotificationSettingsState>(
     key: K,
@@ -295,18 +258,9 @@ export const MoistureNotificationCard: React.FC<MoistureNotificationCardProps> =
               <Button
                 onClick={handleSaveSettings}
                 disabled={saving}
-                className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
+                className="w-full bg-amber-600 hover:bg-amber-700 text-white"
               >
                 {saving ? 'กำลังบันทึก...' : 'บันทึกการตั้งค่า'}
-              </Button>
-              <Button
-                onClick={handleTestNotification}
-                disabled={testing || !hasSettings}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <PlayCircle size={16} />
-                {testing ? 'กำลังทดสอบ...' : 'ทดสอบ'}
               </Button>
             </div>
           </CollapsibleContent>

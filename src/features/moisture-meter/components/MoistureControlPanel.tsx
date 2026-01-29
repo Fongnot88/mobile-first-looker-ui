@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Play, Loader2, Square } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Play, Loader2, Square, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     Select,
@@ -14,9 +14,12 @@ import { useToast } from "@/hooks/use-toast";
 
 interface MoistureControlPanelProps {
     deviceCode?: string;
+    currentTemperature?: number | null;
+    currentMoisture?: number | null;
 }
 
-export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) {
+export function MoistureControlPanel({ deviceCode, currentTemperature, currentMoisture }: MoistureControlPanelProps) {
+
     const [mode, setMode] = useState<'manual' | 'auto'>(() => {
         if (typeof window !== 'undefined' && deviceCode) {
             const saved = localStorage.getItem(`moisture_mode_${deviceCode}`);
@@ -38,6 +41,22 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
     });
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
+
+    // Check for "No Rice" condition
+    const isNoRice = currentTemperature === 0 && currentMoisture === 0;
+
+    // Effect to auto-switch to manual if No Rice in Auto mode
+    useEffect(() => {
+        if (isNoRice && mode === 'auto') {
+            console.log('[MoistureControlPanel] Auto-switching to manual due to No Rice');
+            handleModeChange('manual');
+            toast({
+                title: "สลับเป็นโหมด Manual",
+                description: "ตรวจไม่พบข้าว ระบบจึงเปลี่ยนเป็นโหมด Manual อัตโนมัติ",
+                variant: "destructive", // To catch attention
+            });
+        }
+    }, [isNoRice, mode]);
 
     const handleModeChange = async (newMode: 'manual' | 'auto') => {
         setMode(newMode);
@@ -169,71 +188,81 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
     };
 
     return (
-        <div className="grid grid-cols-2 gap-2 mt-4">
-            {/* Left Column: Toggle Mode */}
-            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-md p-1 border border-gray-200 dark:border-gray-700 h-8 sm:h-9 items-center">
-                <button
-                    onClick={() => handleModeChange('manual')}
-                    className={cn(
-                        "flex-1 text-xs font-medium py-1 rounded-sm transition-all h-full flex items-center justify-center",
-                        mode === 'manual'
-                            ? "bg-white dark:bg-gray-700 text-emerald-600 shadow-sm"
-                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+        <div className="flex flex-col gap-2">
+            {isNoRice && (
+                <div className="bg-red-100 border border-red-200 text-red-700 px-3 py-2 rounded-md flex items-center justify-center gap-2 animate-pulse mt-1">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span className="text-sm font-bold">ไม่มีข้าว</span>
+                </div>
+            )}
+            <div className="grid grid-cols-2 gap-2 mt-2">
+                {/* Left Column: Toggle Mode */}
+                <div className="flex bg-gray-100 dark:bg-gray-800 rounded-md p-1 border border-gray-200 dark:border-gray-700 h-8 sm:h-9 items-center">
+                    <button
+                        onClick={() => handleModeChange('manual')}
+                        className={cn(
+                            "flex-1 text-xs font-medium py-1 rounded-sm transition-all h-full flex items-center justify-center",
+                            mode === 'manual'
+                                ? "bg-white dark:bg-gray-700 text-emerald-600 shadow-sm"
+                                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                        )}
+                    >
+                        Manual
+                    </button>
+                    <button
+                        onClick={() => handleModeChange('auto')}
+                        className={cn(
+                            "flex-1 text-xs font-medium py-1 rounded-sm transition-all h-full flex items-center justify-center",
+                            mode === 'auto'
+                                ? "bg-white dark:bg-gray-700 text-emerald-600 shadow-sm"
+                                : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                        )}
+                    >
+                        Auto
+                    </button>
+                </div>
+
+                {/* Right Column: Controls */}
+                <div>
+                    {mode === 'auto' ? (
+                        <Select value={interval} onValueChange={handleIntervalChange}>
+                            <SelectTrigger className="h-8 sm:h-9 text-xs border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
+                                <SelectValue placeholder="เลือกเวลา" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="5">5 นาที</SelectItem>
+                                <SelectItem value="10">10 นาที</SelectItem>
+                                <SelectItem value="15">15 นาที</SelectItem>
+                                <SelectItem value="30">30 นาที</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    ) : (
+                        <Button
+                            className={cn(
+                                "w-full h-8 sm:h-9 text-xs sm:text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg border-0",
+                                isRunning
+                                    ? "bg-red-500 hover:bg-red-600 text-white"
+                                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                            )}
+                            onClick={handleToggleRun}
+                            disabled={isLoading}
+                        >
+                            <div className="flex items-center justify-center">
+                                {isLoading ? (
+                                    <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                                ) : isRunning ? (
+                                    <Square className="mr-2 h-3 w-3 sm:h-4 sm:w-4 fill-current" />
+                                ) : (
+                                    <Play className="mr-2 h-3 w-3 sm:h-4 sm:w-4 fill-current" />
+                                )}
+                                {isLoading ? "กำลังส่ง..." : isRunning ? "หยุด" : "เริ่มต้นทันที"}
+                            </div>
+                        </Button>
                     )}
-                >
-                    Manual
-                </button>
-                <button
-                    onClick={() => handleModeChange('auto')}
-                    className={cn(
-                        "flex-1 text-xs font-medium py-1 rounded-sm transition-all h-full flex items-center justify-center",
-                        mode === 'auto'
-                            ? "bg-white dark:bg-gray-700 text-emerald-600 shadow-sm"
-                            : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
-                    )}
-                >
-                    Auto
-                </button>
+                </div>
             </div>
 
-            {/* Right Column: Controls */}
-            <div>
-                {mode === 'auto' ? (
-                    <Select value={interval} onValueChange={handleIntervalChange}>
-                        <SelectTrigger className="h-8 sm:h-9 text-xs border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
-                            <SelectValue placeholder="เลือกเวลา" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="5">5 นาที</SelectItem>
-                            <SelectItem value="10">10 นาที</SelectItem>
-                            <SelectItem value="15">15 นาที</SelectItem>
-                            <SelectItem value="30">30 นาที</SelectItem>
-                        </SelectContent>
-                    </Select>
-                ) : (
-                    <Button
-                        className={cn(
-                            "w-full h-8 sm:h-9 text-xs sm:text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg border-0",
-                            isRunning
-                                ? "bg-red-500 hover:bg-red-600 text-white"
-                                : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                        )}
-                        onClick={handleToggleRun}
-                        disabled={isLoading}
-                    >
-                        <div className="flex items-center justify-center">
-                            {isLoading ? (
-                                <Loader2 className="mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                            ) : isRunning ? (
-                                <Square className="mr-2 h-3 w-3 sm:h-4 sm:w-4 fill-current" />
-                            ) : (
-                                <Play className="mr-2 h-3 w-3 sm:h-4 sm:w-4 fill-current" />
-                            )}
-                            {isLoading ? "กำลังส่ง..." : isRunning ? "หยุด" : "เริ่มต้นทันที"}
-                        </div>
-                    </Button>
-                )}
-            </div>
+
         </div>
     );
 }

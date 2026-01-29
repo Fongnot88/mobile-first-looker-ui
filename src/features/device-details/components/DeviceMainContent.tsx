@@ -1,8 +1,8 @@
 
-import React, { Suspense, useState, useMemo, useRef } from "react";
+import React, { Suspense, useState, useMemo, useRef, useEffect } from "react";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Wheat, ArrowLeft } from "lucide-react";
+import { Wheat, ArrowLeft, TestTube } from "lucide-react";
 import { DeviceHeader } from "./DeviceHeader";
 import { MeasurementTabs } from "./MeasurementTabs";
 import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
@@ -13,6 +13,9 @@ import { MoistureDeviceDetail, MoistureSummaryStats } from "@/features/moisture-
 import { MoistureTrendChart } from "@/features/moisture-meter/components/MoistureTrendChart";
 import { MoistureSnapshotBarChart } from "@/features/moisture-meter/components/moisture-snapshot-bar-chart";
 import { MoistureDeviceHistoryTable } from "@/features/moisture-meter/components/MoistureDeviceHistoryTable";
+import { useAuthSession } from "@/hooks/useAuthSession";
+import { useUserRoles } from "@/hooks/useUserRoles";
+import { Button } from "@/components/ui/button";
 import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLatestMoistureReading";
 import { useMoistureHistory, MoistureTimeFrame } from "@/features/moisture-meter/hooks/useMoistureHistory";
 import { useMoistureMeterSettingByDeviceCode } from "@/features/moisture-meter/hooks/useMoistureMeterSettings";
@@ -61,6 +64,19 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [timeFrame, setTimeFrame] = useState<MoistureTimeFrame>('24h');
+
+  // Superadmin Test Logic
+  const { user } = useAuthSession();
+  const { userRoles, fetchUserRoles } = useUserRoles();
+  const [testOverrides, setTestOverrides] = useState<{ temp: number, moisture: number } | null>(null);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserRoles(user.id);
+    }
+  }, [user?.id, fetchUserRoles]);
+
+  const isSuperAdmin = userRoles.includes('superadmin');
 
   // Check if this is a moisture meter device (case-insensitive)
   const isMoistureMeter = deviceCode?.toLowerCase().startsWith('mm');
@@ -155,8 +171,48 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
         {isMoistureMeter ? (
           <div className="space-y-6 mb-6">
             {/* Moisture Meter Control Panel - Relocated here */}
+            {isSuperAdmin && (
+              <div className="flex justify-end gap-2 mb-2">
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
+                  <div className="flex items-center gap-1 text-xs text-gray-500 font-semibold uppercase tracking-wider mr-2 border-r pr-2 h-4">
+                    <TestTube size={12} />
+                    Test
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-6 border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400 px-2"
+                    onClick={() => setTestOverrides({ temp: 0, moisture: 0 })}
+                  >
+                    No Rice
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs h-6 border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-400 px-2"
+                    onClick={() => setTestOverrides({ temp: 1, moisture: 1 })}
+                  >
+                    Rice
+                  </Button>
+                  {testOverrides && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs h-6 text-gray-500 hover:text-gray-700 px-2"
+                      onClick={() => setTestOverrides(null)}
+                    >
+                      Reset
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 shadow-sm w-full max-w-sm ml-auto">
-              <MoistureControlPanel deviceCode={deviceCode} />
+              <MoistureControlPanel
+                deviceCode={deviceCode}
+                currentTemperature={testOverrides ? testOverrides.temp : (latestReading?.temperature ?? null)}
+                currentMoisture={testOverrides ? testOverrides.moisture : (latestReading?.moisture_machine ?? null)}
+              />
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">

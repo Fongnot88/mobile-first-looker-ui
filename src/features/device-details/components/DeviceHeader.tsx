@@ -1,8 +1,10 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Monitor, Layout, ArrowLeft, Play, Loader2 } from "lucide-react";
+
+import { Monitor, Layout, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+
 import { ROUTES } from "@/constants/routes";
 import { supabase } from "@/integrations/supabase/client";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -20,7 +22,7 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
   onBack,
 }) => {
   const [deviceDisplayName, setDeviceDisplayName] = useState<string | null>(propDisplayName || null);
-  const [isRunningManual, setIsRunningManual] = useState(false);
+
   const { t } = useTranslation();
 
   // Check if this is a moisture meter device (starts with 'mm' case-insensitive)
@@ -39,7 +41,7 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
       try {
         // Use different table based on device type
         const tableName = isMoistureMeter ? 'moisture_meter_settings' : 'device_settings';
-        
+
         const { data, error } = await supabase
           .from(tableName)
           .select('display_name')
@@ -61,57 +63,7 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
     fetchDeviceDisplayName();
   }, [deviceCode, propDisplayName, isMoistureMeter]);
 
-  const handleStartManual = async () => {
-    setIsRunningManual(true);
-    
-    try {
-      console.log('[DeviceHeader] Calling run_manual (dry-run test)');
-      
-      const { data, error } = await supabase.functions.invoke('run_manual', {
-        method: 'POST',
-        body: {
-          command: 'run_manual',
-          moisture: 15.0,
-          correction: 3.0
-          // deviceCode intentionally omitted for dry-run test
-        }
-      });
 
-      if (error) {
-        console.error('[DeviceHeader] run_manual error:', error);
-        toast({
-          title: "เกิดข้อผิดพลาด",
-          description: error.message || "ไม่สามารถเรียกใช้งานได้",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log('[DeviceHeader] run_manual response:', data);
-
-      if (data?.ok) {
-        toast({
-          title: data.mode === 'dry-run' ? "Dry-run สำเร็จ" : "ส่งคำสั่งสำเร็จ",
-          description: data.message,
-        });
-      } else {
-        toast({
-          title: "ไม่สำเร็จ",
-          description: data?.message || "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
-          variant: "destructive",
-        });
-      }
-    } catch (err) {
-      console.error('[DeviceHeader] Unexpected error:', err);
-      toast({
-        title: "เกิดข้อผิดพลาด",
-        description: err instanceof Error ? err.message : "ไม่สามารถเชื่อมต่อได้",
-        variant: "destructive",
-      });
-    } finally {
-      setIsRunningManual(false);
-    }
-  };
 
   return (
     <div className="flex flex-col space-y-4 mb-6">
@@ -155,20 +107,7 @@ export const DeviceHeader: React.FC<DeviceHeaderProps> = ({
             Graph Summary
           </Button>
         </Link>
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white dark:border-gray-700"
-          onClick={handleStartManual}
-          disabled={isRunningManual}
-        >
-          {isRunningManual ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Play className="h-4 w-4 mr-2" />
-          )}
-          {isRunningManual ? "กำลังทำงาน..." : "Start manual"}
-        </Button>
+
       </div>
     </div>
   );

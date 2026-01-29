@@ -1,6 +1,6 @@
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock, Circle, Bell } from "lucide-react";
+import { BarChart, Settings, Clock, Circle, Bell, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatEquipmentTime, isRecentUpdate, getTimeClasses } from "./utils/timeUtils";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -8,6 +8,8 @@ import { useNotificationStatus, useNotificationStatusRealtime } from "../../hook
 import { getNotificationsEnabled, NOTIFICATIONS_ENABLED_KEY } from "@/hooks/useAlertSound";
 import { useEffect, useState } from "react";
 import { useDeviceStatusLogger } from "../../hooks/useDeviceStatusLogger";
+import { cn } from "@/lib/utils";
+import { MoistureControlPanel } from "@/features/moisture-meter/components/MoistureControlPanel";
 
 interface EquipmentCardContentProps {
   deviceCode: string;
@@ -32,16 +34,16 @@ export function EquipmentCardContent({
   const { data: notificationStatus, isLoading, error } = useNotificationStatus(deviceCode);
   // subscribe realtime so bell updates immediately when settings change
   useNotificationStatusRealtime(deviceCode);
-  
+
   // สำหรับเครื่องวัดคุณภาพข้าว ใช้ machine_unix_time เป็นมาตรฐาน
   // สำหรับเครื่องวัดความชื้น ใช้ reading_time จาก deviceData
-  const timeToDisplay = isMoistureMeter 
+  const timeToDisplay = isMoistureMeter
     ? deviceData?.reading_time || lastUpdated
     : deviceData?.machine_unix_time || lastUpdated;
-  
+
   // Debug log เพื่อตรวจสอบค่าที่ใช้แสดงผล
   console.log(`⏰ Device ${deviceCode} - timeToDisplay:`, timeToDisplay, '| machine_unix_time:', deviceData?.machine_unix_time);
-  
+
   const formattedTime = formatEquipmentTime(timeToDisplay, language);
   const isRecent = isRecentUpdate(timeToDisplay, deviceData, isMoistureMeter);
   const timeClasses = getTimeClasses(isRecent);
@@ -77,6 +79,7 @@ export function EquipmentCardContent({
     localStorage.setItem('lastViewedDeviceCode', deviceCode);
     console.log('💾 Saved last viewed device:', deviceCode);
   };
+
 
   // กำหนดสถานะและสีของไอคอนแจ้งเตือน
   const getNotificationIcon = () => {
@@ -121,7 +124,7 @@ export function EquipmentCardContent({
           {getNotificationIcon()}
         </div>
       </div>
-      
+
       <div className="flex flex-row gap-2 mt-2 sm:mt-3">
         <Button
           variant="outline"
@@ -136,7 +139,7 @@ export function EquipmentCardContent({
             {t('general', 'viewData')}
           </Link>
         </Button>
-        
+
         {isAdmin && (
           <Button
             variant="outline"
@@ -148,6 +151,10 @@ export function EquipmentCardContent({
           </Button>
         )}
       </div>
+
+      {/* Moisture Meter Control Panel */}
+      {isMoistureMeter && <MoistureControlPanel />}
     </CardContent>
   );
 }
+

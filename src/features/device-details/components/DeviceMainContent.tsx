@@ -17,6 +17,7 @@ import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLat
 import { useMoistureHistory, MoistureTimeFrame } from "@/features/moisture-meter/hooks/useMoistureHistory";
 import { useMoistureMeterSettingByDeviceCode } from "@/features/moisture-meter/hooks/useMoistureMeterSettings";
 import { useNavigate } from "react-router-dom";
+import { MoistureControlPanel } from "@/features/moisture-meter/components/MoistureControlPanel";
 
 // Lazy load the DeviceHistoryTable component
 const DeviceHistoryTable = lazy(() => import("./DeviceHistoryTable").then(module => ({
@@ -63,17 +64,17 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
 
   // Check if this is a moisture meter device (case-insensitive)
   const isMoistureMeter = deviceCode?.toLowerCase().startsWith('mm');
-  
+
   // Fetch latest moisture reading for moisture meter devices
   const { data: latestReading, isLoading: isLoadingMoisture } = useLatestMoistureReading(
     isMoistureMeter ? deviceCode : ''
   );
-  
+
   // Fetch moisture meter settings
   const { data: moistureSettings } = useMoistureMeterSettingByDeviceCode(
     isMoistureMeter ? deviceCode : ''
   );
-  
+
   // Fetch moisture history for trend chart
   const { data: moistureHistory, isLoading: isLoadingHistory } = useMoistureHistory(
     isMoistureMeter ? deviceCode : '',
@@ -112,7 +113,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
       averageTemperature,
     };
   }, [moistureHistory]);
-  
+
   // Reference for chart section
   const chartRef = useRef<HTMLDivElement>(null);
 
@@ -135,11 +136,11 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
                 ย้อนกลับ
               </button>
             )}
-            
+
             {/* Device Header - Left aligned */}
             <DeviceHeader deviceCode={deviceCode} />
           </div>
-          
+
           <div className="flex items-center relative">
             {/* Wheat icon group with varied sizes and positions */}
             <Wheat className="text-amber-400 absolute -top-3 -left-8" size={16} strokeWidth={2.5} />
@@ -149,10 +150,15 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
             <Wheat className="text-yellow-600 absolute -bottom-2 -right-3" size={12} strokeWidth={2.5} />
           </div>
         </div>
-        
+
         {/* Show Moisture Device Detail and Trend Chart for MM devices */}
         {isMoistureMeter ? (
           <div className="space-y-6 mb-6">
+            {/* Moisture Meter Control Panel - Relocated here */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 shadow-sm w-full max-w-sm ml-auto">
+              <MoistureControlPanel />
+            </div>
+
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="text-sm text-gray-700 dark:text-gray-300">
                 เลือกกรอบเวลา
@@ -172,11 +178,10 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
                     <button
                       key={option.value}
                       onClick={() => setTimeFrame(option.value)}
-                      className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
-                        isActive
-                          ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                          : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700'
-                      }`}
+                      className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${isActive
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                        : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700'
+                        }`}
                       aria-pressed={isActive}
                       type="button"
                     >
@@ -213,26 +218,26 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
         ) : (
           <>
             <div className="mb-4">
-              <MeasurementTabs 
-                deviceCode={deviceCode} 
-                searchTerm={searchTerm} 
-                wholeGrainData={wholeGrainData} 
-                ingredientsData={ingredientsData} 
-                impuritiesData={impuritiesData} 
-                allData={allData} 
-                notificationSettings={notificationSettings || []} 
-                isLoadingWholeGrain={isLoadingWholeGrain} 
-                isLoadingIngredients={isLoadingIngredients} 
-                isLoadingImpurities={isLoadingImpurities} 
-                isLoadingAllData={isLoadingAllData} 
-                onMeasurementClick={onMeasurementClick} 
+              <MeasurementTabs
+                deviceCode={deviceCode}
+                searchTerm={searchTerm}
+                wholeGrainData={wholeGrainData}
+                ingredientsData={ingredientsData}
+                impuritiesData={impuritiesData}
+                allData={allData}
+                notificationSettings={notificationSettings || []}
+                isLoadingWholeGrain={isLoadingWholeGrain}
+                isLoadingIngredients={isLoadingIngredients}
+                isLoadingImpurities={isLoadingImpurities}
+                isLoadingAllData={isLoadingAllData}
+                onMeasurementClick={onMeasurementClick}
               />
             </div>
 
             {/* Add Calculation Summary Box */}
             {deviceCode && deviceCode !== 'default' && (
               <div className="px-0">
-                <DeviceCalculationSummary 
+                <DeviceCalculationSummary
                   allData={allData}
                   isLoading={isLoadingAllData}
                 />

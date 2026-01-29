@@ -165,8 +165,8 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 shadow-sm w-full max-w-sm ml-auto">
               <MoistureControlPanel
                 deviceCode={deviceCode}
-                currentTemperature={testOverrides ? testOverrides.temp : (latestReading?.temperature ?? null)}
-                currentMoisture={testOverrides ? testOverrides.moisture : (latestReading?.moisture_machine ?? null)}
+                currentTemperature={latestReading?.temperature ?? null}
+                currentMoisture={latestReading?.moisture_machine ?? null}
               />
             </div>
 

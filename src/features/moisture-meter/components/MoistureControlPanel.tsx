@@ -29,6 +29,9 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         return false;
     });
 
+    // Timer State for Manual Mode (in seconds)
+    const [manualTimeLeft, setManualTimeLeft] = useState<number | null>(null);
+
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
@@ -37,16 +40,37 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
 
     // Fixed Interval for Auto Mode
     const FIXED_INTERVAL = '5';
+    // Fixed Duration for Manual Timer (5 minutes)
+    const MANUAL_DURATION = 5 * 60;
 
     // Effect: Handle "No Rice" safety switch
     useEffect(() => {
         if (isNoRice && mode === 'auto' && isRunning) {
             console.log('[MoistureControlPanel] Safety Trigger: No Rice detected. Stopping...');
-            // In a real scenario, we might want to trigger a stop command here too.
-            // For now, we force UI state to manual and stop.
             stopMachine('Auto Safety Stop');
         }
     }, [isNoRice, mode, isRunning]);
+
+    // Effect: Manual Timer Countdown
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isRunning && mode === 'manual' && manualTimeLeft !== null && manualTimeLeft > 0) {
+            timer = setInterval(() => {
+                setManualTimeLeft((prev) => {
+                    if (prev === null || prev <= 0) return 0;
+                    return prev - 1;
+                });
+            }, 1000);
+        } else if (manualTimeLeft === 0 && isRunning && mode === 'manual') {
+            // Timer finished
+            stopMachine('Manual Timer Finished');
+        }
+
+        return () => {
+            if (timer) clearInterval(timer);
+        };
+    }, [isRunning, mode, manualTimeLeft]);
+
 
     // Helper: Stop Machine (Universal)
     const stopMachine = async (reasonContext: string = '') => {
@@ -65,6 +89,8 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
 
             // Update State
             setIsRunning(false);
+            setManualTimeLeft(null); // Reset timer
+
             if (reasonContext === 'Auto Safety Stop') {
                 setMode('manual');
                 saveModeToStorage('manual');
@@ -73,8 +99,13 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
 
             toast({
                 title: "หยุดการทำงานสำเร็จ",
-                description: reasonContext ? `ระบบหยุดทำงานอัตโนมัติ (${reasonContext})` : "สั่งหยุดเครื่องเรียบร้อยแล้ว",
-                variant: reasonContext ? "destructive" : "default", // Alert style if forced stop
+                description: reasonContext === 'Manual Timer Finished'
+                    ? "ครบเวลาทำงาน 5 นาทีแล้ว (Manual)"
+                    : reasonContext
+                        ? `ระบบหยุดทำงานอัตโนมัติ (${reasonContext})`
+                        : "สั่งหยุดเครื่องเรียบร้อยแล้ว",
+                variant: reasonContext ? "default" : "default", // Changed from destructive for timer finish as it's normal
+                className: reasonContext === 'Manual Timer Finished' ? "bg-green-50 border-green-200 text-green-800" : undefined
             });
 
         } catch (error) {
@@ -84,8 +115,6 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
                 description: "เกิดข้อผิดพลาดในการส่งคำสั่งหยุด",
                 variant: "destructive",
             });
-            // Revert optimistic state if needed, but for stop we usually want to show stopped locally if possible
-            // forcing false just in case? No, let user retry.
         } finally {
             setIsLoading(false);
         }
@@ -106,10 +135,12 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             if (error) throw error;
 
             setIsRunning(true);
+            setManualTimeLeft(MANUAL_DURATION); // Start countdown
             saveRunningToStorage(true);
+
             toast({
                 title: "เริ่มโหมด Manual",
-                description: "เครื่องเริ่มทำงานในโหมด Manual แล้ว",
+                description: "เริ่มทำงาน 5 นาทีนับถอยหลัง",
                 className: "bg-emerald-50 border-emerald-200 text-emerald-800",
             });
 
@@ -130,7 +161,6 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         setIsLoading(true);
         try {
             // 1. Set Interval (Fixed 5 mins)
-            // Note: Sending 'auto' mode implicitly with interval
             const { error: intervalError } = await supabase.functions.invoke('run_manual', {
                 body: {
                     command: 'set_interval',
@@ -142,11 +172,6 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             if (intervalError) throw intervalError;
 
             // 2. Set Mode & Start
-            // Some backends might need explicit start command or just setting mode triggers it.
-            // Based on previous logic, we used 'set_mode' which acts as start? 
-            // Or 'run_manual' is only for manual?
-            // Previous code: sendModeToBackend('auto') -> calls set_mode. 
-            // Let's assume set_mode 'auto' starts it.
             const { error: modeError } = await supabase.functions.invoke('run_manual', {
                 body: {
                     command: 'set_mode',
@@ -203,6 +228,13 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         if (typeof window !== 'undefined' && deviceCode) {
             localStorage.setItem(`moisture_running_${deviceCode}`, String(r));
         }
+    };
+
+    // Format Seconds to MM:SS
+    const formatTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
     };
 
     return (
@@ -271,7 +303,9 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
                 ) : isRunning ? (
                     <>
                         <Square className="mr-2 h-5 w-5 fill-current" />
-                        หยุดทำงาน
+                        {mode === 'manual' && manualTimeLeft !== null
+                            ? `หยุดทำงาน (${formatTime(manualTimeLeft)})`
+                            : "หยุดทำงาน"}
                     </>
                 ) : (
                     <>
@@ -284,9 +318,10 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             {/* Helper Text */}
             <div className="text-center">
                 <p className="text-[10px] text-gray-400">
-                    {isRunning
-                        ? "ระบบกำลังทำงาน กดหยุดเพื่อเปลี่ยนโหมด"
-                        : "เลือกโหมดที่ต้องการแล้วกดเริ่มทำงาน"}
+                    {mode === 'manual'
+                        ? (isRunning ? "ระบบ Manual กำลังทำงานนับถอยหลัง" : "โหมด Manual ทำงาน 5 นาทีแล้วหยุดอัตโนมัติ")
+                        : (isRunning ? "ระบบ Auto กำลังทำงาน" : "โหมด Auto ทำงานสลับพักทุก 5 นาที")
+                    }
                 </p>
             </div>
         </div>

@@ -134,10 +134,14 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         setIsLoading(true);
         try {
             console.log(`[MoistureControlPanel] Stopping... (${reasonContext})`);
+
+            // Validate mode before sending (default to manual if undefined)
+            const currentMode = mode || 'manual';
+
             const { error } = await supabase.functions.invoke('run_manual', {
                 body: {
                     command: 'stop',
-                    mode: 'manual', // Defaulting to manual on stop is safer
+                    mode: currentMode, // Send CURRENT mode so server knows whether to Queue Restart (if Auto) or Delete (if Manual)
                     deviceCode: deviceCode
                 }
             });
@@ -152,10 +156,12 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             saveRunningToStorage(false);
             if (deviceCode) localStorage.removeItem(`moisture_manual_start_${deviceCode}`);
 
-            if (reasonContext === 'Auto Safety Stop') {
-                setMode('manual');
-                saveModeToStorage('manual');
-            }
+            // NOTE: We DO NOT switch to Manual on Safety Stop anymore, 
+            // because user wants "Auto Retry" countdown loop.
+            // if (reasonContext === 'Auto Safety Stop') {
+            //    setMode('manual');
+            //    saveModeToStorage('manual');
+            // }
 
             toast({
                 title: "หยุดการทำงานสำเร็จ",

@@ -181,8 +181,48 @@ serve(async (req) => {
       }, { onConflict: 'device_code' });
 
     } else if (payload.command === 'stop' && deviceCode) {
-      // Stop: Remove Timer
-      await supabase.from('device_timers').delete().eq('device_code', deviceCode);
+      if (payload.mode === 'manual') {
+        // Normal Stop (Manual): Remove Timer
+        await supabase.from('device_timers').delete().eq('device_code', deviceCode);
+      } else {
+        // Auto Mode Stop: Insert "Pending Restart" Timer (1 minute)
+        // Check if we are really in Auto mode or if this stop should just clear everything.
+        // Assuming payload.mode represents the "Current Mode" the user was in.
+
+        // If mode passed is 'manual', we just delete.
+        // If mode is NOT passed, or is 'auto', we assume we want auto-restart.
+
+        // However, the frontend sends mode='manual' in the body even for stop?
+        // Let's check frontend. Frontend sends mode='manual' by default on stop to be safe?
+        // In MoistureControlPanel: mode: 'manual' is hardcoded in stopMachine usually.
+
+        // We need to trust the "Server State" or look up existing timer?
+        // Better: look up existing timer mode before deleting.
+
+        const { data: existingTimer } = await supabase
+          .from('device_timers')
+          .select('mode')
+          .eq('device_code', deviceCode)
+          .single();
+
+        if (existingTimer && existingTimer.mode === 'auto') {
+          // It was Auto, so we Queue Restart
+          const restartDelay = 60; // 60 seconds
+          const restartTarget = new Date(Date.now() + restartDelay * 1000);
+
+          await supabase.from('device_timers').upsert({
+            device_code: deviceCode,
+            mode: 'pending_auto_restart',
+            start_time: new Date().toISOString(),
+            duration_seconds: restartDelay,
+            target_stop_time: restartTarget.toISOString()
+          }, { onConflict: 'device_code' });
+
+        } else {
+          // Manual or No Timer: Just Delete
+          await supabase.from('device_timers').delete().eq('device_code', deviceCode);
+        }
+      }
     }
     // -----------------------------------------------------
 

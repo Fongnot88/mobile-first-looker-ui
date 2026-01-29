@@ -273,12 +273,12 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
     // Auto Restart Timer State (for Auto Mode when stopped)
     const [autoRestartTimeLeft, setAutoRestartTimeLeft] = useState<number | null>(null);
 
-    // Effect: Auto Restart Countdown (Only when Stopped + Auto Mode + Not NoRice)
+    // Effect: Auto Restart Countdown (Only when Stopped + Auto Mode)
     useEffect(() => {
         let restartTimer: NodeJS.Timeout;
 
-        // If stopped in Auto mode and NoRice is FALSE (normal stop), start countdown
-        if (!isRunning && mode === 'auto' && !isNoRice) {
+        // If stopped in Auto mode, start countdown (regardless of NoRice - acts as Auto Retry)
+        if (!isRunning && mode === 'auto') {
 
             // Initialize if null
             if (autoRestartTimeLeft === null) {
@@ -307,7 +307,7 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         return () => {
             if (restartTimer) clearInterval(restartTimer);
         };
-    }, [isRunning, mode, isNoRice, autoRestartTimeLeft]);
+    }, [isRunning, mode, autoRestartTimeLeft]);
 
 
     // Handlers

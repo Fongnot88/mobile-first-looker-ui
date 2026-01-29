@@ -393,8 +393,8 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             <div className="text-center">
                 <p className="text-[10px] text-gray-400">
                     {mode === 'manual'
-                        ? (isRunning ? "ระบบ Manual กำลังทำงานนับถอยหลัง" : "โหมด Manual ทำงาน 3 นาทีครึ่งแล้วหยุดอัตโนมัติ")
-                        : (isRunning ? "ระบบ Auto กำลังทำงาน" : "โหมด Auto เก็บสถิติ ทุก 5 นาที")
+                        ? (isRunning ? "ระบบ Manual กำลังทำงานนับถอยหลัง" : "")
+                        : (isRunning ? "ระบบ Auto กำลังทำงาน" : "")
                     }
                 </p>
             </div>

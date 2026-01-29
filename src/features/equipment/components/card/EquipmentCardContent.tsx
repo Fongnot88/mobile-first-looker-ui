@@ -1,6 +1,6 @@
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart, Settings, Clock, Circle, Bell, Play } from "lucide-react";
+import { BarChart, Settings, Clock, Circle, Bell, Play, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatEquipmentTime, isRecentUpdate, getTimeClasses } from "./utils/timeUtils";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -117,7 +117,10 @@ export function EquipmentCardContent({
             <span className={timeClasses}>{formattedTime}</span>
           </div>
           {isMoistureMeter && deviceData?.moisture_machine === 0 ? (
-            <Circle className="h-4 w-4 ml-1.5 text-red-500 fill-red-500 animate-pulse" />
+            <div className="ml-2 bg-red-400 text-white px-2 py-0.5 rounded-full flex items-center gap-1 text-[10px] animate-pulse shadow-sm shadow-red-200">
+              <AlertTriangle className="h-3 w-3 fill-white text-red-500" />
+              <span>ความชื้น 0% ตรวจไม่พบวัตถุดิบ</span>
+            </div>
           ) : isRecent ? (
             <Circle className="h-4 w-4 ml-1.5 text-green-500 fill-green-500" />
           ) : (

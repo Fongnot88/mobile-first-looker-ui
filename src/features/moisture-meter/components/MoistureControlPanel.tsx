@@ -77,35 +77,7 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         }
     }, [isNoRice, mode, isRunning]);
 
-    // Effect: Periodic Safety Stop Command (Every 2 minutes when stopped)
-    useEffect(() => {
-        let safetyInterval: NodeJS.Timeout;
 
-        if (!isRunning) {
-            console.log('[MoistureControlPanel] Safety Stop Interval Activated (2 mins)');
-            safetyInterval = setInterval(async () => {
-                console.log('[MoistureControlPanel] Sending Safety Stop Command...');
-                try {
-                    await supabase.functions.invoke('run_manual', {
-                        body: {
-                            command: 'stop',
-                            mode: 'manual', // Enforce manual mode on safety stop
-                            deviceCode: deviceCode
-                        }
-                    });
-                } catch (err) {
-                    console.error('[MoistureControlPanel] Safety Stop Failed:', err);
-                }
-            }, 1 * 60 * 1000); // 1 minute
-        }
-
-        return () => {
-            if (safetyInterval) {
-                console.log('[MoistureControlPanel] Clearing Safety Stop Interval');
-                clearInterval(safetyInterval);
-            }
-        };
-    }, [isRunning, deviceCode]);
 
     // Effect: Manual Timer Countdown
     useEffect(() => {

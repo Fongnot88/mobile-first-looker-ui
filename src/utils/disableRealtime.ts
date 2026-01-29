@@ -6,19 +6,25 @@
 // IMMEDIATE global error handler before anything else loads
 if (typeof window !== 'undefined') {
   console.log('🚨 EMERGENCY iOS PWA FIX ACTIVATED');
-  
+
   // 1. Block ALL WebSocket attempts immediately
   const OriginalWebSocket = window.WebSocket;
   (window as any).WebSocket = function BlockedWebSocket(url: string | URL, protocols?: string | string[]) {
+    const urlString = url.toString();
+    // Whitelist MQTT server for direct connection
+    if (urlString.includes('mqttserver.riceflow.app')) {
+      console.log('✅ Allowing whitelisted WebSocket:', urlString);
+      return new OriginalWebSocket(url, protocols);
+    }
     console.error('🚫 BLOCKED WebSocket attempt to:', url);
-    
+
     // Return a mock WebSocket that doesn't crash the app
     const mockSocket = {
       readyState: 3, // CLOSED
-      close: () => {},
-      send: () => {},
-      addEventListener: () => {},
-      removeEventListener: () => {},
+      close: () => { },
+      send: () => { },
+      addEventListener: () => { },
+      removeEventListener: () => { },
       dispatchEvent: () => false,
       onopen: null,
       onclose: null,
@@ -48,10 +54,10 @@ if (typeof window !== 'undefined') {
   // 2. Allow Service Worker for PWA functionality but monitor it
   if ('serviceWorker' in navigator) {
     console.log('✅ Service Worker support enabled for PWA updates');
-    
+
     // Monitor service worker registration
     const originalRegister = navigator.serviceWorker.register;
-    navigator.serviceWorker.register = function(...args) {
+    navigator.serviceWorker.register = function (...args) {
       console.log('📝 Service Worker registration allowed:', args[0]);
       return originalRegister.apply(this, args);
     };
@@ -77,15 +83,15 @@ if (typeof window !== 'undefined') {
         console.error('🚫 BLOCKED EventSource attempt to:', url);
         return {
           readyState: 2, // CLOSED
-          close: () => {},
-          addEventListener: () => {},
-          removeEventListener: () => {},
+          close: () => { },
+          addEventListener: () => { },
+          removeEventListener: () => { },
           onopen: null,
           onmessage: null,
           onerror: null
         } as any;
       }
-      
+
       static readonly CONNECTING = 0;
       static readonly OPEN = 1;
       static readonly CLOSED = 2;
@@ -95,8 +101,8 @@ if (typeof window !== 'undefined') {
   // 4. Global error handler for any missed errors
   window.addEventListener('error', (event) => {
     console.error('🚨 GLOBAL ERROR:', event.error);
-    if (event.error?.message?.includes('insecure') || 
-        event.error?.message?.includes('WebSocket')) {
+    if (event.error?.message?.includes('insecure') ||
+      event.error?.message?.includes('WebSocket')) {
       console.error('🚨 WEBSOCKET ERROR DETECTED:', event.error);
       event.preventDefault();
       return false;
@@ -106,7 +112,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
     console.error('🚨 UNHANDLED REJECTION:', event.reason);
     if ((event.reason?.toString() || '').includes('insecure') ||
-        (event.reason?.toString() || '').includes('WebSocket')) {
+      (event.reason?.toString() || '').includes('WebSocket')) {
       console.error('🚨 WEBSOCKET REJECTION DETECTED:', event.reason);
       event.preventDefault();
       return false;
@@ -127,7 +133,7 @@ if (typeof window !== 'undefined') {
 
   // 6. Override global objects that might try to create connections
   const mockChannel = createMockChannel();
-  
+
   // Supabase override
   Object.defineProperty(window, 'supabase', {
     value: {

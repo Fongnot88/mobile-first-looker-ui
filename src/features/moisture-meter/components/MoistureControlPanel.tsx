@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { Play } from "lucide-react";
+import { Play, Loader2, Wifi } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
     Select,
@@ -12,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import mqtt from "mqtt";
 
 interface MoistureControlPanelProps {
     deviceCode?: string;
@@ -61,6 +60,50 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleTestConnection = () => {
+        setIsLoading(true);
+        const protocol = 'wss';
+        const host = 'mqttserver.riceflow.app';
+        const port = 8083; // Standard WS port
+        const path = '/mqtt';
+        const url = `${protocol}://${host}:${port}${path}`;
+
+        console.log(`[MQTT Test] Connecting to ${url}...`);
+
+        const client = mqtt.connect(url, {
+            connectTimeout: 5000,
+            clientId: `test_client_${Math.random().toString(16).substr(2, 8)}`,
+        });
+
+        client.on('connect', () => {
+            console.log('[MQTT Test] Connected!');
+            toast({
+                title: "เชื่อมต่อสำเร็จ! (Direct)",
+                description: "สามารถใช้งานแบบ Direct Connection ได้",
+                variant: "default",
+            });
+            client.end();
+            setIsLoading(false);
+        });
+
+        client.on('error', (err) => {
+            console.error('[MQTT Test] Error:', err);
+            // Try fallback port or protocol if needed, but for now just fail
+            toast({
+                title: "เชื่อมต่อไม่ได้",
+                description: `Error: ${err.message}`,
+                variant: "destructive",
+            });
+            client.end();
+            setIsLoading(false);
+        });
+
+        client.on('offline', () => {
+            // If manual close, ignore. If timeout/fail:
+            console.log('[MQTT Test] Offline/Timeout');
+        });
     };
 
     return (
@@ -122,6 +165,18 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
                         </div>
                     </Button>
                 )}
+            </div>
+
+            {/* Connection Test (Debug/Alternative) */}
+            <div className="col-span-2 flex justify-center mt-2">
+                <button
+                    onClick={handleTestConnection}
+                    disabled={isLoading}
+                    className="text-[10px] text-gray-400 underline hover:text-gray-600 flex items-center"
+                >
+                    <Wifi className="w-3 h-3 mr-1" />
+                    ทดสอบการเชื่อมต่อแบบ Direct (ไม่ต้องใช้ Server)
+                </button>
             </div>
         </div>
     );

@@ -24,7 +24,18 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
         }
         return 'auto';
     });
-    const [interval, setInterval] = useState('5');
+    const [interval, setInterval] = useState(() => {
+        if (typeof window !== 'undefined' && deviceCode) {
+            return localStorage.getItem(`moisture_interval_${deviceCode}`) || '5';
+        }
+        return '5';
+    });
+    const [isRunning, setIsRunning] = useState(() => {
+        if (typeof window !== 'undefined' && deviceCode) {
+            return localStorage.getItem(`moisture_running_${deviceCode}`) === 'true';
+        }
+        return false;
+    });
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
@@ -58,6 +69,40 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
             toast({
                 title: "แจ้งเปลี่ยนโหมดไม่สำเร็จ",
                 description: "เปลี่ยนโหมดที่หน้าแอปได้ แต่ส่งคำสั่งไปเครื่องล้มเหลว",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleIntervalChange = async (newInterval: string) => {
+        setInterval(newInterval);
+        if (deviceCode) {
+            localStorage.setItem(`moisture_interval_${deviceCode}`, newInterval);
+        }
+
+        try {
+            console.log('[MoistureControlPanel] Set interval:', newInterval);
+            const { error: fnError } = await supabase.functions.invoke('run_manual', {
+                body: {
+                    command: 'set_interval',
+                    interval: parseInt(newInterval),
+                    deviceCode: deviceCode
+                }
+            });
+
+            if (fnError) throw fnError;
+
+            toast({
+                title: "ตั้งค่าเวลาสำเร็จ",
+                description: `ตั้งเวลา Auto เป็น ${newInterval} นาที`,
+                variant: "default",
+            });
+
+        } catch (error) {
+            console.error('[MoistureControlPanel] Set Interval Error:', error);
+            toast({
+                title: "ตั้งค่าเวลาไม่สำเร็จ",
+                description: "บันทึกในเครื่องสำเร็จ แต่ส่งคำสั่งไปเครื่องล้มเหลว",
                 variant: "destructive",
             });
         }
@@ -136,7 +181,7 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
             {/* Right Column: Controls */}
             <div>
                 {mode === 'auto' ? (
-                    <Select value={interval} onValueChange={setInterval}>
+                    <Select value={interval} onValueChange={handleIntervalChange}>
                         <SelectTrigger className="h-8 sm:h-9 text-xs border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800">
                             <SelectValue placeholder="เลือกเวลา" />
                         </SelectTrigger>

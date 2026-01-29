@@ -13,6 +13,7 @@ interface RunManualPayload {
   moisture?: number;
   correction?: number;
   deviceCode?: string;
+  interval?: number;
 }
 
 serve(async (req) => {
@@ -113,7 +114,7 @@ serve(async (req) => {
 
         if (payload.command === 'run_manual') {
           mqttPayload = {
-            cmd: "START",
+            cmd: "start",
             mode: "manual", // Explicitly state manual mode for run command
             moisture: moisture,
             correction: correction,
@@ -121,8 +122,20 @@ serve(async (req) => {
           };
         } else if (payload.command === 'set_mode') {
           mqttPayload = {
-            cmd: "SET_MODE",
+            cmd: "set_mode",
             mode: payload.mode || 'auto',
+            timestamp: new Date().toISOString()
+          };
+        } else if (payload.command === 'set_interval') {
+          mqttPayload = {
+            cmd: "set_interval",
+            time_interval: (payload.interval || 5) * 60, // Convert minutes to seconds
+            timestamp: new Date().toISOString()
+          };
+        } else if (payload.command === 'stop') {
+          mqttPayload = {
+            cmd: "stop",
+            mode: "manual",
             timestamp: new Date().toISOString()
           };
         }

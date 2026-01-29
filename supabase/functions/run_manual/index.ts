@@ -148,11 +148,45 @@ serve(async (req) => {
     }
     // ------------------
 
-
-    // Initialize Supabase client for auth check (Optional log, keeping existing logic)
+    // --- Database Timer Management (Server-Side State) ---
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    if (payload.command === 'run_manual' && deviceCode) {
+      // Start Manual: Insert Timer (3.5 mins)
+      const duration = 3.5 * 60; // 210 seconds
+      const targetStop = new Date(Date.now() + duration * 1000);
+
+      await supabase.from('device_timers').upsert({
+        device_code: deviceCode,
+        mode: 'manual',
+        start_time: new Date().toISOString(),
+        duration_seconds: duration,
+        target_stop_time: targetStop.toISOString()
+      }, { onConflict: 'device_code' });
+
+    } else if (payload.command === 'set_mode' && payload.mode === 'auto' && deviceCode) {
+      // Start Auto: Insert Timer (Indefinite / Active)
+      // We set a far future stop time so it's "Active" but doesn't expire
+      const io = new Date();
+      io.setFullYear(io.getFullYear() + 10); // 10 years
+
+      await supabase.from('device_timers').upsert({
+        device_code: deviceCode,
+        mode: 'auto',
+        start_time: new Date().toISOString(),
+        duration_seconds: 0,
+        target_stop_time: io.toISOString()
+      }, { onConflict: 'device_code' });
+
+    } else if (payload.command === 'stop' && deviceCode) {
+      // Stop: Remove Timer
+      await supabase.from('device_timers').delete().eq('device_code', deviceCode);
+    }
+    // -----------------------------------------------------
+
+    // Initialize Supabase client for auth check (Existing logic)
 
     // Check authorization header
     const authHeader = req.headers.get('Authorization');

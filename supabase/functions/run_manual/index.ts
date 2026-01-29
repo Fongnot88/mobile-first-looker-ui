@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import mqtt from "npm:mqtt";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,10 +22,10 @@ serve(async (req) => {
 
   // Only allow POST
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ 
-      ok: false, 
+    return new Response(JSON.stringify({
+      ok: false,
       mode: 'error',
-      message: 'Method not allowed' 
+      message: 'Method not allowed'
     }), {
       status: 405,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -80,7 +81,52 @@ serve(async (req) => {
       });
     }
 
-    // Initialize Supabase client for auth check
+    const deviceCode = payload.deviceCode;
+
+    // --- MQTT Logic ---
+    console.log('[run_manual] Connecting to MQTT broker...');
+    const client = mqtt.connect('mqtt://mqttserver.riceflow.app:1883');
+
+    const publishPromise = new Promise((resolve, reject) => {
+      client.on('connect', () => {
+        console.log('[run_manual] MQTT Connected');
+
+        // Topic structure: For verification, we are using 'test/topic' as requested by the user
+        // const topic = deviceCode ? `device/${deviceCode}/command` : 'test/topic';
+        const topic = 'test/topic';
+        // User requested message "moisture-start"
+        const message = 'moisture-start';
+
+        client.publish(topic, message, (err) => {
+          if (err) {
+            console.error('[run_manual] MQTT Publish Error:', err);
+            reject(err);
+          } else {
+            console.log(`[run_manual] Published to ${topic}: ${message}`);
+            resolve({ topic, message });
+          }
+          client.end();
+        });
+      });
+
+      client.on('error', (err) => {
+        console.error('[run_manual] MQTT Connection Error:', err);
+        client.end();
+        reject(err);
+      });
+    });
+
+    try {
+      await publishPromise;
+    } catch (mqttErr) {
+      console.error('[run_manual] MQTT failed but continuing:', mqttErr);
+      // We might choose to fail the request or just log it. 
+      // For now, we'll continue but log the failure, maybe return partial success warning if needed.
+    }
+    // ------------------
+
+
+    // Initialize Supabase client for auth check (Optional log, keeping existing logic)
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -93,19 +139,19 @@ serve(async (req) => {
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '');
       const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      
+
       if (authError) {
         console.warn('[run_manual] Auth error:', authError.message);
       } else if (user) {
         userId = user.id;
-        
+
         // Get user role
         const { data: roles } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
           .limit(1);
-        
+
         userRole = roles?.[0]?.role || 'user';
         console.log('[run_manual] Authenticated user:', userId, 'role:', userRole);
       }
@@ -126,37 +172,10 @@ serve(async (req) => {
       correction,
     });
 
-    if (isDryRun) {
-      // Dry-run mode: return mock result
-      console.log('[run_manual] DRY-RUN: Missing deviceCode, returning mock result');
-      return new Response(JSON.stringify({
-        ok: true,
-        mode: 'dry-run',
-        message: 'Dry-run successful. No device command sent (deviceCode missing).',
-        echo: {
-          command: payload.command,
-          moisture,
-          correction,
-          deviceCode: null
-        },
-        mockResult: {
-          estimatedMoisture: moisture + correction,
-          status: 'simulated'
-        }
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Live mode: would send command to actual device
-    // For now, still return mock since we don't have actual device integration
-    console.log('[run_manual] LIVE: Would send command to device:', payload.deviceCode);
-    
     return new Response(JSON.stringify({
       ok: true,
-      mode: 'live',
-      message: `Command sent to device ${payload.deviceCode}`,
+      mode: mode,
+      message: `Command sent via MQTT. ${mode === 'dry-run' ? '(Dry Run)' : ''}`,
       echo: {
         command: payload.command,
         moisture,

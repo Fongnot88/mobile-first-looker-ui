@@ -156,7 +156,7 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
           <div className="space-y-6 mb-6">
             {/* Moisture Meter Control Panel - Relocated here */}
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 shadow-sm w-full max-w-sm ml-auto">
-              <MoistureControlPanel />
+              <MoistureControlPanel deviceCode={deviceCode} />
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3">

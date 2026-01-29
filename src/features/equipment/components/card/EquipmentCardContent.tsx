@@ -153,7 +153,7 @@ export function EquipmentCardContent({
       </div>
 
       {/* Moisture Meter Control Panel */}
-      {isMoistureMeter && <MoistureControlPanel />}
+      {isMoistureMeter && <MoistureControlPanel deviceCode={deviceCode} />}
     </CardContent>
   );
 }

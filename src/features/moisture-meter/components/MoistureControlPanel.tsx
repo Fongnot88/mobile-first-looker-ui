@@ -12,6 +12,9 @@ interface MoistureControlPanelProps {
 }
 
 export function MoistureControlPanel({ deviceCode, currentTemperature, currentMoisture }: MoistureControlPanelProps) {
+    // Fixed Duration for Manual Timer (5 minutes)
+    const MANUAL_DURATION = 5 * 60;
+
     // Mode State: 'manual' or 'auto'
     const [mode, setMode] = useState<'manual' | 'auto'>(() => {
         if (typeof window !== 'undefined' && deviceCode) {
@@ -29,8 +32,33 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
         return false;
     });
 
+    // Helper: Get stored manual start time
+    const getStoredManualStartTime = () => {
+        if (typeof window !== 'undefined' && deviceCode) {
+            const stored = localStorage.getItem(`moisture_manual_start_${deviceCode}`);
+            return stored ? parseInt(stored) : null;
+        }
+        return null;
+    };
+
     // Timer State for Manual Mode (in seconds)
-    const [manualTimeLeft, setManualTimeLeft] = useState<number | null>(null);
+    const [manualTimeLeft, setManualTimeLeft] = useState<number | null>(() => {
+        // Initialize timer from storage if running in manual mode
+        if (typeof window !== 'undefined' && deviceCode) {
+            const isRunningSaved = localStorage.getItem(`moisture_running_${deviceCode}`) === 'true';
+            const modeSaved = localStorage.getItem(`moisture_mode_${deviceCode}`);
+
+            if (isRunningSaved && modeSaved === 'manual') {
+                const startTime = getStoredManualStartTime();
+                if (startTime) {
+                    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                    const remaining = MANUAL_DURATION - elapsed;
+                    return remaining > 0 ? remaining : 0;
+                }
+            }
+        }
+        return null;
+    });
 
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
@@ -40,8 +68,6 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
 
     // Fixed Interval for Auto Mode
     const FIXED_INTERVAL = '5';
-    // Fixed Duration for Manual Timer (5 minutes)
-    const MANUAL_DURATION = 5 * 60;
 
     // Effect: Handle "No Rice" safety switch
     useEffect(() => {
@@ -54,6 +80,13 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
     // Effect: Manual Timer Countdown
     useEffect(() => {
         let timer: NodeJS.Timeout;
+
+        // If time is already 0 on init, handle stop check
+        if (manualTimeLeft === 0 && isRunning && mode === 'manual') {
+            stopMachine('Manual Timer Finished');
+            return;
+        }
+
         if (isRunning && mode === 'manual' && manualTimeLeft !== null && manualTimeLeft > 0) {
             timer = setInterval(() => {
                 setManualTimeLeft((prev) => {
@@ -89,13 +122,16 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
 
             // Update State
             setIsRunning(false);
-            setManualTimeLeft(null); // Reset timer
+            setManualTimeLeft(null); // Reset timer state
+
+            // Clear Storage
+            saveRunningToStorage(false);
+            if (deviceCode) localStorage.removeItem(`moisture_manual_start_${deviceCode}`);
 
             if (reasonContext === 'Auto Safety Stop') {
                 setMode('manual');
                 saveModeToStorage('manual');
             }
-            saveRunningToStorage(false);
 
             toast({
                 title: "หยุดการทำงานสำเร็จ",
@@ -104,7 +140,7 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
                     : reasonContext
                         ? `ระบบหยุดทำงานอัตโนมัติ (${reasonContext})`
                         : "สั่งหยุดเครื่องเรียบร้อยแล้ว",
-                variant: reasonContext ? "default" : "default", // Changed from destructive for timer finish as it's normal
+                variant: reasonContext ? "default" : "default",
                 className: reasonContext === 'Manual Timer Finished' ? "bg-green-50 border-green-200 text-green-800" : undefined
             });
 
@@ -135,8 +171,12 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             if (error) throw error;
 
             setIsRunning(true);
-            setManualTimeLeft(MANUAL_DURATION); // Start countdown
             saveRunningToStorage(true);
+
+            // Start Timer Persistence
+            const now = Date.now();
+            if (deviceCode) localStorage.setItem(`moisture_manual_start_${deviceCode}`, now.toString());
+            setManualTimeLeft(MANUAL_DURATION);
 
             toast({
                 title: "เริ่มโหมด Manual",
@@ -184,6 +224,10 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
 
             setIsRunning(true);
             saveRunningToStorage(true);
+            // Clear Manual Timer if switching to Auto (shouldn't happen directly but good cleanup)
+            if (deviceCode) localStorage.removeItem(`moisture_manual_start_${deviceCode}`);
+            setManualTimeLeft(null);
+
             toast({
                 title: "เริ่มโหมด Auto",
                 description: `เครื่องเริ่มทำงานอัตโนมัติ (หยุดพัก ${FIXED_INTERVAL} นาที)`,

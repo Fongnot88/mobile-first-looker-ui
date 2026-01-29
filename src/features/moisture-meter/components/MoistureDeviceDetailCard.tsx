@@ -41,13 +41,17 @@ export const MoistureDeviceDetailCard: React.FC<MoistureDeviceDetailCardProps> =
             {device.deviceCode}
           </p>
         </div>
-        <div className={`px-3 py-1 rounded-full text-xs font-medium ${device.status === 'online'
-          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-          : device.status === 'warning'
-            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+        <div className={`px-3 py-1 rounded-full text-xs font-medium ${device.currentMoisture === 0
+            ? 'bg-red-500 text-white animate-pulse shadow-red-200 shadow-sm'
+            : device.status === 'online'
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+              : device.status === 'warning'
+                ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
           }`}>
-          {device.status === 'online' ? 'ออนไลน์' : device.status === 'warning' ? 'ต้องตรวจสอบ' : 'ออฟไลน์'}
+          {device.currentMoisture === 0
+            ? '⚠️ ความชื้น 0%'
+            : device.status === 'online' ? 'ออนไลน์' : device.status === 'warning' ? 'ต้องตรวจสอบ' : 'ออฟไลน์'}
         </div>
       </div>
 

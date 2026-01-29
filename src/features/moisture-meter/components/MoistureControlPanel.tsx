@@ -125,8 +125,6 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
                 body: {
                     command: command,
                     mode: 'manual',
-                    moisture: 15.0,
-                    correction: 3.0,
                     deviceCode: deviceCode
                 }
             });

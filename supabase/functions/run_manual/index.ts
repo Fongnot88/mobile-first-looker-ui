@@ -57,35 +57,9 @@ serve(async (req) => {
     let moisture = 0;
     let correction = 0;
 
-    if (payload.command === 'run_manual') {
-      moisture = parseFloat(String(payload.moisture));
-      if (isNaN(moisture) || moisture < 0 || moisture > 100) {
-        console.warn('[run_manual] Invalid moisture value:', payload.moisture);
-        return new Response(JSON.stringify({
-          ok: false,
-          mode: 'error',
-          message: 'Invalid moisture value. Must be a number between 0 and 100',
-          echo: payload
-        }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
 
-      // Validate correction
-      correction = parseFloat(String(payload.correction));
-      if (isNaN(correction) || correction < -50 || correction > 50) {
-        console.warn('[run_manual] Invalid correction value:', payload.correction);
-        return new Response(JSON.stringify({
-          ok: false,
-          mode: 'error',
-          message: 'Invalid correction value. Must be a number between -50 and 50',
-          echo: payload
-        }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
+    if (payload.command === 'run_manual') {
+      // Moisture and correction are no longer required
     }
 
     const deviceCode = payload.deviceCode;
@@ -116,8 +90,6 @@ serve(async (req) => {
           mqttPayload = {
             cmd: "start",
             mode: "manual", // Explicitly state manual mode for run command
-            moisture: moisture,
-            correction: correction,
             timestamp: new Date().toISOString()
           };
         } else if (payload.command === 'set_mode') {

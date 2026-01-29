@@ -101,14 +101,26 @@ serve(async (req) => {
         const targetDevice = deviceCode || 'mm000001';
         const topic = `c2tch/${targetDevice}/cmd`;
 
-        // Payload based on user example: JSON object
-        const payload = {
-          cmd: "START",
-          moisture: moisture,
-          correction: correction,
-          timestamp: new Date().toISOString()
-        };
-        const message = JSON.stringify(payload);
+        // Payload construction
+        let mqttPayload = {};
+
+        if (payload.command === 'run_manual') {
+          mqttPayload = {
+            cmd: "START",
+            mode: "manual", // Explicitly state manual mode for run command
+            moisture: moisture,
+            correction: correction,
+            timestamp: new Date().toISOString()
+          };
+        } else if (payload.command === 'set_mode') {
+          mqttPayload = {
+            cmd: "SET_MODE",
+            mode: payload.mode || 'auto',
+            timestamp: new Date().toISOString()
+          };
+        }
+
+        const message = JSON.stringify(mqttPayload);
 
         console.log(`[run_manual] Publishing to ${topic}:`, message);
 

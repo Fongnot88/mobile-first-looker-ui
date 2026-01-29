@@ -72,7 +72,8 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
 
   useEffect(() => {
     if (user?.id) {
-      fetchUserRoles(user.id);
+      // Force refresh roles to ensure latest data
+      fetchUserRoles(user.id, true);
     }
   }, [user?.id, fetchUserRoles]);
 

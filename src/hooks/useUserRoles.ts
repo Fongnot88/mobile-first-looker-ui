@@ -6,7 +6,9 @@ export const useUserRoles = () => {
 
   // Function to fetch user roles with caching
   const fetchUserRoles = useCallback(async (userId: string, forceRefresh: boolean = false) => {
-    return await userRoleService.getUserRoles(userId, forceRefresh);
+    const roles = await userRoleService.getUserRoles(userId, forceRefresh);
+    setUserRoles(roles);
+    return roles;
   }, []);
 
   // Clear roles cache on signout

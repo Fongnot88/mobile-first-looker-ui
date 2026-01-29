@@ -17,13 +17,22 @@ interface MoistureControlPanelProps {
 }
 
 export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) {
-    const [mode, setMode] = useState<'manual' | 'auto'>('auto');
+    const [mode, setMode] = useState<'manual' | 'auto'>(() => {
+        if (typeof window !== 'undefined' && deviceCode) {
+            const saved = localStorage.getItem(`moisture_mode_${deviceCode}`);
+            return saved === 'manual' ? 'manual' : 'auto';
+        }
+        return 'auto';
+    });
     const [interval, setInterval] = useState('5');
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
     const handleModeChange = async (newMode: 'manual' | 'auto') => {
         setMode(newMode);
+        if (deviceCode) {
+            localStorage.setItem(`moisture_mode_${deviceCode}`, newMode);
+        }
 
         // MQTT: Send SET_MODE command immediately
         try {

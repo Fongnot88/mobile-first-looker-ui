@@ -91,13 +91,17 @@ serve(async (req) => {
 
     // --- MQTT Logic ---
     console.log('[run_manual] Connecting to MQTT broker...');
+    // Add reconnectPeriod: 0 to prevent loops, and use clean: true
     const client = mqtt.connect('mqtt://mqttserver.riceflow.app:1883', {
       username: 'myuser',
-      password: 'mypass'
+      password: 'mypass',
+      reconnectPeriod: 0, // Disable auto-reconnect to avoid loops in serverless
+      connectTimeout: 5000
     });
 
     const publishPromise = new Promise((resolve, reject) => {
-      client.on('connect', () => {
+      // Use 'once' instead of 'on' to ensure it fires only one time
+      client.once('connect', () => {
         console.log('[run_manual] MQTT Connected');
 
         // Topic structure: c2tech/mm000001/cmd (Fixed typo c2tch -> c2tech)

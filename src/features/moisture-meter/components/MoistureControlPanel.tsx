@@ -96,7 +96,7 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
                 } catch (err) {
                     console.error('[MoistureControlPanel] Safety Stop Failed:', err);
                 }
-            }, 2 * 60 * 1000); // 2 minutes
+            }, 1 * 60 * 1000); // 1 minute
         }
 
         return () => {

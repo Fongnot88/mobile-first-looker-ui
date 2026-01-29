@@ -89,15 +89,11 @@ export const MoistureDeviceDetail: React.FC<MoistureDeviceDetailProps> = ({
             {reading.device_code}
           </p>
         </div>
-        <div className={`px-3 py-1 rounded-full text-xs font-medium ${reading.moisture_machine === 0
-            ? 'bg-red-500 text-white animate-pulse shadow-red-200 shadow-sm'
-            : isActive
-              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-              : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+        <div className={`px-3 py-1 rounded-full text-xs font-medium ${isActive
+          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+          : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
           }`}>
-          {reading.moisture_machine === 0
-            ? '⚠️ ความชื้น 0%'
-            : isActive ? 'ออนไลน์' : 'ออฟไลน์'}
+          {isActive ? 'ออนไลน์' : 'ออฟไลน์'}
         </div>
       </div>
 

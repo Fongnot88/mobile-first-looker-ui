@@ -273,6 +273,44 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
     // Auto Restart Timer State (for Auto Mode when stopped)
     const [autoRestartTimeLeft, setAutoRestartTimeLeft] = useState<number | null>(null);
 
+    // Initial Fetch for Server-Side Timer (Persistence)
+    useEffect(() => {
+        const fetchTimer = async () => {
+            if (!deviceCode) return;
+            const { data, error } = await supabase
+                .from('device_timers' as any)
+                .select('*')
+                .eq('device_code', deviceCode)
+                .single();
+
+            if (error) {
+                // Ignore 'PGRST116' (no rows) - logic is fine
+                if (error.code !== 'PGRST116') console.error('Error fetching timer:', error);
+                return;
+            }
+
+            const timerData = data as any;
+
+            if (timerData && timerData.mode === 'pending_auto_restart') {
+                const now = new Date();
+                const target = new Date(timerData.target_stop_time);
+                const diff = Math.ceil((target.getTime() - now.getTime()) / 1000);
+
+                if (diff > 0) {
+                    setAutoRestartTimeLeft(diff);
+                } else {
+                    // It expired while we were away/loading, let the interval handle trigger or wait for next check
+                    setAutoRestartTimeLeft(0);
+                }
+            }
+        };
+
+        fetchTimer();
+
+        // Subscribe to changes? For now, fetch on mount is enough for refresh persistence. 
+        // Real-time updates might overwrite local countdown smoothness, so we trust local once started.
+    }, [deviceCode]);
+
     // Effect: Auto Restart Countdown (Only when Stopped + Auto Mode)
     useEffect(() => {
         let restartTimer: NodeJS.Timeout;
@@ -314,6 +352,12 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
     const handleToggleRun = () => {
         if (isRunning) {
             stopMachine();
+            // If stopping in Auto mode, init countdown
+            // Note: stopMachine is async, but we can optimistically set this
+            // We need to check current mode (before update state)
+            if (mode === 'auto') {
+                setAutoRestartTimeLeft(60);
+            }
         } else {
             if (mode === 'manual') startManual();
             else startAuto();

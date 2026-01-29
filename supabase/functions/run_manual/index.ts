@@ -8,9 +8,10 @@ const corsHeaders = {
 };
 
 interface RunManualPayload {
-  command: string;
-  moisture: number;
-  correction: number;
+  command: string; // 'run_manual' | 'set_mode'
+  mode?: string;   // 'auto' | 'manual'
+  moisture?: number;
+  correction?: number;
   deviceCode?: string;
 }
 
@@ -38,12 +39,12 @@ serve(async (req) => {
     console.log('[run_manual] Received payload:', JSON.stringify(payload));
 
     // Validate command
-    if (payload.command !== 'run_manual') {
+    if (payload.command !== 'run_manual' && payload.command !== 'set_mode') {
       console.warn('[run_manual] Invalid command:', payload.command);
       return new Response(JSON.stringify({
         ok: false,
         mode: 'error',
-        message: 'Invalid command. Expected "run_manual"',
+        message: 'Invalid command. Expected "run_manual" or "set_mode"',
         echo: payload
       }), {
         status: 400,
@@ -51,34 +52,39 @@ serve(async (req) => {
       });
     }
 
-    // Validate moisture
-    const moisture = parseFloat(String(payload.moisture));
-    if (isNaN(moisture) || moisture < 0 || moisture > 100) {
-      console.warn('[run_manual] Invalid moisture value:', payload.moisture);
-      return new Response(JSON.stringify({
-        ok: false,
-        mode: 'error',
-        message: 'Invalid moisture value. Must be a number between 0 and 100',
-        echo: payload
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    // Validate moisture (Only for run_manual)
+    let moisture = 0;
+    let correction = 0;
 
-    // Validate correction
-    const correction = parseFloat(String(payload.correction));
-    if (isNaN(correction) || correction < -50 || correction > 50) {
-      console.warn('[run_manual] Invalid correction value:', payload.correction);
-      return new Response(JSON.stringify({
-        ok: false,
-        mode: 'error',
-        message: 'Invalid correction value. Must be a number between -50 and 50',
-        echo: payload
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    if (payload.command === 'run_manual') {
+      moisture = parseFloat(String(payload.moisture));
+      if (isNaN(moisture) || moisture < 0 || moisture > 100) {
+        console.warn('[run_manual] Invalid moisture value:', payload.moisture);
+        return new Response(JSON.stringify({
+          ok: false,
+          mode: 'error',
+          message: 'Invalid moisture value. Must be a number between 0 and 100',
+          echo: payload
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Validate correction
+      correction = parseFloat(String(payload.correction));
+      if (isNaN(correction) || correction < -50 || correction > 50) {
+        console.warn('[run_manual] Invalid correction value:', payload.correction);
+        return new Response(JSON.stringify({
+          ok: false,
+          mode: 'error',
+          message: 'Invalid correction value. Must be a number between -50 and 50',
+          echo: payload
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     const deviceCode = payload.deviceCode;

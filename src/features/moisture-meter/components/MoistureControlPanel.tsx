@@ -22,6 +22,38 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
+    const handleModeChange = async (newMode: 'manual' | 'auto') => {
+        setMode(newMode);
+
+        // MQTT: Send SET_MODE command immediately
+        try {
+            console.log('[MoistureControlPanel] Mode change:', newMode);
+            const { error: fnError } = await supabase.functions.invoke('run_manual', {
+                body: {
+                    command: 'set_mode',
+                    mode: newMode,
+                    deviceCode: deviceCode
+                }
+            });
+
+            if (fnError) throw fnError;
+
+            toast({
+                title: "เปลี่ยนโหมดสำเร็จ",
+                description: `เปลี่ยนเป็นโหมด ${newMode.toUpperCase()} เรียบร้อย`,
+                variant: "default",
+            });
+
+        } catch (error) {
+            console.error('[MoistureControlPanel] Mode Change Error:', error);
+            toast({
+                title: "แจ้งเปลี่ยนโหมดไม่สำเร็จ",
+                description: "เปลี่ยนโหมดที่หน้าแอปได้ แต่ส่งคำสั่งไปเครื่องล้มเหลว",
+                variant: "destructive",
+            });
+        }
+    };
+
     const handleStartManual = async () => {
         setIsLoading(true);
         try {
@@ -29,6 +61,7 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
             const { data, error } = await supabase.functions.invoke('run_manual', {
                 body: {
                     command: 'run_manual',
+                    mode: 'manual', // Explicitly stating manual context
                     moisture: 15.0, // Default test value
                     correction: 3.0, // Default test value
                     deviceCode: deviceCode
@@ -68,7 +101,7 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
             {/* Left Column: Toggle Mode */}
             <div className="flex bg-gray-100 dark:bg-gray-800 rounded-md p-1 border border-gray-200 dark:border-gray-700 h-8 sm:h-9 items-center">
                 <button
-                    onClick={() => setMode('manual')}
+                    onClick={() => handleModeChange('manual')}
                     className={cn(
                         "flex-1 text-xs font-medium py-1 rounded-sm transition-all h-full flex items-center justify-center",
                         mode === 'manual'
@@ -79,7 +112,7 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
                     Manual
                 </button>
                 <button
-                    onClick={() => setMode('auto')}
+                    onClick={() => handleModeChange('auto')}
                     className={cn(
                         "flex-1 text-xs font-medium py-1 rounded-sm transition-all h-full flex items-center justify-center",
                         mode === 'auto'

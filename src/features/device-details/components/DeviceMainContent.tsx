@@ -2,7 +2,7 @@
 import React, { Suspense, useState, useMemo, useRef, useEffect } from "react";
 import { AppLayout } from "@/components/layouts/app-layout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Wheat, ArrowLeft, TestTube } from "lucide-react";
+import { Wheat, ArrowLeft, TestTube, RotateCcw, Ban } from "lucide-react";
 import { DeviceHeader } from "./DeviceHeader";
 import { MeasurementTabs } from "./MeasurementTabs";
 import { DeviceCalculationSummary } from "./DeviceCalculationSummary";
@@ -20,6 +20,9 @@ import { useLatestMoistureReading } from "@/features/moisture-meter/hooks/useLat
 import { useMoistureHistory, MoistureTimeFrame } from "@/features/moisture-meter/hooks/useMoistureHistory";
 import { useMoistureMeterSettingByDeviceCode } from "@/features/moisture-meter/hooks/useMoistureMeterSettings";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { MoistureControlPanel } from "@/features/moisture-meter/components/MoistureControlPanel";
 
 // Lazy load the DeviceHistoryTable component
@@ -69,6 +72,8 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   const { user } = useAuthSession();
   const { userRoles, fetchUserRoles } = useUserRoles();
   const [testOverrides, setTestOverrides] = useState<{ temp: number, moisture: number } | null>(null);
+  const [isSimulating, setIsSimulating] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (user?.id) {
@@ -78,6 +83,42 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
   }, [user?.id, fetchUserRoles]);
 
   const isSuperAdmin = userRoles.includes('superadmin');
+
+  // Handle Simulation
+  const handleSimulation = async (type: 'no-rice' | 'rice') => {
+    // 1. Set local override immediately for responsiveness
+    const val = type === 'rice' ? 1 : 0;
+    setTestOverrides({ temp: val, moisture: val });
+
+    // 2. Call backend simulation
+    if (!deviceCode) return;
+    setIsSimulating(true);
+
+    try {
+      const { error } = await supabase.functions.invoke('simulate_sensor', {
+        body: {
+          deviceCode,
+          type
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Simulation Sent",
+        description: `Sent ${type} signal to MQTT`,
+      });
+    } catch (err) {
+      console.error("Simulation error:", err);
+      toast({
+        title: "Simulation Failed",
+        description: "Failed to send MQTT command, but local override is active.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSimulating(false);
+    }
+  };
 
   // Check if this is a moisture meter device (case-insensitive)
   const isMoistureMeter = deviceCode?.toLowerCase().startsWith('mm');
@@ -172,42 +213,58 @@ export const DeviceMainContent: React.FC<DeviceMainContentProps> = ({
         {isMoistureMeter ? (
           <div className="space-y-6 mb-6">
             {/* Moisture Meter Control Panel - Relocated here */}
-            {isSuperAdmin && (
-              <div className="flex justify-end gap-2 mb-2">
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-lg border border-gray-100 dark:border-gray-700 shadow-sm">
-                  <div className="flex items-center gap-1 text-xs text-gray-500 font-semibold uppercase tracking-wider mr-2 border-r pr-2 h-4">
-                    <TestTube size={12} />
-                    Test
+            {/* Superadmin Sensor Simulation Panel */}
+            <div className="flex flex-col gap-2 mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="bg-amber-50/80 dark:bg-amber-900/10 border border-amber-200/50 dark:border-amber-700/30 rounded-lg p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-500 uppercase tracking-wider">
+                    <TestTube size={14} className="text-amber-600 dark:text-amber-500" />
+                    Sensor Simulation
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-6 border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400 px-2"
-                    onClick={() => setTestOverrides({ temp: 0, moisture: 0 })}
-                  >
-                    No Rice
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-6 border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-400 px-2"
-                    onClick={() => setTestOverrides({ temp: 1, moisture: 1 })}
-                  >
-                    Rice
-                  </Button>
                   {testOverrides && (
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-xs h-6 text-gray-500 hover:text-gray-700 px-2"
+                      className="h-6 text-xs text-amber-700/70 hover:text-amber-800 hover:bg-amber-100/50 dark:text-amber-400 dark:hover:text-amber-200"
                       onClick={() => setTestOverrides(null)}
                     >
-                      Reset
+                      <RotateCcw className="h-3 w-3 mr-1.5" />
+                      Reset to Real-time
                     </Button>
                   )}
                 </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isSimulating}
+                    className={cn(
+                      "h-9 justify-start border-red-200 text-red-700 hover:bg-red-50 hover:text-red-800 dark:border-red-900/30 dark:text-red-400 dark:hover:bg-red-900/20 bg-white dark:bg-gray-800",
+                      testOverrides?.temp === 0 && testOverrides?.moisture === 0 && "bg-red-100 dark:bg-red-900/30 ring-1 ring-red-200 dark:ring-red-900/50 border-red-300"
+                    )}
+                    onClick={() => handleSimulation('no-rice')}
+                  >
+                    <Ban className="h-4 w-4 mr-2" />
+                    {isSimulating ? 'Sending...' : 'Simulate Empty'}
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isSimulating}
+                    className={cn(
+                      "h-9 justify-start border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800 dark:border-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/20 bg-white dark:bg-gray-800",
+                      testOverrides?.temp === 1 && testOverrides?.moisture === 1 && "bg-emerald-100 dark:bg-emerald-900/30 ring-1 ring-emerald-200 dark:ring-emerald-900/50 border-emerald-300"
+                    )}
+                    onClick={() => handleSimulation('rice')}
+                  >
+                    <Wheat className="h-4 w-4 mr-2" />
+                    {isSimulating ? 'Sending...' : 'Simulate Rice'}
+                  </Button>
+                </div>
               </div>
-            )}
+            </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-100 dark:border-gray-700 shadow-sm w-full max-w-sm ml-auto">
               <MoistureControlPanel
                 deviceCode={deviceCode}

@@ -40,12 +40,13 @@ serve(async (req) => {
     console.log('[run_manual] Received payload:', JSON.stringify(payload));
 
     // Validate command
-    if (payload.command !== 'run_manual' && payload.command !== 'set_mode') {
+    const validCommands = ['run_manual', 'set_mode', 'set_interval', 'stop'];
+    if (!validCommands.includes(payload.command)) {
       console.warn('[run_manual] Invalid command:', payload.command);
       return new Response(JSON.stringify({
         ok: false,
         mode: 'error',
-        message: 'Invalid command. Expected "run_manual" or "set_mode"',
+        message: 'Invalid command. Expected "run_manual", "set_mode", "set_interval", or "stop"',
         echo: payload
       }), {
         status: 400,
@@ -96,12 +97,14 @@ serve(async (req) => {
           mqttPayload = {
             cmd: "set_mode",
             mode: payload.mode || 'auto',
+            time_interval: payload.mode === 'auto' ? (payload.interval || 5) * 60 : undefined,
             timestamp: new Date().toISOString()
           };
         } else if (payload.command === 'set_interval') {
           mqttPayload = {
             cmd: "set_interval",
             time_interval: (payload.interval || 5) * 60, // Convert minutes to seconds
+            mode: payload.mode || 'auto',
             timestamp: new Date().toISOString()
           };
         } else if (payload.command === 'stop') {

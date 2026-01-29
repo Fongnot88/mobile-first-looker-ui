@@ -52,6 +52,7 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
                 body: {
                     command: 'set_mode',
                     mode: newMode,
+                    interval: parseInt(interval),
                     deviceCode: deviceCode
                 }
             });
@@ -86,6 +87,7 @@ export function MoistureControlPanel({ deviceCode }: MoistureControlPanelProps) 
                 body: {
                     command: 'set_interval',
                     interval: parseInt(newInterval),
+                    mode: 'auto',
                     deviceCode: deviceCode
                 }
             });

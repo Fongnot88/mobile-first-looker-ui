@@ -12,8 +12,8 @@ interface MoistureControlPanelProps {
 }
 
 export function MoistureControlPanel({ deviceCode, currentTemperature, currentMoisture }: MoistureControlPanelProps) {
-    // Fixed Duration for Manual Timer (3.5 minutes = 210 seconds)
-    const MANUAL_DURATION = 3.5 * 60;
+    // Fixed Duration for Manual Timer (5 minutes = 300 seconds)
+    const MANUAL_DURATION = 5 * 60;
 
     // Mode State: 'manual' or 'auto'
     const [mode, setMode] = useState<'manual' | 'auto'>(() => {
@@ -78,14 +78,13 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
     }, [isNoRice, mode, isRunning]);
 
 
-
     // Effect: Manual Timer Countdown
     useEffect(() => {
         let timer: NodeJS.Timeout;
 
         // If time is already 0 on init, handle stop check
         if (manualTimeLeft === 0 && isRunning && mode === 'manual') {
-            stopMachine('Manual Timer Finished');
+            handleManualFinishedAutoSwitch();
             return;
         }
 
@@ -98,13 +97,36 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             }, 1000);
         } else if (manualTimeLeft === 0 && isRunning && mode === 'manual') {
             // Timer finished
-            stopMachine('Manual Timer Finished');
+            handleManualFinishedAutoSwitch();
         }
 
         return () => {
             if (timer) clearInterval(timer);
         };
     }, [isRunning, mode, manualTimeLeft]);
+
+    // Helper: Handle Manual Finished -> Switch to Auto
+    const handleManualFinishedAutoSwitch = async () => {
+        console.log('[MoistureControlPanel] Manual Timer Finished. Switching to Auto...');
+
+        // 1. Reset timer state locally first to stop loop
+        setManualTimeLeft(null);
+        localStorage.removeItem(`moisture_manual_start_${deviceCode}`); // Clear start time
+
+        // 2. Set Mode to Auto
+        setMode('auto');
+        saveModeToStorage('auto');
+
+        // 3. Start Auto Mode
+        // We reuse startAuto logic but need to be careful about state updates
+        await startAuto();
+
+        toast({
+            title: "จบโหมด Manual -> เริ่ม Auto",
+            description: "ครบ 5 นาทีแล้ว เครื่องสลับเป็นโหมด Auto โดยอัตโนมัติ",
+            className: "bg-blue-50 border-blue-200 text-blue-800",
+        });
+    };
 
 
     // Helper: Stop Machine (Universal)
@@ -138,7 +160,7 @@ export function MoistureControlPanel({ deviceCode, currentTemperature, currentMo
             toast({
                 title: "หยุดการทำงานสำเร็จ",
                 description: reasonContext === 'Manual Timer Finished'
-                    ? "ครบเวลาทำงาน 3 นาทีครึ่งแล้ว (Manual)"
+                    ? "ครบเวลาทำงาน 5 นาทีแล้ว (Manual)"
                     : reasonContext
                         ? `ระบบหยุดทำงานอัตโนมัติ (${reasonContext})`
                         : "สั่งหยุดเครื่องเรียบร้อยแล้ว",

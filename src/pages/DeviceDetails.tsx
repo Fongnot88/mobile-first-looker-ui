@@ -54,12 +54,12 @@ export default function DeviceDetails() {
   useEffect(() => {
     if (deviceCode && deviceCode !== 'default') {
       // Get the referring page or use default
-      const fromPage = document.referrer.includes('/equipment/moisture-meter') 
+      const fromPage = document.referrer.includes('/equipment/moisture-meter')
         ? '/equipment/moisture-meter'
         : document.referrer.includes('/equipment')
-        ? '/equipment'
-        : '/equipment';
-      
+          ? '/equipment'
+          : '/equipment';
+
       saveNavigationHistory(fromPage);
     }
   }, [deviceCode, saveNavigationHistory]);
@@ -106,14 +106,26 @@ export default function DeviceDetails() {
   // Show measurement history if a measurement symbol is present in URL
   if (measurementSymbol && measurementName && deviceCode && deviceCode !== 'default') {
     return (
-      <MeasurementHistory 
-        symbol={measurementSymbol} 
-        name={measurementName} 
-        deviceCode={deviceCode} 
-        onClose={handleCloseHistory} 
+      <MeasurementHistory
+        symbol={measurementSymbol}
+        name={measurementName}
+        deviceCode={deviceCode}
+        onClose={handleCloseHistory}
       />
     );
   }
+
+  // Custom back handler for moisture meter devices
+  const handleDeviceBack = () => {
+    // If it's a moisture meter device (starts with mm), go back to moisture meter list
+    if (deviceCode?.toLowerCase().startsWith('mm')) {
+      navigate('/equipment/moisture-meter');
+      return;
+    }
+
+    // Otherwise use default history back behavior
+    handleBack();
+  };
 
   // Main device details view with AppLayout
   return (
@@ -132,7 +144,7 @@ export default function DeviceDetails() {
         isLoadingAllData={isLoadingAllData}
         isGuest={isGuest}
         onMeasurementClick={handleMeasurementClick}
-        onBack={handleBack}
+        onBack={handleDeviceBack}
       />
     </CountdownProvider>
   );

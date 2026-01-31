@@ -5,12 +5,12 @@ import { userRoleService } from "@/utils/auth/userRoleService";
 
 export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean, isSuperAdmin?: boolean): Promise<DeviceInfo[]> => {
   console.log("Fetching devices with details using optimized database function...");
-  
+
   try {
     // Get current user if not provided
     let currentUserId = userId;
     let currentUser = null;
-    
+
     if (!currentUserId) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -24,7 +24,7 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
     // Check user role if not provided - use cached service
     let userIsSuperAdmin = isSuperAdmin;
     let userIsAdmin = isAdmin;
-    
+
     if (userIsSuperAdmin === undefined || userIsAdmin === undefined) {
       const userRoles = await userRoleService.getUserRoles(currentUserId);
       userIsSuperAdmin = userRoles.includes('superadmin');
@@ -52,7 +52,7 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
     } else {
       // Regular users see devices they have access to OR devices in guest_device_access that are enabled
       console.log("Fetching devices for regular user...");
-      
+
       const { data: accessibleDevices, error: accessError } = await supabase
         .from('user_device_access')
         .select('device_code')
@@ -67,10 +67,22 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
       if (guestError) throw guestError;
 
-      // Combine accessible devices and enabled guest devices
+      // Also get all moisture meters (starting with 'mm')
+      const { data: moistureMeters, error: mmError } = await supabase
+        .from('device_settings')
+        .select('device_code')
+        .ilike('device_code', 'mm%');
+
+      if (mmError) {
+        console.error("Error fetching moisture meters:", mmError);
+        // Continue without moisture meters if error
+      }
+
+      // Combine accessible devices and enabled guest devices and moisture meters
       const allAccessibleDeviceCodes = [
         ...(accessibleDevices?.map(d => d.device_code) || []),
-        ...(guestDevices?.map(d => d.device_code) || [])
+        ...(guestDevices?.map(d => d.device_code) || []),
+        ...(moistureMeters?.map(d => d.device_code) || [])
       ];
 
       const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
@@ -84,9 +96,9 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
           is_superadmin_param: false
         });
         if (error) throw error;
-        
+
         // Filter to only show devices they have access to
-        devices = (data || []).filter(device => 
+        devices = (data || []).filter(device =>
           uniqueDeviceCodes.includes(device.device_code)
         );
       }
@@ -95,7 +107,7 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
     console.log(`✅ Successfully fetched ${devices.length} devices with details`);
     console.log("Device codes found:", devices.map(d => d.device_code));
-    
+
     return devices;
   } catch (error) {
     console.error("❌ Error fetching devices with details:", error);
@@ -105,7 +117,7 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
 
 export const fetchDeviceCount = async (): Promise<number> => {
   console.log("Counting unique devices using optimized function...");
-  
+
   try {
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
@@ -146,10 +158,17 @@ export const fetchDeviceCount = async (): Promise<number> => {
 
       if (guestError) throw guestError;
 
-      // Combine accessible devices and enabled guest devices
+      // Also get all moisture meters (starting with 'mm')
+      const { data: moistureMeters, error: mmError } = await supabase
+        .from('device_settings')
+        .select('device_code')
+        .ilike('device_code', 'mm%');
+
+      // Combine accessible devices and enabled guest devices and moisture meters
       const allAccessibleDeviceCodes = [
         ...(accessibleDevices?.map(d => d.device_code) || []),
-        ...(guestDevices?.map(d => d.device_code) || [])
+        ...(guestDevices?.map(d => d.device_code) || []),
+        ...(moistureMeters?.map(d => d.device_code) || [])
       ];
 
       count = new Set(allAccessibleDeviceCodes).size;

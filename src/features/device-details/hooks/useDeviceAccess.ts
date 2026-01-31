@@ -19,17 +19,17 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
     queryKey: ['userDeviceAccess', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
+
       const { data, error } = await supabase
         .from('user_device_access')
         .select('device_code')
         .eq('user_id', user.id);
-      
+
       if (error) {
         console.error('Error fetching user device access:', error);
         return [];
       }
-      
+
       return data?.map(item => item.device_code) || [];
     },
     enabled: !!user && !isGuest && !isAdmin && !isSuperAdmin
@@ -46,12 +46,12 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
         .from('guest_device_access')
         .select('device_code')
         .eq('enabled', true);
-      
+
       if (error) {
         console.error('Error fetching guest device access:', error);
         return [];
       }
-      
+
       return data?.map(item => ({ device_code: item.device_code })) || [];
     },
     enabled: isGuest
@@ -59,7 +59,7 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
 
   // Check if user has access to the current device
   let hasDeviceAccess = false;
-  
+
   if (isGuest) {
     // For guests, check guest_device_access
     hasDeviceAccess = guestAccessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
@@ -68,9 +68,20 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
     if (isAdmin || isSuperAdmin) {
       hasDeviceAccess = true; // Admin and SuperAdmin have access to all devices
     } else {
-      // Regular users need to check their specific device access from user_device_access table
-      hasDeviceAccess = accessibleDeviceCodes?.includes(deviceCode || '') ?? false;
+      // Allow access to all moisture meter devices (starting with 'mm') for all users
+      // This allows every role to view moisture meter graphs
+      if (deviceCode?.toLowerCase().startsWith('mm')) {
+        hasDeviceAccess = true;
+      } else {
+        // Regular users need to check their specific device access from user_device_access table
+        hasDeviceAccess = accessibleDeviceCodes?.includes(deviceCode || '') ?? false;
+      }
     }
+  }
+
+  // Also allow guests to access moisture meters if needed (based on "all levels" request)
+  if (isGuest && deviceCode?.toLowerCase().startsWith('mm')) {
+    hasDeviceAccess = true;
   }
 
   const isLoading = (isGuest && isCheckingGuestAccess) || (!isGuest && isCheckingAccess);

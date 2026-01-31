@@ -12,34 +12,50 @@ import { DeviceInfo } from "../types";
 export const useDevicesQuery = () => {
   const { user, userRoles } = useAuth();
   const { isGuest } = useGuestMode();
-  
+
   const isAdmin = userRoles.includes('admin');
   const isSuperAdmin = userRoles.includes('superadmin');
-  
+
   // Guest devices query (no cache)
   const guestDevicesQuery = useQuery({
     queryKey: ['guest-devices-no-cache'],
     queryFn: async (): Promise<DeviceInfo[]> => {
       console.log('📱 Fetching guest devices without cache...');
-      
+
       // Direct query without cache - get guest-enabled devices
       const { data: guestDevicesData, error: guestError } = await supabase
         .from('guest_device_access')
         .select('device_code')
         .eq('enabled', true);
-      
+
       if (guestError) {
         console.error('Error fetching guest devices:', guestError);
         throw guestError;
       }
 
-      if (!guestDevicesData || guestDevicesData.length === 0) {
-        console.log('No guest devices found');
+      // Also get all moisture meters (starting with 'mm')
+      const { data: moistureMeters, error: mmError } = await supabase
+        .from('device_settings')
+        .select('device_code')
+        .ilike('device_code', 'mm%');
+
+      if (mmError) {
+        console.error('Error fetching moisture meters:', mmError);
+        // Don't throw, just continue with guest devices
+      }
+
+      const guestDeviceCodes = guestDevicesData?.map(d => d.device_code) || [];
+      const moistureMeterCodes = moistureMeters?.map(d => d.device_code) || [];
+
+      // Combine and unique
+      const deviceCodes = [...new Set([...guestDeviceCodes, ...moistureMeterCodes])];
+
+      if (deviceCodes.length === 0) {
+        console.log('No guest devices or moisture meters found');
         return [];
       }
 
-      const deviceCodes = guestDevicesData.map(d => d.device_code);
-      console.log('Guest device codes:', deviceCodes);
+      console.log('Guest + Moisture device codes:', deviceCodes);
 
       // Get device settings separately
       const { data: settingsData } = await supabase
@@ -67,11 +83,12 @@ export const useDevicesQuery = () => {
         }
       });
 
-      const enrichedDevices: DeviceInfo[] = guestDevicesData.map(device => ({
-        device_code: device.device_code,
-        display_name: deviceSettings[device.device_code]?.display_name || device.device_code,
-        updated_at: latestDeviceData[device.device_code]?.created_at || new Date().toISOString(),
-        deviceData: latestDeviceData[device.device_code] || null
+      // Use deviceCodes to map all devices (guest + moisture meters)
+      const enrichedDevices: DeviceInfo[] = deviceCodes.map(code => ({
+        device_code: code,
+        display_name: deviceSettings[code]?.display_name || code,
+        updated_at: latestDeviceData[code]?.created_at || new Date().toISOString(),
+        deviceData: latestDeviceData[code] || null
       }));
 
       console.log(`📱 Fetched ${enrichedDevices.length} guest devices without cache`);
@@ -89,9 +106,9 @@ export const useDevicesQuery = () => {
     queryKey: ['authenticated-devices', user?.id, isAdmin, isSuperAdmin],
     queryFn: async (): Promise<DeviceInfo[]> => {
       if (!user?.id) return [];
-      
+
       console.log('🔐 Fetching authenticated devices via React Query...');
-      
+
       const deviceList = await fetchDevicesWithDetails(
         user.id,
         isAdmin,
@@ -141,9 +158,9 @@ export const useDevicesQuery = () => {
       if (isGuest) {
         return guestDevicesQuery.data?.length || 0;
       }
-      
+
       if (!user?.id) return 0;
-      
+
       // Use the same logic as fetchDevicesWithDetails for consistency
       const devices = await fetchDevicesWithDetails(user.id, isAdmin, isSuperAdmin);
       return devices.length;
@@ -156,7 +173,7 @@ export const useDevicesQuery = () => {
 
   // Return the appropriate query based on user type
   const activeQuery = isGuest ? guestDevicesQuery : authenticatedDevicesQuery;
-  
+
   return {
     devices: activeQuery.data || [],
     isLoading: activeQuery.isLoading,

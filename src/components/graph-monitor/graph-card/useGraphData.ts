@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SelectedGraph } from "../types";
@@ -34,7 +33,12 @@ export const useGraphData = (graph: SelectedGraph, timeFrame: TimeFrame) => {
 
       if (error) {
         console.error("Error fetching graph data:", error);
-        setError("ไม่สามารถโหลดข้อมูลได้");
+        // Check if this is an RLS/permission error
+        if (error.code === "PGRST301" || error.message?.includes("policy") || error.message?.includes("permission")) {
+          setError("คุณไม่มีสิทธิ์เข้าถึงข้อมูลของอุปกรณ์นี้");
+        } else {
+          setError("ไม่สามารถโหลดข้อมูลได้");
+        }
         return;
       }
 

@@ -24,6 +24,7 @@ export const getTimeFrameHours = (frame: TimeFrame): number => {
 };
 
 // Enhanced fetch measurement history with comprehensive validation
+// Note: Guests are allowed to read data without authentication (RLS policy handles access control)
 export const fetchMeasurementHistory = async (
   deviceCode: string, 
   symbol: string, 
@@ -36,13 +37,20 @@ export const fetchMeasurementHistory = async (
     throw error;
   }
 
-  // Phase 3: Comprehensive validation
+  // Try validation but allow guests to proceed (RLS policy will handle access control)
   const validation = await validateApiAccess(deviceCode);
-  if (!validation.isValid) {
+  const isGuest = !validation.isValid && validation.error?.includes('Auth session missing');
+  
+  // Only throw error if it's NOT a guest (i.e., authenticated user with access denied)
+  if (!validation.isValid && !isGuest) {
     throw createApiError('fetchMeasurementHistory', validation.error || 'Access validation failed', validation.userId, {
       device_code: deviceCode,
       rice_type_id: symbol
     });
+  }
+  
+  if (isGuest) {
+    console.log('👤 Guest user - proceeding with RLS-based access control');
   }
 
   // Defensively convert the symbol to the correct database column name.
@@ -160,6 +168,7 @@ export const calculateAverage = (historyData: any[], symbol: string): number => 
 };
 
 // Enhanced get latest measurement with validation
+// Note: Guests are allowed to read data without authentication (RLS policy handles access control)
 export const getLatestMeasurement = async (
   deviceCode: string,
   symbol: string
@@ -178,9 +187,12 @@ export const getLatestMeasurement = async (
       return { value: null, timestamp: null };
     }
 
-    // Phase 3: Validation
+    // Try validation but allow guests to proceed (RLS policy will handle access control)
     const validation = await validateApiAccess(deviceCode);
-    if (!validation.isValid) {
+    const isGuest = !validation.isValid && validation.error?.includes('Auth session missing');
+    
+    // Only block if it's NOT a guest (i.e., authenticated user with access denied)
+    if (!validation.isValid && !isGuest) {
       console.warn('🚫 Validation failed for getLatestMeasurement:', validation.error);
       logSecurityEvent({
         function_name: 'getLatestMeasurement',
@@ -195,6 +207,10 @@ export const getLatestMeasurement = async (
       
       // Don't throw error for this function, return null values instead
       return { value: null, timestamp: null };
+    }
+    
+    if (isGuest) {
+      console.log('👤 Guest user - proceeding with RLS-based access control');
     }
 
     // ดึงข้อมูลล่าสุดเพียง 1 รายการ

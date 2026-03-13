@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Mail, MessageCircle, ExternalLink, LifeBuoy } from "lucide-react";
+import { ArrowLeft, Phone, Mail, MessageCircle, ExternalLink, LifeBuoy, Building } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppLayout } from "@/components/layouts/app-layout";
 
@@ -40,7 +40,20 @@ const SupportContent = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
-              
+              {/* Company Info */}
+              <div className="flex items-start gap-4 p-4 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+                <div className="bg-indigo-100 dark:bg-indigo-900/50 p-3 rounded-full text-indigo-600 dark:text-indigo-400 shrink-0 mt-1">
+                  <Building className="h-6 w-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">C2Tech Co., Ltd.</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm mt-1 leading-relaxed">
+                    99/3, Mu 9, Wang Kai Thuean Sub-district,<br />
+                    Han Kha District, Chai Nat Province
+                  </p>
+                </div>
+              </div>
+
               {/* Phone */}
               <div className="flex items-start gap-4 p-4 rounded-lg border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
                 <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-full text-blue-600 dark:text-blue-400 shrink-0 mt-1">
@@ -50,7 +63,7 @@ const SupportContent = () => {
                   <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100">โทรศัพท์</h3>
                   <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">ติดต่อสอบถามข้อมูลต่างๆ ได้ตลอดเวลา</p>
                   <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                    <a href="tel:0808300599" className="hover:underline">080-830-0599</a>
+                    <a href="tel:0646545636" className="hover:underline">064-654-5636</a>
                   </p>
                 </div>
               </div>

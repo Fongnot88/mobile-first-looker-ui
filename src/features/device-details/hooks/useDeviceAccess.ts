@@ -54,7 +54,8 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
 
       return data?.map(item => ({ device_code: item.device_code })) || [];
     },
-    enabled: isGuest
+    // We need guest device access list for both guests and regular authenticated users
+    enabled: isGuest || (!!user && !isAdmin && !isSuperAdmin)
   });
 
   // Check if user has access to the current device
@@ -69,12 +70,15 @@ export const useDeviceAccess = (deviceCode: string | undefined) => {
       hasDeviceAccess = true; // Admin and SuperAdmin have access to all devices
     } else {
       // Allow access to all moisture meter devices (starting with 'mm') for all users
-      // This allows every role to view moisture meter graphs
       if (deviceCode?.toLowerCase().startsWith('mm')) {
         hasDeviceAccess = true;
       } else {
         // Regular users need to check their specific device access from user_device_access table
-        hasDeviceAccess = accessibleDeviceCodes?.includes(deviceCode || '') ?? false;
+        const hasExplicitAccess = accessibleDeviceCodes?.includes(deviceCode || '') ?? false;
+        // They should also be able to access guest devices
+        const isGuestDevice = guestAccessibleDevices?.some(device => device.device_code === deviceCode) ?? false;
+        
+        hasDeviceAccess = hasExplicitAccess || isGuestDevice;
       }
     }
   }

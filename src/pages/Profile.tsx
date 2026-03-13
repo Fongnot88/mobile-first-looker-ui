@@ -7,11 +7,12 @@ import { FeedbackDialogs } from "@/components/profile/FeedbackDialogs";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { KeyRound, CheckCircle, AlertCircle } from "lucide-react";
+import { KeyRound, CheckCircle, AlertCircle, LifeBuoy } from "lucide-react";
 import { SharedLinksSection } from "@/components/profile/SharedLinksSection";
 import { MoistureSharedLinksSection } from "@/components/profile/MoistureSharedLinksSection";
 import { NotificationSoundSettings } from "@/components/profile/NotificationSoundSettings";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useNavigate } from "react-router-dom";
 const Profile = () => {
   const {
     user
@@ -22,6 +23,7 @@ const Profile = () => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const isMobile = useIsMobile();
   const { t, language } = useTranslation();
+  const navigate = useNavigate();
   // isCollapsed state and its useEffect have been removed as AppLayout now handles sidebar state and content margins.
 
   // Format user data
@@ -105,6 +107,34 @@ const Profile = () => {
             
             {/* การตั้งค่าเสียงแจ้งเตือน Section */}
             <NotificationSoundSettings />
+            
+            {/* ความช่วยเหลือและสนับสนุน Section */}
+            <Card className="border-emerald-100 dark:border-emerald-900/30 overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400 rounded-full filter blur-3xl opacity-10 pointer-events-none"></div>
+              <CardHeader className="pb-3 bg-emerald-50/50 dark:bg-emerald-900/10">
+                <CardTitle className="flex items-center text-lg text-emerald-800 dark:text-emerald-400">
+                  <LifeBuoy className="w-5 h-5 mr-2" />
+                  ความช่วยเหลือและสนับสนุน
+                </CardTitle>
+                <CardDescription>
+                  ช่องทางการติดต่อ คำถามที่พบบ่อย และการแก้ปัญหาเบื้องต้น
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4 pb-0">
+                <p className="text-sm text-muted-foreground mb-4">
+                  หากพบปัญหาในการใช้งานแอปพลิเคชันหรืออุปกรณ์ขัดข้อง สามารถดูวิธีแก้ไขเบื้องต้น หรือติดต่อทีมงานได้ที่นี่
+                </p>
+              </CardContent>
+              <CardFooter className="pt-2 pb-4">
+                <Button 
+                  onClick={() => navigate('/support')} 
+                  variant="outline" 
+                  className="w-full sm:w-auto bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-emerald-400 dark:border-emerald-800"
+                >
+                  ไปที่ศูนย์ช่วยเหลือ
+                </Button>
+              </CardFooter>
+            </Card>
             
           </div>
         </div>

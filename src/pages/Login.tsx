@@ -231,6 +231,17 @@ export default function Login() {
               >
                 กลับหน้าแรก
               </Button>
+              
+              <div className="text-center mt-2">
+                <Button 
+                  type="button" 
+                  variant="link" 
+                  className="text-sm text-muted-foreground hover:text-emerald-600 px-0"
+                  onClick={() => navigate('/support')}
+                >
+                  พบปัญหาการเข้าใช้งานบัญชี? ติดต่อส่วนสนับสนุน
+                </Button>
+              </div>
             </CardFooter>
           </form>
         </Card>

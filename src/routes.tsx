@@ -44,7 +44,7 @@ import MoistureNotificationHistory from "./pages/MoistureNotificationHistory";
 import DeviceStatusLogs from "./pages/DeviceStatusLogs";
 
 import { NotificationSenderPage } from "./pages/NotificationSenderPage";
-
+import Support from "./pages/Support";
 
 // Device-specific graph pages
 import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
@@ -189,6 +189,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowGuest={true}>
             <AboutRiceflow />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "support",
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <Support />
           </ProtectedRoute>
         ),
       },

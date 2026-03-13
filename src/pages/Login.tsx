@@ -232,14 +232,23 @@ export default function Login() {
                 กลับหน้าแรก
               </Button>
               
-              <div className="text-center mt-2">
+              <div className="flex items-center justify-center text-sm text-muted-foreground mt-2 gap-2 flex-wrap">
                 <Button 
                   type="button" 
                   variant="link" 
-                  className="text-sm text-muted-foreground hover:text-emerald-600 px-0"
+                  className="text-sm text-muted-foreground hover:text-emerald-600 px-0 h-auto"
                   onClick={() => navigate('/support')}
                 >
-                  พบปัญหาการเข้าใช้งานบัญชี? ติดต่อส่วนสนับสนุน
+                  พบปัญหา? ชิดต่อส่วนสนับสนุน
+                </Button>
+                <span className="text-gray-300 dark:text-gray-700">|</span>
+                <Button 
+                  type="button" 
+                  variant="link" 
+                  className="text-sm text-muted-foreground hover:text-emerald-600 px-0 h-auto"
+                  onClick={() => navigate('/privacy-policy')}
+                >
+                  นโยบายความเป็นส่วนตัว
                 </Button>
               </div>
             </CardFooter>

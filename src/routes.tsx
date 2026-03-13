@@ -45,6 +45,7 @@ import DeviceStatusLogs from "./pages/DeviceStatusLogs";
 
 import { NotificationSenderPage } from "./pages/NotificationSenderPage";
 import Support from "./pages/Support";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 // Device-specific graph pages
 import DeviceGraphMonitor from "./pages/DeviceGraphMonitor";
@@ -197,6 +198,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowGuest={true}>
             <Support />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "privacy-policy",
+        element: (
+          <ProtectedRoute allowGuest={true}>
+            <PrivacyPolicy />
           </ProtectedRoute>
         ),
       },

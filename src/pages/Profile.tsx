@@ -7,7 +7,7 @@ import { FeedbackDialogs } from "@/components/profile/FeedbackDialogs";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { KeyRound, CheckCircle, AlertCircle, LifeBuoy } from "lucide-react";
+import { KeyRound, CheckCircle, AlertCircle, LifeBuoy, ShieldCheck } from "lucide-react";
 import { SharedLinksSection } from "@/components/profile/SharedLinksSection";
 import { MoistureSharedLinksSection } from "@/components/profile/MoistureSharedLinksSection";
 import { NotificationSoundSettings } from "@/components/profile/NotificationSoundSettings";
@@ -125,13 +125,22 @@ const Profile = () => {
                   หากพบปัญหาในการใช้งานแอปพลิเคชันหรืออุปกรณ์ขัดข้อง สามารถดูวิธีแก้ไขเบื้องต้น หรือติดต่อทีมงานได้ที่นี่
                 </p>
               </CardContent>
-              <CardFooter className="pt-2 pb-4">
+              <CardFooter className="pt-2 pb-4 flex flex-col sm:flex-row gap-3">
                 <Button 
                   onClick={() => navigate('/support')} 
                   variant="outline" 
-                  className="w-full sm:w-auto bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-emerald-400 dark:border-emerald-800"
+                  className="w-full sm:w-auto bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-emerald-400 dark:border-emerald-800 flex-1"
                 >
+                  <LifeBuoy className="w-4 h-4 mr-2" />
                   ไปที่ศูนย์ช่วยเหลือ
+                </Button>
+                <Button 
+                  onClick={() => navigate('/privacy-policy')} 
+                  variant="outline" 
+                  className="w-full sm:w-auto bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-emerald-400 dark:border-emerald-800 flex-1"
+                >
+                  <ShieldCheck className="w-4 h-4 mr-2" />
+                  นโยบายความเป็นส่วนตัว
                 </Button>
               </CardFooter>
             </Card>

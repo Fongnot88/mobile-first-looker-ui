@@ -15,6 +15,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useGuestMode } from "@/hooks/useGuestMode";
 import { getColumnThaiName } from "@/lib/columnTranslations";
 import { COLUMN_ORDER } from "@/features/device-details/components/device-history/utils";
+import { fetchDevicesWithDetails } from "@/features/equipment/services/deviceDataService";
 
 interface GraphSelectorProps {
   open: boolean;
@@ -157,23 +158,17 @@ export const GraphSelector: React.FC<GraphSelectorProps> = ({
       const isAdmin = userRoles.includes('admin');
       const isSuperadmin = userRoles.includes('superadmin');
       
-      const { data, error } = await supabase
-        .rpc('get_devices_with_details', {
-          user_id_param: user?.id || null,
-          is_admin_param: isAdmin,
-          is_superadmin_param: isSuperadmin
-        });
-
-      if (error) {
-        console.error("Error loading devices:", error);
-        return;
-      }
-
-      let deviceList = data || [];
+      let fetchedList = await fetchDevicesWithDetails(user?.id, isAdmin, isSuperadmin);
+      
+      let deviceList: Device[] = fetchedList.map(d => ({
+        device_code: d.device_code,
+        display_name: d.display_name || null,
+        updated_at: d.updated_at || new Date().toISOString()
+      }));
       
       // If deviceFilter is provided, filter to only that device
       if (deviceFilter) {
-        deviceList = deviceList.filter(device => device.device_code === deviceFilter);
+        deviceList = deviceList.filter((device) => device.device_code === deviceFilter);
       }
 
       setDevices(deviceList);

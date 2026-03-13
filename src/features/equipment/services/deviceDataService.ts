@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { DeviceInfo } from "../types";
 import { userRoleService } from "@/utils/auth/userRoleService";
 
+export const EXCLUDED_DEVICES = [
+  '6000306302140',
+  '6000306302141', 
+  '6000306302143',
+  '6000306302144'
+];
+
 export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean, isSuperAdmin?: boolean): Promise<DeviceInfo[]> => {
   console.log("Fetching devices with details using optimized database function...");
 
@@ -83,24 +90,43 @@ export const fetchDevicesWithDetails = async (userId?: string, isAdmin?: boolean
         ...(accessibleDevices?.map(d => d.device_code) || []),
         ...(guestDevices?.map(d => d.device_code) || []),
         ...(moistureMeters?.map(d => d.device_code) || [])
-      ];
+      ].filter(code => !EXCLUDED_DEVICES.includes(code));
 
       const uniqueDeviceCodes = [...new Set(allAccessibleDeviceCodes)];
       console.log(`Regular user: Found ${uniqueDeviceCodes.length} accessible device codes`);
 
       if (uniqueDeviceCodes.length > 0) {
-        // Use database function and filter results
-        const { data, error } = await supabase.rpc('get_devices_with_details', {
-          user_id_param: currentUserId,
-          is_admin_param: false,
-          is_superadmin_param: false
-        });
-        if (error) throw error;
+        // Since get_devices_with_details RPC effectively filters out guest devices for regular users, 
+        // we bypass it here and fetch the details directly from device_settings and rice_quality_analysis.
+        const { data: settingsData } = await supabase
+          .from('device_settings')
+          .select('device_code, display_name')
+          .in('device_code', uniqueDeviceCodes);
 
-        // Filter to only show devices they have access to
-        devices = (data || []).filter(device =>
-          uniqueDeviceCodes.includes(device.device_code)
-        );
+        const { data: analysisData } = await supabase
+          .from('rice_quality_analysis')
+          .select('device_code, created_at')
+          .in('device_code', uniqueDeviceCodes)
+          .order('created_at', { ascending: false });
+
+        const deviceSettings: Record<string, any> = {};
+        settingsData?.forEach(setting => {
+          deviceSettings[setting.device_code] = setting;
+        });
+
+        // Store only the latest record's created_at for each device since it's ordered by created_at DESC
+        const latestDeviceData: Record<string, string> = {};
+        analysisData?.forEach(record => {
+          if (!latestDeviceData[record.device_code]) {
+            latestDeviceData[record.device_code] = record.created_at;
+          }
+        });
+
+        devices = uniqueDeviceCodes.map(code => ({
+          device_code: code,
+          display_name: deviceSettings[code]?.display_name || code,
+          updated_at: latestDeviceData[code] || null
+        }));
       }
       console.log(`Regular user: Filtered to ${devices.length} devices`);
     }
@@ -169,7 +195,7 @@ export const fetchDeviceCount = async (): Promise<number> => {
         ...(accessibleDevices?.map(d => d.device_code) || []),
         ...(guestDevices?.map(d => d.device_code) || []),
         ...(moistureMeters?.map(d => d.device_code) || [])
-      ];
+      ].filter(code => !EXCLUDED_DEVICES.includes(code));
 
       count = new Set(allAccessibleDeviceCodes).size;
     }

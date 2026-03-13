@@ -4,6 +4,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { DeviceList } from "./DeviceList";
+import { fetchDevicesWithDetails } from "@/features/equipment/services/deviceDataService";
 
 interface Device {
   device_code: string;
@@ -31,18 +32,12 @@ export const AccessMapping = () => {
       setIsLoading(true);
       
       // Fetch all devices using the same method as Equipment page
-      const { data: devicesData, error: devicesError } = await supabase.rpc('get_devices_with_details', {
-        user_id_param: user?.id,
-        is_admin_param: true,
-        is_superadmin_param: isSuperAdmin
-      });
-
-      if (devicesError) throw devicesError;
+      const fetchedDevices = await fetchDevicesWithDetails(user?.id, true, isSuperAdmin);
 
       // Transform to match Device interface with display names
-      const devicesList = (devicesData || []).map(device => ({
+      const devicesList = fetchedDevices.map(device => ({
         device_code: device.device_code,
-        display_name: device.display_name
+        display_name: device.display_name || undefined
       }));
 
       setDevices(devicesList);

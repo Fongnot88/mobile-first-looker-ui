@@ -1,73 +1,29 @@
-# Welcome to your Lovable project
+# 🌾 Riceflow: Elevating Rice Quality Management
 
-## Project info
+Welcome to the frontend repository of **Riceflow**, an innovative platform designed to revolutionize how rice quality is measured, monitored, and analyzed.
 
-**URL**: https://lovable.dev/projects/a7741834-f80e-41b5-b0fa-946cf657a1d1
+## 📖 About Riceflow
+Riceflow connects directly with advanced rice scanning equipment (like the Panolyzer) to give operators deep insights into their rice batches. Whether it's Jasmine Rice, Glutinous Rice, or Brown Rice, our system helps you make quick, accurate decisions to reduce losses and increase profits.
 
-## How can I edit this code?
+### Core Capabilities
+* **In-depth Analysis:** View detailed composition (Whole kernels, Head rice, Small brokens, Chalkiness, etc.).
+* **AI-Powered Insights:** Meet **"Long Joo" (หลงจู๊)**, our smart assistant that calculates yields (Haab/หาบ) and automatically classifies rice quality.
+* **Always in Control:** Customizable push notifications and alerts for out-of-spec measurements.
+* **Data Sharing:** One-click sharing of analysis results via URL or QR Code.
 
-There are several ways of editing your application.
+## 🧑‍💻 For Developers
 
-**Use Lovable**
+**Prerequisites:**
+- Node.js installed
+- Supabase account/project configuration
+- MQTT broker access for device telemetry
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a7741834-f80e-41b5-b0fa-946cf657a1d1) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+**Quick Start:**
+```bash
+git clone <repository-url>
+cd mobile-first-looker-ui
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/a7741834-f80e-41b5-b0fa-946cf657a1d1) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+*Built with React, Vite, Tailwind, and Capacitor.*
